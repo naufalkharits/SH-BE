@@ -1,9 +1,8 @@
 const express = require("express");
-const productRoutes = require("./routes/product");
-
+const router = require("./routes");
 const app = express();
 
-app.use("/product", productRoutes);
+app.use(router);
 
 app.listen(8000, async () => {
   console.log("Listening on 8000");
