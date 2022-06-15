@@ -2,7 +2,7 @@ const Product = require("../models").Product;
 const Category = require("../models").Category;
 
 module.exports = {
-  getproduct_api: (req, res) => {
+  getProducts: (req, res) => {
     Product.findAll()
       .then((result) => {
         if (result.length > 0) {
@@ -22,7 +22,7 @@ module.exports = {
         });
       });
   },
-  getproductbyid_api: (req, res) => {
+  getProduct: (req, res) => {
     Product.findOne({
       where: {
         id: req.params.id,
