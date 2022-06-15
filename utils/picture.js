@@ -51,6 +51,10 @@ module.exports = {
   deleteAllPictures: () => {
     const folderPath = path.join(__dirname, "..", "public", "images");
 
+    if (!syncFs.existsSync(folderPath)) {
+      return;
+    }
+
     syncFs.readdir(folderPath, (err, files) => {
       if (err) throw err;
 
