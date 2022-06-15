@@ -1,6 +1,7 @@
 const Picture = require("../models").Picture;
 const fs = require("fs/promises");
 const path = require("path");
+const syncFs = require("fs");
 
 module.exports = {
   validatePictures: (pictures) => {
@@ -45,5 +46,17 @@ module.exports = {
     } catch (error) {
       throw error;
     }
+  },
+
+  deleteAllPictures: () => {
+    const folderPath = path.join(__dirname, "..", "public", "images");
+
+    syncFs.readdir(folderPath, (err, files) => {
+      if (err) throw err;
+
+      for (const file of files) {
+        syncFs.unlinkSync(path.join(folderPath, file));
+      }
+    });
   },
 };
