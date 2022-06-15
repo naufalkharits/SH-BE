@@ -46,4 +46,53 @@ module.exports = {
         });
       });
   },
+
+  createProduct: async (req, res) => {
+    if (
+      !req.body ||
+      !req.body.name ||
+      !req.body.price ||
+      !req.body.category ||
+      !req.body.description
+    ) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: "Product name, price, category, and description is required",
+      });
+    }
+
+    const { name, price, category, description } = req.body;
+
+    try {
+      const productCategory = await Category.findOne({
+        where: {
+          name: category,
+        },
+      });
+
+      if (!productCategory) {
+        return res.status(400).json({
+          type: "VALIDATION_FAILED",
+          message: "Valid category name is required",
+        });
+      }
+
+      const newProduct = await Product.create({
+        name,
+        price,
+        category_id: productCategory.id,
+        description,
+        seller_id: 1,
+      });
+
+      res.status(200).json({
+        product: newProduct,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
+  },
 };
