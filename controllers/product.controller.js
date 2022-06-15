@@ -1,7 +1,6 @@
-const { required } = require("nodemon/lib/config");
 const { Product } = require("../models");
 const { Category } = require("../models");
-const { Op } = required("sequelize");
+const { Op } = require("sequelize");
 
 module.exports = {
   getProducts: (req, res) => {
