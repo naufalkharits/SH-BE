@@ -8,6 +8,6 @@ app.use(express.json());
 
 app.use(router);
 
-app.listen(8000, async () => {
+app.listen(process.env.PORT || 8000, async () => {
   console.log("Listening on 8000");
 });
