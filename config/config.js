@@ -21,5 +21,11 @@ module.exports = {
     database: process.env.HEROKU_DB_DATABASE,
     host: process.env.HEROKU_DB_HOST,
     dialect: "postgres",
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   },
 };
