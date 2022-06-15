@@ -16,10 +16,10 @@ module.exports = {
     dialect: "postgres",
   },
   production: {
-    username: "root",
-    password: null,
-    database: "database_production",
-    host: "127.0.0.1",
+    username: process.env.HEROKU_DB_USERNAME,
+    password: process.env.HEROKU_DB_PASSWORD,
+    database: process.env.HEROKU_DB_DATABASE,
+    host: process.env.HEROKU_DB_HOST,
     dialect: "postgres",
   },
 };

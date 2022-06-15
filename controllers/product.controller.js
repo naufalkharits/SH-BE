@@ -54,23 +54,23 @@ module.exports = {
       !req.body.name ||
       !req.body.price ||
       !req.body.category ||
-      !req.body.description
+      !req.body.description ||
+      !req.files
     ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
-        message: "Product name, price, category, and description is required",
+        message:
+          "Product name, price, category, description, and picture is required",
       });
     }
 
-    if (req.files) {
-      try {
-        ImageUtil.validatePictures(req.files);
-      } catch (error) {
-        return res.status(400).json({
-          type: "VALIDATION_FAILED",
-          message: error.message,
-        });
-      }
+    try {
+      ImageUtil.validatePictures(req.files);
+    } catch (error) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: error.message,
+      });
     }
 
     const { name, price, category, description } = req.body;
@@ -97,11 +97,9 @@ module.exports = {
         seller_id: 1,
       });
 
-      let pictures = [];
+      console.log("New Product : ", newProduct);
 
-      if (req.files) {
-        pictures = await ImageUtil.uploadImages(req.files, newProduct.id);
-      }
+      const pictures = await ImageUtil.uploadImages(req.files, newProduct.id);
 
       res.status(200).json({
         product: {
@@ -110,7 +108,6 @@ module.exports = {
         },
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
