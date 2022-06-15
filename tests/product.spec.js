@@ -1,8 +1,7 @@
 const controller = require("../controllers/product.controller");
 const Product = require("../models").Product;
 const Category = require("../models").Category;
-const Picture = require("../models").Picture;
-const fs = require("fs/promises");
+const ImageUtil = require("../utils/picture");
 
 jest.mock("fs/promises");
 
@@ -46,17 +45,13 @@ describe("Create Product", () => {
       .fn()
       .mockImplementationOnce(() => ({ dataValues: newProductData }));
 
-    Picture.create = jest.fn().mockImplementation(() => ({
-      id: 1,
-    }));
-
-    fs.writeFile = jest.fn().mockImplementation(() => true);
+    ImageUtil.uploadImages = jest.fn().mockImplementationOnce(() => true);
 
     await controller.createProduct(req, res);
 
     expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith({
-      product: { ...newProductData, pictures: ["1.png", "1.png"] },
+      product: { ...newProductData, pictures: true },
     });
   }),
     test("400 Validation Failed", async () => {

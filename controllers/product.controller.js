@@ -1,8 +1,6 @@
 const Product = require("../models").Product;
 const Category = require("../models").Category;
-const Picture = require("../models").Picture;
-const fs = require("fs/promises");
-const path = require("path");
+const ImageUtil = require("../utils/picture");
 
 module.exports = {
   getProducts: (req, res) => {
@@ -64,23 +62,14 @@ module.exports = {
       });
     }
 
-    let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"];
-
     if (req.files) {
-      for (const picture of req.files) {
-        if (acceptedMimetypes.indexOf(picture.mimetype) < 0) {
-          return res.status(400).json({
-            type: "VALIDATION_FAILED",
-            message: "Valid picture format is required",
-          });
-        }
-
-        if (picture.size > 5 * 1000 * 1000) {
-          return res.status(400).json({
-            type: "VALIDATION_FAILED",
-            message: "Picture size cannot be larger than 5 MB",
-          });
-        }
+      try {
+        ImageUtil.validatePictures(req.files);
+      } catch (error) {
+        return res.status(400).json({
+          type: "VALIDATION_FAILED",
+          message: error.message,
+        });
       }
     }
 
@@ -108,28 +97,10 @@ module.exports = {
         seller_id: 1,
       });
 
-      const pictures = [];
+      let pictures = [];
 
       if (req.files) {
-        for (let idx = 0; idx < req.files.length; idx++) {
-          const newPicture = await Picture.create({
-            product_id: newProduct.id,
-          });
-
-          const imageExt = req.files[idx].mimetype.replace("image/", "");
-          const imageName = `${newPicture.id}.${imageExt}`;
-
-          const imagePath = path.join(
-            __dirname,
-            "..",
-            "public",
-            "images",
-            imageName
-          );
-
-          await fs.writeFile(imagePath, req.files[idx].buffer);
-          pictures.push(imageName);
-        }
+        pictures = await ImageUtil.uploadImages(req.files, newProduct.id);
       }
 
       res.status(200).json({
@@ -139,6 +110,7 @@ module.exports = {
         },
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
