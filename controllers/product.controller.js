@@ -26,6 +26,7 @@ module.exports = {
         });
       });
   },
+
   getProduct: (req, res) => {
     Product.findOne({
       where: {
@@ -124,6 +125,7 @@ module.exports = {
       });
     }
   },
+
   updateProduct: (req, res) => {
     const { name, price, category, description } = req.body;
     console.log(req.body);
