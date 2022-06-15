@@ -1,17 +1,15 @@
-const { Product } = require("../models").Product;
-const { Category } = require("../models").Category;
+const { required } = require("nodemon/lib/config");
+const { Product } = require("../models");
+const { Category } = require("../models");
+const { Op } = required("sequelize");
 
 module.exports = {
-  getproduct_api: (req, res) => {
+  getProducts: (req, res) => {
     Product.findAll({
-      attributes: [
-        "id",
-        "name",
-        "price",
-        "category_id",
-        "description",
-        "seller_id",
-      ],
+      where: {
+        name: { [Op.like]: `%${req.query.name}` },
+        description: { [Op.like]: `&${req.query.description}` },
+      },
     })
       .then((result) => {
         if (result.length > 0) {
@@ -29,7 +27,7 @@ module.exports = {
         });
       });
   },
-  getproductbyid_api: (req, res) => {
+  getProduct: (req, res) => {
     Product.findOne({
       where: {
         id: req.params.id,

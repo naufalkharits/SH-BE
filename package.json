@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node index",
+    "dev": "nodemon index",
     "postinstall": "yarn sequelize db:migrate && yarn sequelize db:seed:all"
   },
   "dependencies": {
