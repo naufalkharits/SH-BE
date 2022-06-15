@@ -1,11 +1,16 @@
 const controller = require("../controllers/product.controller");
 const Product = require("../models").Product;
 const Category = require("../models").Category;
+const Picture = require("../models").Picture;
+const fs = require("fs/promises");
 
-const mockRequest = ({ body, params, query }) => ({
+jest.mock("fs/promises");
+
+const mockRequest = ({ body, params, query, files }) => ({
   body,
   params,
   query,
+  files,
 });
 
 const mockResponse = () => {
@@ -24,18 +29,34 @@ describe("Create Product", () => {
       description: "This is new product data",
     };
 
-    const req = mockRequest({ body: newProductData });
+    const newProductPictures = [
+      { name: "picture1", size: 1000, mimetype: "image/png", buffer: null },
+      { name: "picture2", size: 1000, mimetype: "image/png", buffer: null },
+    ];
+
+    const req = mockRequest({
+      body: newProductData,
+      files: newProductPictures,
+    });
     const res = mockResponse();
 
     Category.findOne = jest.fn().mockImplementationOnce(() => true);
 
-    Product.create = jest.fn().mockImplementationOnce(() => newProductData);
+    Product.create = jest
+      .fn()
+      .mockImplementationOnce(() => ({ dataValues: newProductData }));
+
+    Picture.create = jest.fn().mockImplementation(() => ({
+      id: 1,
+    }));
+
+    fs.writeFile = jest.fn().mockImplementation(() => true);
 
     await controller.createProduct(req, res);
 
     expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith({
-      product: newProductData,
+      product: { ...newProductData, pictures: ["1.png", "1.png"] },
     });
   }),
     test("400 Validation Failed", async () => {
@@ -92,6 +113,80 @@ describe("Create Product", () => {
       expect(res.json).toBeCalledWith({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
+      });
+    }),
+    test("400 Image Size", async () => {
+      const newProductData = {
+        name: "Product A",
+        price: 100000,
+        category: "Category A",
+        description: "This is new product data",
+      };
+
+      const newProductPictures = [
+        {
+          name: "picture1",
+          size: 10000000,
+          mimetype: "image/png",
+          buffer: null,
+        },
+        {
+          name: "picture2",
+          size: 10000000,
+          mimetype: "image/png",
+          buffer: null,
+        },
+      ];
+
+      const req = mockRequest({
+        body: newProductData,
+        files: newProductPictures,
+      });
+      const res = mockResponse();
+
+      await controller.createProduct(req, res);
+
+      expect(res.status).toBeCalledWith(400);
+      expect(res.json).toBeCalledWith({
+        type: "VALIDATION_FAILED",
+        message: "Picture size cannot be larger than 5 MB",
+      });
+    }),
+    test("400 Image Format", async () => {
+      const newProductData = {
+        name: "Product A",
+        price: 100000,
+        category: "Category A",
+        description: "This is new product data",
+      };
+
+      const newProductPictures = [
+        {
+          name: "picture1",
+          size: 1000000,
+          mimetype: "txt",
+          buffer: null,
+        },
+        {
+          name: "picture2",
+          size: 1000000,
+          mimetype: "txt",
+          buffer: null,
+        },
+      ];
+
+      const req = mockRequest({
+        body: newProductData,
+        files: newProductPictures,
+      });
+      const res = mockResponse();
+
+      await controller.createProduct(req, res);
+
+      expect(res.status).toBeCalledWith(400);
+      expect(res.json).toBeCalledWith({
+        type: "VALIDATION_FAILED",
+        message: "Valid picture format is required",
       });
     });
 });
