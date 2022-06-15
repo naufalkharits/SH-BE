@@ -1,7 +1,6 @@
-const { required } = require("nodemon/lib/config");
 const { Product } = require("../models");
 const { Category } = require("../models");
-const { Op } = required("sequelize");
+const { Op } = require("sequelize");
 
 module.exports = {
   getProducts: (req, res) => {
@@ -27,6 +26,7 @@ module.exports = {
         });
       });
   },
+
   getProduct: (req, res) => {
     Product.findOne({
       where: {
@@ -58,6 +58,74 @@ module.exports = {
         });
       });
   },
+
+  createProduct: async (req, res) => {
+    if (
+      !req.body ||
+      !req.body.name ||
+      !req.body.price ||
+      !req.body.category ||
+      !req.body.description ||
+      !req.files
+    ) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message:
+          "Product name, price, category, description, and picture is required",
+      });
+    }
+
+    try {
+      ImageUtil.validatePictures(req.files);
+    } catch (error) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: error.message,
+      });
+    }
+
+    const { name, price, category, description } = req.body;
+
+    try {
+      const productCategory = await Category.findOne({
+        where: {
+          name: category,
+        },
+      });
+
+      if (!productCategory) {
+        return res.status(400).json({
+          type: "VALIDATION_FAILED",
+          message: "Valid category name is required",
+        });
+      }
+
+      const newProduct = await Product.create({
+        name,
+        price,
+        category_id: productCategory.id,
+        description,
+        seller_id: 1,
+      });
+
+      console.log("New Product : ", newProduct);
+
+      const pictures = await ImageUtil.uploadImages(req.files, newProduct.id);
+
+      res.status(200).json({
+        product: {
+          ...newProduct.dataValues,
+          pictures,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
+  },
+
   updateProduct: (req, res) => {
     const { name, price, category, description } = req.body;
     console.log(req.body);
