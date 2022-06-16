@@ -50,6 +50,16 @@ const updateImages = async (images, productId) => {
   if (!images || images.length < 1) return;
 
   try {
+    await deleteImages(productId);
+
+    await uploadImages(images, productId);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteImages = async (productId) => {
+  try {
     // Get existing pictures
     const pictures = await Picture.findAll({
       where: {
@@ -63,8 +73,6 @@ const updateImages = async (images, productId) => {
     }
     // Remove picture from DB
     await Picture.destroy({ where: { product_id: productId } });
-
-    await uploadImages(images, productId);
   } catch (error) {
     throw error;
   }
@@ -90,5 +98,6 @@ module.exports = {
   validatePictures,
   uploadImages,
   updateImages,
+  deleteImages,
   deleteAllPictures,
 };

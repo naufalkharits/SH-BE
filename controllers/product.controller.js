@@ -3,6 +3,7 @@ const {
   validatePictures,
   uploadImages,
   updateImages,
+  deleteImages,
 } = require("../utils/picture");
 const { Op } = require("sequelize");
 
@@ -253,22 +254,34 @@ module.exports = {
   },
 
   deleteProduct: (req, res) => {
+    // Check if product id is valid
     if (!Number.isInteger(+req.params.id)) {
-      return res.status(400).json({ message: "ID Must Be Integer" });
+      return res.status(400).json({
+        type: "VALIDATION_ERROR",
+        message: "Valid Product ID is required",
+      });
     }
-    Product.destroy({ where: { id: req.params.id } })
-      .then((result) => {
-        console.log(result);
-        if (result === 0) {
-          res.status(400).json({ message: "Data Not Found!" });
-        } else {
-          res.status(200).json({ message: "Product Deleted" });
-        }
+
+    // Delete product pictures
+    deleteImages(req.params.id)
+      .then(() => {
+        // Delete Product
+        Product.destroy({ where: { id: req.params.id } }).then((result) => {
+          // Check if product not found
+          if (result === 0) {
+            res
+              .status(404)
+              .json({ type: "NOT_FOUND", message: "Product not found" });
+          } else {
+            res.status(200).json({ message: "Product Successfully Deleted" });
+          }
+        });
       })
       .catch((err) => {
-        res
-          .status(500)
-          .json({ message: "Error Deleting Product", err: err.message });
+        res.status(500).json({
+          type: "SYSTEM_ERROR",
+          message: "Something wrong with server",
+        });
       });
   },
 };
