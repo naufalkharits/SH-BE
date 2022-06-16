@@ -1,5 +1,5 @@
-const { Product } = require("../models");
-const { Category } = require("../models");
+const { Product, Category, Picture } = require("../models");
+const { validatePictures, uploadImages } = require("../utils/picture");
 const { Op } = require("sequelize");
 
 module.exports = {
@@ -28,33 +28,49 @@ module.exports = {
   },
 
   getProduct: (req, res) => {
+    // Validate product ID param
+    if (!req.params || !req.params.id || !Number.isInteger(+req.params.id)) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: "Valid Product ID is required",
+      });
+    }
+
+    // Get product
     Product.findOne({
       where: {
         id: req.params.id,
       },
-      attributes: [
-        "id",
-        "name",
-        "price",
-        "category_id",
-        "description",
-        "seller_id",
-      ],
     })
-      .then((result) => {
-        if (result) {
-          res.status(200).json({ message: "Valid Get PRODUCT By Id", result });
-        } else {
-          res.status(404).json({
-            message: " PRODUCT with ID " + req.params.id + " Not Found!",
-            result,
+      .then((product) => {
+        // Check if product not found
+        if (!product) {
+          return res.status(404).json({
+            type: "NOT_FOUND",
+            message: "Product not found",
           });
         }
+
+        // Get product picture
+        Picture.findAll({ where: { product_id: product.id } })
+          .then((pictures) => {
+            // Get product pictures filename
+            const productPictures = pictures.map((picture) => picture.name);
+            res.status(200).json({
+              product: {
+                ...product.dataValues,
+                pictures: productPictures,
+              },
+            });
+          })
+          .catch((error) => {
+            throw error;
+          });
       })
-      .catch((err) => {
+      .catch((error) => {
         res.status(500).json({
-          message: "Failed Get PRODUCT By Id",
-          err: err.message,
+          type: "SYSTEM_ERROR",
+          message: "Something wrong with server",
         });
       });
   },
@@ -76,7 +92,7 @@ module.exports = {
     }
 
     try {
-      ImageUtil.validatePictures(req.files);
+      validatePictures(req.files);
     } catch (error) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
@@ -110,7 +126,7 @@ module.exports = {
 
       console.log("New Product : ", newProduct);
 
-      const pictures = await ImageUtil.uploadImages(req.files, newProduct.id);
+      const pictures = await uploadImages(req.files, newProduct.id);
 
       res.status(200).json({
         product: {
