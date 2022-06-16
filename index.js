@@ -1,10 +1,15 @@
 const express = require("express");
-const productRoutes = require("./routes/product");
-
+const router = require("./routes/index.route");
 const app = express();
+const path = require("path");
+const cors = require("cors");
 
-app.use("/product", productRoutes);
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-app.listen(8000, async () => {
+app.use(router);
+
+app.listen(process.env.PORT || 8000, async () => {
   console.log("Listening on 8000");
 });

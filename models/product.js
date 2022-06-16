@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
       Product.belongsTo(models.Category, {
         foreignKey: "category_id",
       });
+      Product.hasMany(models.Picture, {
+        foreignKey: "product_id",
+      });
     }
   }
   Product.init(
@@ -27,5 +30,6 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Product",
     }
   );
+
   return Product;
 };
