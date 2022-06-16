@@ -3,6 +3,13 @@ const router = require("./routes/index.route");
 const app = express();
 const path = require("path");
 const cors = require("cors");
+const fs = require("fs");
+
+if (!fs.existsSync(path.join(__dirname, "public", "images"))) {
+  fs.mkdirSync(path.join(__dirname, "public", "images"), {
+    recursive: true,
+  });
+}
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
