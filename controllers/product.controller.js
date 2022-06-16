@@ -4,25 +4,29 @@ const { Op } = require("sequelize");
 
 module.exports = {
   getProducts: (req, res) => {
+    // Get products
     Product.findAll({
-      where: {
-        name: { [Op.like]: `%${req.query.name}` },
-        description: { [Op.like]: `&${req.query.description}` },
-      },
+      include: [Category, Picture],
     })
-      .then((result) => {
-        if (result.length > 0) {
-          res
-            .status(200)
-            .json({ message: "Valid Get All PRODUCT", data: result });
-        } else {
-          res.status(404).json({ message: "PRODUCT Not Found!", data: result });
-        }
+      .then((products) => {
+        // Get product category and pictures
+        const productsData = products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          category: product.Category.name,
+          description: product.description,
+          seller_id: product.seller_id,
+          pictures: product.Pictures.map((picture) => picture.name),
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt,
+        }));
+        res.status(200).json({ products: productsData });
       })
-      .catch((err) => {
+      .catch((error) => {
         res.status(500).json({
-          message: "Failed Get All PRODUCT",
-          err: err.message,
+          type: "SYSTEM_ERROR",
+          message: "Something wrong with server",
         });
       });
   },
@@ -41,6 +45,7 @@ module.exports = {
       where: {
         id: req.params.id,
       },
+      include: [Category, Picture],
     })
       .then((product) => {
         // Check if product not found
@@ -51,21 +56,22 @@ module.exports = {
           });
         }
 
-        // Get product picture
-        Picture.findAll({ where: { product_id: product.id } })
-          .then((pictures) => {
-            // Get product pictures filename
-            const productPictures = pictures.map((picture) => picture.name);
-            res.status(200).json({
-              product: {
-                ...product.dataValues,
-                pictures: productPictures,
-              },
-            });
-          })
-          .catch((error) => {
-            throw error;
-          });
+        // Get product pictures filename
+        const productData = {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          category: product.Category.name,
+          description: product.description,
+          seller_id: product.seller_id,
+          pictures: product.Pictures.map((picture) => picture.name),
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt,
+        };
+
+        res.status(200).json({
+          product: productData,
+        });
       })
       .catch((error) => {
         res.status(500).json({
@@ -76,6 +82,7 @@ module.exports = {
   },
 
   createProduct: async (req, res) => {
+    // Validate product required data
     if (
       !req.body ||
       !req.body.name ||
@@ -91,6 +98,7 @@ module.exports = {
       });
     }
 
+    // Validate product pictures
     try {
       validatePictures(req.files);
     } catch (error) {
@@ -103,12 +111,14 @@ module.exports = {
     const { name, price, category, description } = req.body;
 
     try {
+      // Get product category name
       const productCategory = await Category.findOne({
         where: {
           name: category,
         },
       });
 
+      // Check if category exists
       if (!productCategory) {
         return res.status(400).json({
           type: "VALIDATION_FAILED",
@@ -116,6 +126,7 @@ module.exports = {
         });
       }
 
+      // Create new product
       const newProduct = await Product.create({
         name,
         price,
@@ -124,15 +135,31 @@ module.exports = {
         seller_id: 1,
       });
 
-      console.log("New Product : ", newProduct);
+      // Upload product pictures
+      await uploadImages(req.files, newProduct.id);
 
-      const pictures = await uploadImages(req.files, newProduct.id);
+      // Get new product data
+      const product = await Product.findOne({
+        where: {
+          id: newProduct.id,
+        },
+        include: [Category, Picture],
+      });
+
+      const newProductData = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        category: product.Category.name,
+        description: product.description,
+        seller_id: product.seller_id,
+        pictures: product.Pictures.map((picture) => picture.name),
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      };
 
       res.status(200).json({
-        product: {
-          ...newProduct.dataValues,
-          pictures,
-        },
+        product: newProductData,
       });
     } catch (error) {
       return res.status(500).json({
