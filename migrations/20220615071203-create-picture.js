@@ -18,6 +18,10 @@ module.exports = {
           as: "product_id",
         },
       },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

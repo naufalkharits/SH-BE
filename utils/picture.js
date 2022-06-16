@@ -2,6 +2,7 @@ const Picture = require("../models").Picture;
 const fs = require("fs/promises");
 const path = require("path");
 const syncFs = require("fs");
+const { v4 } = require("uuid");
 
 module.exports = {
   validatePictures: (pictures) => {
@@ -23,12 +24,15 @@ module.exports = {
       const pictures = [];
 
       for (let idx = 0; idx < images.length; idx++) {
-        const newPicture = await Picture.create({
-          product_id: productId,
-        });
+        const newPictureName = v4();
 
         const imageExt = images[idx].mimetype.replace("image/", "");
-        const imageName = `${newPicture.id}.${imageExt}`;
+        const imageName = `${newPictureName}.${imageExt}`;
+
+        await Picture.create({
+          product_id: productId,
+          name: imageName,
+        });
 
         const imagePath = path.join(
           __dirname,
@@ -39,6 +43,7 @@ module.exports = {
         );
 
         await fs.writeFile(imagePath, images[idx].buffer);
+
         pictures.push(imageName);
       }
 
