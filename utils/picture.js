@@ -1,5 +1,4 @@
 const Picture = require("../models").Picture;
-const Product = require("../models").Product;
 const fs = require("fs/promises");
 const path = require("path");
 const syncFs = require("fs");
