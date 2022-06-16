@@ -3,4 +3,5 @@ const productRoutes = require("./product.route");
 
 router.use("/product", productRoutes);
 
+router.use("/update-product", productRoutes);
 module.exports = router;

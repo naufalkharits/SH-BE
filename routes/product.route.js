@@ -8,4 +8,5 @@ router.post("/", multer().array("pictures", 4), controller.createProduct);
 router.put("/:id", multer().array("pictures", 4), controller.updateProduct);
 router.delete("/:id", controller.deleteProduct);
 
+router.post("/update-product/:id", controller.updateProduct);
 module.exports = router;
