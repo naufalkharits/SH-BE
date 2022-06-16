@@ -9,7 +9,7 @@ const swaggerUI = require("swagger-ui-express");
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.use("./docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
+app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
 
 app.use(router);
 
