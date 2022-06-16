@@ -1,5 +1,9 @@
 const { Product, Category, Picture } = require("../models");
-const { validatePictures, uploadImages } = require("../utils/picture");
+const {
+  validatePictures,
+  uploadImages,
+  updateImages,
+} = require("../utils/picture");
 const { Op } = require("sequelize");
 
 module.exports = {
@@ -89,7 +93,7 @@ module.exports = {
       !req.body.price ||
       !req.body.category ||
       !req.body.description ||
-      !req.files
+      req.files.length < 1
     ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
@@ -170,46 +174,80 @@ module.exports = {
   },
 
   updateProduct: (req, res) => {
-    const { name, price, category, description } = req.body;
-    console.log(req.body);
+    // Check if product id is valid
     if (!Number.isInteger(+req.params.id)) {
-      return res.status(400).json({ message: "ID Must Be Integer" });
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: "Valid Product ID is required",
+      });
     }
+
+    const { name, price, category, description } = req.body;
+
+    // Find category id if category updated
     Category.findOne({
       where: {
-        name: category,
+        name: category || null,
       },
-    }).then((result) => {
-      if (!result) {
-        return res.status(400).json({ message: "Category Not Found" });
+    }).then((productCategory) => {
+      if (category && !productCategory) {
+        return res
+          .status(404)
+          .json({ type: "NOT_FOUND", message: "Category not found" });
       }
+
+      // Update product
       Product.update(
         {
           name: name,
           price: price,
-          category_id: result.id,
+          category_id: category ? productCategory.id : undefined,
           description: description,
         },
         {
           where: {
-            id: +req.params.id,
+            id: req.params.id,
           },
-          returning: true,
         }
       )
         .then((result) => {
+          // Check if product not found
           if (result[0] === 0) {
-            res.status(400).json({ message: "Data Not Found!" });
-          } else {
             res
-              .status(200)
-              .json({ message: "Product Updated", data: result[1] });
+              .status(404)
+              .json({ type: "NOT_FOUND", message: "Product not found" });
+          } else {
+            // Update product pictures
+            updateImages(req.files, req.params.id).then(() => {
+              // Get updated product data
+              Product.findOne({
+                where: { id: req.params.id },
+                include: [Category, Picture],
+              }).then((product) => {
+                // Format product response data
+                const updatedProduct = {
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  category: product.Category.name,
+                  description: product.description,
+                  seller_id: product.seller_id,
+                  pictures: product.Pictures.map((picture) => picture.name),
+                  createdAt: product.createdAt,
+                  updatedAt: product.updatedAt,
+                };
+
+                res.status(200).json({ updatedProduct });
+              });
+            });
           }
         })
-        .catch((err) => {
-          res
-            .status(400)
-            .json({ message: "Error Updating User", err: err.message });
+        .catch((error) => {
+          console.log(error);
+          res.status(500).json({
+            type: "SYSTEM_ERROR",
+            message: "Something wrong with server",
+          });
         });
     });
   },
