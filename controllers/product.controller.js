@@ -9,9 +9,34 @@ const { Op } = require("sequelize");
 
 module.exports = {
   getProducts: (req, res) => {
+    const { category, keyword, limit, offset } = req.query;
+
     // Get products
     Product.findAll({
-      include: [Category, Picture],
+      include: [
+        // Filter by category
+        {
+          model: Category,
+          where: {
+            name: {
+              [Op.iLike]: category || "%",
+            },
+          },
+        },
+        Picture,
+      ],
+      where: {
+        [Op.or]: {
+          name: {
+            [Op.iLike]: keyword ? `%${keyword}%` : "%",
+          },
+          description: {
+            [Op.iLike]: keyword ? `%${keyword}%` : "%",
+          },
+        },
+      },
+      limit: limit || undefined,
+      offset: offset || undefined,
     })
       .then((products) => {
         // Get product category and pictures
@@ -29,6 +54,7 @@ module.exports = {
         res.status(200).json({ products: productsData });
       })
       .catch((error) => {
+        console.log(error);
         res.status(500).json({
           type: "SYSTEM_ERROR",
           message: "Something wrong with server",
