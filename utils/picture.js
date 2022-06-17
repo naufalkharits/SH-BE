@@ -1,10 +1,8 @@
 const Picture = require("../models").Picture;
-const fs = require("fs/promises");
 const path = require("path");
 const syncFs = require("fs");
 const { v4 } = require("uuid");
-
-const imagesPath = path.join(__dirname, "..", "public", "images");
+const admin = require("firebase-admin");
 
 const validatePictures = (pictures) => {
   let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"];
@@ -20,7 +18,7 @@ const validatePictures = (pictures) => {
   }
 };
 
-const uploadImages = async (images, productId) => {
+const uploadProductImages = async (images, productId) => {
   if (!images || images.length < 1) return;
 
   try {
@@ -30,34 +28,41 @@ const uploadImages = async (images, productId) => {
 
       const imageExt = image.mimetype.replace("image/", "");
       const imageName = `${newPictureName}.${imageExt}`;
+      const imagePath = `images/${imageName}`;
+
+      // Upload picture
+      // await fs.writeFile(path.join(imagesPath, imageName), image.buffer);
+      await admin.storage().bucket().file(imagePath).save(image.buffer);
+
+      await admin.storage().bucket().file(imagePath).makePublic();
+
+      const publicUrl = admin.storage().bucket().file(imagePath).publicUrl();
 
       // Add picture to DB
       await Picture.create({
         product_id: productId,
         name: imageName,
+        url: publicUrl,
       });
-
-      // Upload picture
-      await fs.writeFile(path.join(imagesPath, imageName), image.buffer);
     }
   } catch (error) {
     throw error;
   }
 };
 
-const updateImages = async (images, productId) => {
+const updateProductImages = async (images, productId) => {
   if (!images || images.length < 1) return;
 
   try {
-    await deleteImages(productId);
+    await deleteProductImages(productId);
 
-    await uploadImages(images, productId);
+    await uploadProductImages(images, productId);
   } catch (error) {
     throw error;
   }
 };
 
-const deleteImages = async (productId) => {
+const deleteProductImages = async (productId) => {
   try {
     // Get existing pictures
     const pictures = await Picture.findAll({
@@ -68,7 +73,14 @@ const deleteImages = async (productId) => {
 
     // Remove existing pictures
     for (const picture of pictures) {
-      await fs.unlink(path.join(imagesPath, picture.name));
+      const imagePath = `images/${picture.name}`;
+      // if (!syncFs.existsSync(path.join(imagesPath, picture.name))) return;
+      // await fs.unlink(path.join(imagesPath, picture.name));
+      await admin
+        .storage()
+        .bucket()
+        .file(imagePath)
+        .delete({ ignoreNotFound: true });
     }
     // Remove picture from DB
     await Picture.destroy({ where: { product_id: productId } });
@@ -77,26 +89,9 @@ const deleteImages = async (productId) => {
   }
 };
 
-const deleteAllPictures = () => {
-  const folderPath = path.join(__dirname, "..", "public", "images");
-
-  if (!syncFs.existsSync(folderPath)) {
-    return;
-  }
-
-  syncFs.readdir(folderPath, (err, files) => {
-    if (err) throw err;
-
-    for (const file of files) {
-      syncFs.unlinkSync(path.join(folderPath, file));
-    }
-  });
-};
-
 module.exports = {
   validatePictures,
-  uploadImages,
-  updateImages,
-  deleteImages,
-  deleteAllPictures,
+  uploadProductImages,
+  updateProductImages,
+  deleteProductImages,
 };

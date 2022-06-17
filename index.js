@@ -5,6 +5,9 @@ const path = require("path");
 const cors = require("cors");
 const swaggerJSON = require("./swagger.json");
 const swaggerUI = require("swagger-ui-express");
+const firebaseStorage = require("./utils/firebase-storage");
+
+firebaseStorage.setup();
 
 app.use(cors());
 app.use(express.json());
