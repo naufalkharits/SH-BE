@@ -1,9 +1,9 @@
 const { Product, Category, Picture } = require("../models");
 const {
   validatePictures,
-  uploadImages,
-  updateImages,
-  deleteImages,
+  uploadProductImages,
+  updateProductImages,
+  deleteProductImages,
 } = require("../utils/picture");
 const { Op } = require("sequelize");
 
@@ -47,7 +47,7 @@ module.exports = {
           category: product.Category.name,
           description: product.description,
           seller_id: product.seller_id,
-          pictures: product.Pictures.map((picture) => picture.name),
+          pictures: product.Pictures.map((picture) => picture.url),
           createdAt: product.createdAt,
           updatedAt: product.updatedAt,
         }));
@@ -95,7 +95,7 @@ module.exports = {
           category: product.Category.name,
           description: product.description,
           seller_id: product.seller_id,
-          pictures: product.Pictures.map((picture) => picture.name),
+          pictures: product.Pictures.map((picture) => picture.url),
           createdAt: product.createdAt,
           updatedAt: product.updatedAt,
         };
@@ -167,7 +167,7 @@ module.exports = {
       });
 
       // Upload product pictures
-      await uploadImages(req.files, newProduct.id);
+      await uploadProductImages(req.files, newProduct.id);
 
       // Get new product data
       const product = await Product.findOne({
@@ -184,7 +184,7 @@ module.exports = {
         category: product.Category.name,
         description: product.description,
         seller_id: product.seller_id,
-        pictures: product.Pictures.map((picture) => picture.name),
+        pictures: product.Pictures.map((picture) => picture.url),
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
       };
@@ -193,6 +193,7 @@ module.exports = {
         product: newProductData,
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -239,7 +240,7 @@ module.exports = {
       )
         .then((result) => {
           // Update product pictures
-          updateImages(req.files, req.params.id).then(() => {
+          updateProductImages(req.files, req.params.id).then(() => {
             // Get updated product data
             Product.findOne({
               where: { id: req.params.id },
@@ -259,7 +260,7 @@ module.exports = {
                 category: product.Category.name,
                 description: product.description,
                 seller_id: product.seller_id,
-                pictures: product.Pictures.map((picture) => picture.name),
+                pictures: product.Pictures.map((picture) => picture.url),
                 createdAt: product.createdAt,
                 updatedAt: product.updatedAt,
               };
@@ -288,7 +289,7 @@ module.exports = {
     }
 
     // Delete product pictures
-    deleteImages(req.params.id)
+    deleteProductImages(req.params.id)
       .then(() => {
         // Delete Product
         Product.destroy({ where: { id: req.params.id } }).then((result) => {
