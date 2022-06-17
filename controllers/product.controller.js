@@ -238,36 +238,35 @@ module.exports = {
         }
       )
         .then((result) => {
-          // Check if product not found
-          if (result[0] === 0) {
-            res
-              .status(404)
-              .json({ type: "NOT_FOUND", message: "Product not found" });
-          } else {
-            // Update product pictures
-            updateImages(req.files, req.params.id).then(() => {
-              // Get updated product data
-              Product.findOne({
-                where: { id: req.params.id },
-                include: [Category, Picture],
-              }).then((product) => {
-                // Format product response data
-                const updatedProduct = {
-                  id: product.id,
-                  name: product.name,
-                  price: product.price,
-                  category: product.Category.name,
-                  description: product.description,
-                  seller_id: product.seller_id,
-                  pictures: product.Pictures.map((picture) => picture.name),
-                  createdAt: product.createdAt,
-                  updatedAt: product.updatedAt,
-                };
+          // Update product pictures
+          updateImages(req.files, req.params.id).then(() => {
+            // Get updated product data
+            Product.findOne({
+              where: { id: req.params.id },
+              include: [Category, Picture],
+            }).then((product) => {
+              if (!product) {
+                return res.status(404).json({
+                  type: "NOT_FOUND",
+                  message: "Product not found",
+                });
+              }
+              // Format product response data
+              const updatedProduct = {
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                category: product.Category.name,
+                description: product.description,
+                seller_id: product.seller_id,
+                pictures: product.Pictures.map((picture) => picture.name),
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt,
+              };
 
-                res.status(200).json({ updatedProduct });
-              });
+              res.status(200).json({ updatedProduct });
             });
-          }
+          });
         })
         .catch((error) => {
           console.log(error);

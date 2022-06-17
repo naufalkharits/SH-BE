@@ -68,6 +68,7 @@ const deleteImages = async (productId) => {
 
     // Remove existing pictures
     for (const picture of pictures) {
+      if (!syncFs.existsSync(path.join(imagesPath, picture.name))) return;
       await fs.unlink(path.join(imagesPath, picture.name));
     }
     // Remove picture from DB
