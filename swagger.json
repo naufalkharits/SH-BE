@@ -122,6 +122,38 @@
           }
         }
       }
+    },
+    "/delete-product/{id}": {
+      "delete": {
+        "tags": ["Product"],
+        "summary": "Delete Product by ID",
+        "description": "Delete Product",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Input Product ID",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success Delete Product",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Product"
+              }
+            }
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
     }
   },
   "securityDefinitions": {
