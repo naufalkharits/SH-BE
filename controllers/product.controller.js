@@ -219,9 +219,10 @@ module.exports = {
       },
     }).then((productCategory) => {
       if (category && !productCategory) {
-        return res
-          .status(404)
-          .json({ type: "NOT_FOUND", message: "Category not found" });
+        return res.status(400).json({
+          type: "VALIDATION_FAILED",
+          message: "Valid category name is required",
+        });
       }
 
       // Update product
@@ -299,7 +300,7 @@ module.exports = {
               .status(404)
               .json({ type: "NOT_FOUND", message: "Product not found" });
           } else {
-            res.status(200).json({ message: "Product Successfully Deleted" });
+            res.status(200).json({ message: "Product successfully deleted" });
           }
         });
       })
