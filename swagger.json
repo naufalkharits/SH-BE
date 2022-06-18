@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This is a sample server Petstore server.  You can find out more about     Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For this sample, you can use the api key `special-key` to test the authorization     filters.",
+    "description": "API Documentation for SecondHand Backend Server",
     "version": "1.0.0",
-    "title": "Swagger Petstore",
+    "title": "SecondHand API",
     "termsOfService": "http://swagger.io/terms/",
     "contact": {
       "email": "apiteam@swagger.io"
@@ -13,38 +13,171 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "host": "localhost:8000",
+  "host": "final-project-binar.herokuapp.com",
   "basePath": "/",
   "tags": [
     {
       "name": "Product",
-      "description": "Everything about your Product",
-      "externalDocs": {
-        "description": "Find out more",
-        "url": "http://swagger.io"
-      }
+      "description": "Product Data Endpoints"
     }
   ],
-  "schemes": ["http"],
+  "schemes": ["https"],
   "paths": {
     "/product": {
       "get": {
         "tags": ["Product"],
-        "summary": "Add a new Product to the store",
-        "description": "Get Product",
+        "summary": "Get Products",
+        "description": "Get All Products",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "category",
+            "type": "string",
+            "example": "Electronic",
+            "description": "Filter products based on category"
+          },
+          {
+            "in": "query",
+            "name": "keyword",
+            "type": "string",
+            "example": "jam",
+            "description": "Search products based on keyword"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "type": "integer",
+            "example": "10",
+            "description": "Limit products result count for pagination"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "type": "integer",
+            "example": "2",
+            "description": "Skip multiple products for pagination"
+          }
+        ],
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "Sukses Get All Product",
+            "description": "Success",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Product"
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Product"
+                  }
+                }
               }
             }
           },
-          "405": {
-            "description": "Invalid input"
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Product"],
+        "summary": "Create Product",
+        "description": "Create New Product",
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "name",
+            "type": "string",
+            "required": true,
+            "description": "Product Name"
+          },
+          {
+            "in": "formData",
+            "name": "price",
+            "type": "integer",
+            "required": true,
+            "description": "Product Price"
+          },
+          {
+            "in": "formData",
+            "name": "category",
+            "type": "string",
+            "required": true,
+            "description": "Product Category"
+          },
+          {
+            "in": "formData",
+            "name": "description",
+            "type": "string",
+            "required": true,
+            "description": "Product Description"
+          },
+          {
+            "in": "formData",
+            "name": "pictures",
+            "type": "file",
+            "required": true,
+            "description": "Product Pictures"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product": {
+                  "$ref": "#/definitions/Product"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Product name, price, category, description, and picture is required"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
           }
         }
       }
@@ -53,274 +186,312 @@
     "/product/{id}": {
       "get": {
         "tags": ["Product"],
-        "summary": "Get Product by ID",
+        "summary": "Get Product",
+        "description": "Get Single Product by Product ID",
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "description": "Input Product ID",
-            "required": true,
+            "name": "id",
             "type": "integer",
-            "format": "int64"
+            "example": 1,
+            "required": true,
+            "description": "Product ID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Success Get All Product",
+            "description": "Success",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Product"
+              "type": "object",
+              "properties": {
+                "product": {
+                  "$ref": "#/definitions/Product"
+                }
               }
             }
           },
-          "405": {
-            "description": "Invalid input"
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid Product ID is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Product not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
           }
         }
-      }
-    },
-
-    "/update-product/{id}": {
+      },
       "put": {
         "tags": ["Product"],
-        "summary": "Update Product by ID",
-        "description": "Update Product",
-        "produces": ["application/json"],
+        "summary": "Update Product",
+        "description": "Update Single Product by Product ID",
+        "consumes": ["multipart/form-data"],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "description": "Input Product ID",
-            "required": true,
+            "name": "id",
             "type": "integer",
-            "format": "int64"
+            "example": 1,
+            "required": true,
+            "description": "Product ID"
           },
           {
-            "name": "body",
-            "in": "body",
-            "description": "Input Product",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Product"
-            }
+            "in": "formData",
+            "name": "name",
+            "type": "string",
+            "description": "Product Name"
+          },
+          {
+            "in": "formData",
+            "name": "price",
+            "type": "integer",
+            "description": "Product Price"
+          },
+          {
+            "in": "formData",
+            "name": "category",
+            "type": "string",
+            "description": "Product Category"
+          },
+          {
+            "in": "formData",
+            "name": "description",
+            "type": "string",
+            "description": "Product Description"
+          },
+          {
+            "in": "formData",
+            "name": "pictures",
+            "type": "file",
+            "description": "Product Pictures"
           }
         ],
+        "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "Success Update Product",
+            "description": "Success",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Product"
+              "type": "object",
+              "properties": {
+                "updatedProduct": {
+                  "$ref": "#/definitions/Product"
+                }
               }
             }
           },
-          "405": {
-            "description": "Invalid input"
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid Product ID is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Product not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
           }
         }
-      }
-    },
-    "/delete-product/{id}": {
+      },
       "delete": {
         "tags": ["Product"],
-        "summary": "Delete Product by ID",
-        "description": "Delete Product",
+        "summary": "Delete Product",
+        "description": "Delete Single Product by Product ID",
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "description": "Input Product ID",
-            "required": true,
+            "name": "id",
             "type": "integer",
-            "format": "int64"
+            "example": 1,
+            "required": true,
+            "description": "Product ID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Success Delete Product",
+            "description": "Success",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Product"
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Product successfully deleted"
+                }
               }
             }
           },
-          "405": {
-            "description": "Invalid input"
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid Product ID is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Product not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
           }
         }
       }
-    }
-  },
-  "securityDefinitions": {
-    "petstore_auth": {
-      "type": "oauth2",
-      "authorizationUrl": "http://petstore.swagger.io/oauth/dialog",
-      "flow": "implicit",
-      "scopes": {
-        "write:pets": "modify pets in your account",
-        "read:pets": "read your pets"
-      }
-    },
-    "api_key": {
-      "type": "apiKey",
-      "name": "api_key",
-      "in": "header"
     }
   },
   "definitions": {
     "Product": {
       "type": "object",
-      "required": ["name", "price", "category_id", "description", "seller_id"],
+      "required": ["name", "price", "category", "description", "pictures"],
       "properties": {
-        "name": {
-          "type": "string",
-          "example": "JAM TANGAN"
-        },
-        "price": {
-          "type": "integer",
-          "example": " 150000"
-        },
-        "category_id": {
+        "id": {
           "type": "integer",
           "example": "1"
         },
+        "name": {
+          "type": "string",
+          "example": "Jam Tangan"
+        },
+        "price": {
+          "type": "integer",
+          "example": "150000"
+        },
+        "category": {
+          "type": "string",
+          "example": "Electronic"
+        },
         "description": {
           "type": "string",
-          "example": "Jam Tangan Kwalitas Bagus"
+          "example": "Jam Tangan Kualitas Bagus"
         },
         "seller_id": {
           "type": "integer",
           "example": "1"
-        }
-      }
-    },
-    "Category": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
         },
-        "name": {
-          "type": "string"
-        }
-      },
-      "xml": {
-        "name": "Category"
-      }
-    },
-    "User": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "username": {
-          "type": "string"
-        },
-        "firstName": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
-        },
-        "userStatus": {
-          "type": "integer",
-          "format": "int32",
-          "description": "User Status"
-        }
-      },
-      "xml": {
-        "name": "User"
-      }
-    },
-    "Tag": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "xml": {
-        "name": "Tag"
-      }
-    },
-    "Pet": {
-      "type": "object",
-      "required": ["name", "photoUrls"],
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "category": {
-          "$ref": "#/definitions/Category"
-        },
-        "name": {
-          "type": "string",
-          "example": "doggie"
-        },
-        "photoUrls": {
+        "pictures": {
           "type": "array",
-          "xml": {
-            "name": "photoUrl",
-            "wrapped": true
-          },
           "items": {
-            "type": "string"
+            "type": "string",
+            "example": ["jam_tangan_1.png", "jam_tangan_2.png"]
           }
         },
-        "tags": {
-          "type": "array",
-          "xml": {
-            "name": "tag",
-            "wrapped": true
-          },
-          "items": {
-            "$ref": "#/definitions/Tag"
-          }
-        },
-        "status": {
+        "createdAt": {
           "type": "string",
-          "description": "pet status in the store",
-          "enum": ["available", "pending", "sold"]
-        }
-      },
-      "xml": {
-        "name": "Pet"
-      }
-    },
-    "ApiResponse": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int32"
+          "format": "date-time"
         },
-        "type": {
-          "type": "string"
-        },
-        "message": {
-          "type": "string"
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     }
