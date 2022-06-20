@@ -32,9 +32,7 @@ describe("Get Product", () => {
       seller_id: 1,
       pictures: path.join(__dirname, "resources", "product.png"),
     });
-    const { body, statusCode, error } = await request(app).get(
-      "/product/" + newProduct.id
-    );
+    const { body, statusCode, error } = await request(app).get("/product/" + newProduct.id);
     expect(statusCode).toEqual(200);
   });
 }),
