@@ -114,6 +114,14 @@ module.exports = {
 
   createProduct: async (req, res) => {
     // Validate product required data
+    if (!req.files) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message:
+          "Product name, price, category, description, and picture is required",
+      });
+    }
+
     if (
       !req.body ||
       !req.body.name ||
