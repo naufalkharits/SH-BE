@@ -1,4 +1,4 @@
-const { user } = require("../models");
+const { User } = require("../models");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
@@ -10,13 +10,14 @@ module.exports = {
       const { email, password } = req.body;
 
       // Validate user input
-      if (!(email && password)) {
-        res.status(400).send("All input is required");
+      if (!email || !password) {
+        return res.status(400).send("All input is required");
       }
+
       // Validate if user exist in our database
-      const user = await user_game.findOne({
+      const user = await User.findOne({
         where: {
-          id: req.params.id,
+          email: req.body.email,
         },
       });
 
