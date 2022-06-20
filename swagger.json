@@ -17,12 +17,45 @@
   "basePath": "/",
   "tags": [
     {
+      "name": "auth",
+      "description": "Register dan Login"
+    },
+    {
       "name": "Product",
       "description": "Product Data Endpoints"
     }
   ],
   "schemes": ["https"],
   "paths": {
+    "/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "add a new user login",
+        "description": "",
+        "operationId": "addUserLogin",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Login object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "500": {
+            "description": "System Error / Unexpected Error"
+          }
+        }
+      }
+    },
     "/product": {
       "get": {
         "tags": ["Product"],
@@ -450,6 +483,20 @@
     }
   },
   "definitions": {
+    "Login": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "user@mail.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "12345"
+        }
+      }
+    },
     "Product": {
       "type": "object",
       "required": ["name", "price", "category", "description", "pictures"],
