@@ -1,7 +1,7 @@
 const request = require("supertest");
 const { app, server } = require("../index");
 const path = require("path");
-const { Product } = require("../models");
+const { Product, User } = require("../models");
 
 jest.mock("../utils/picture.js");
 
@@ -24,14 +24,18 @@ describe("Get Product", () => {
   });
 
   test("Get Product by ID", async () => {
+    const newUser = await User.create({
+      email: "a@gmail.com",
+      password: "test123",
+    });
     const newProduct = await Product.create({
       name: "New Test Product",
       price: 50000,
       category_id: 3,
       description: "This is new test product",
-      seller_id: 1,
-      pictures: path.join(__dirname, "resources", "product.png"),
+      seller_id: newUser.id,
     });
+    console.log(newProduct);
     const { body, statusCode, error } = await request(app).get(
       "/product/" + newProduct.id
     );
