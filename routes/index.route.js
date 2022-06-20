@@ -4,9 +4,9 @@ const { auth } = require("../controllers/auth");
 
 router.use("/product", productRoutes);
 
-router.post("/login", login);
+router.post("/login", auth);
 
-router.use("/update-product", productRoutes);
-router.use("/delete-product", productRoutes);
+router.use("/update-product", auth, productRoutes);
+router.use("/delete-product", auth, productRoutes);
 
 module.exports = router;
