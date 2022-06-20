@@ -27,7 +27,7 @@
   ],
   "schemes": ["https"],
   "paths": {
-    "/login": {
+    "/auth/login": {
       "post": {
         "tags": ["auth"],
         "summary": "add a new user login",
@@ -42,7 +42,7 @@
             "description": "Login object",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Login"
+              "$ref": "#/definitions/Auth"
             }
           }
         ],
@@ -52,6 +52,41 @@
           },
           "500": {
             "description": "System Error / Unexpected Error"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "add a new user register",
+        "description": "",
+        "operationId": "registerUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Register object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Auth"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User Register Successfully"
+          },
+          "409": {
+            "description": "Email Already Exist"
+          },
+          "400": {
+            "description": "Invalid Email"
+          },
+          "500": {
+            "description": "Failed to create new user"
           }
         }
       }
@@ -483,7 +518,7 @@
     }
   },
   "definitions": {
-    "Login": {
+    "Auth": {
       "type": "object",
       "required": ["email", "password"],
       "properties": {
