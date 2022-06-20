@@ -17,57 +17,77 @@ afterAll(async () => {
   await Product.destroy({ where: {} });
   server.close();
 });
-
-describe("Create Product", () => {
-  test("200 Success", async () => {
-    await request(app)
-      .post("/product")
-      .field("name", newProductData.name)
-      .field("price", newProductData.price)
-      .field("category", newProductData.category)
-      .field("description", newProductData.description)
-      .attach("pictures", newProductData.pictures)
-      .expect(200);
+describe("Get Product", () => {
+  test("Get Product", async () => {
+    const { statusCode, error } = await request(app).get("/product");
+    expect(statusCode).toEqual(200);
   });
 
-  test("400 Validation Failed", async () => {
-    await request(app).post("/product").expect(400);
+  test("Get Product by ID", async () => {
+    const newProduct = await Product.create({
+      name: "New Test Product",
+      price: 50000,
+      category_id: 3,
+      description: "This is new test product",
+      seller_id: 1,
+      pictures: path.join(__dirname, "resources", "product.png"),
+    });
+    const { body, statusCode, error } = await request(app).get(
+      "/product/" + newProduct.id
+    );
+    expect(statusCode).toEqual(200);
   });
-
-  test("400 Picture Validation Failed", async () => {
-    await request(app)
-      .post("/product")
-      .field("name", newProductData.name)
-      .field("price", newProductData.price)
-      .field("category", newProductData.category)
-      .field("description", newProductData.description)
-      .attach("pictures", path.join(__dirname, "resources", "product.txt"))
-      .expect(400);
-  });
-
-  test("400 Invalid Category", async () => {
-    await request(app)
-      .post("/product")
-      .field("name", newProductData.name)
-      .field("price", newProductData.price)
-      .field("category", "invalid")
-      .field("description", newProductData.description)
-      .attach("pictures", newProductData.pictures)
-      .expect(400);
-  });
-
-  test("500 System Error", async () => {
-    Product.create = jest.fn().mockImplementationOnce(() => {
-      throw new Error();
+}),
+  describe("Create Product", () => {
+    test("200 Success", async () => {
+      await request(app)
+        .post("/product")
+        .field("name", newProductData.name)
+        .field("price", newProductData.price)
+        .field("category", newProductData.category)
+        .field("description", newProductData.description)
+        .attach("pictures", newProductData.pictures)
+        .expect(200);
     });
 
-    await request(app)
-      .post("/product")
-      .field("name", newProductData.name)
-      .field("price", newProductData.price)
-      .field("category", newProductData.category)
-      .field("description", newProductData.description)
-      .attach("pictures", newProductData.pictures)
-      .expect(500);
+    test("400 Validation Failed", async () => {
+      await request(app).post("/product").expect(400);
+    });
+
+    test("400 Picture Validation Failed", async () => {
+      await request(app)
+        .post("/product")
+        .field("name", newProductData.name)
+        .field("price", newProductData.price)
+        .field("category", newProductData.category)
+        .field("description", newProductData.description)
+        .attach("pictures", path.join(__dirname, "resources", "product.txt"))
+        .expect(400);
+    });
+
+    test("400 Invalid Category", async () => {
+      await request(app)
+        .post("/product")
+        .field("name", newProductData.name)
+        .field("price", newProductData.price)
+        .field("category", "invalid")
+        .field("description", newProductData.description)
+        .attach("pictures", newProductData.pictures)
+        .expect(400);
+    });
+
+    test("500 System Error", async () => {
+      Product.create = jest.fn().mockImplementationOnce(() => {
+        throw new Error();
+      });
+
+      await request(app)
+        .post("/product")
+        .field("name", newProductData.name)
+        .field("price", newProductData.price)
+        .field("category", newProductData.category)
+        .field("description", newProductData.description)
+        .attach("pictures", newProductData.pictures)
+        .expect(500);
+    });
   });
-});
