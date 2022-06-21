@@ -33,7 +33,6 @@ module.exports = {
   register: async (req, res) => {
     try {
       const { email, password } = req.body;
-
       const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
       if (email.match(mailFormat)) {
@@ -59,6 +58,7 @@ module.exports = {
         res.status(400).json({ message: "Invalid email" });
       }
     } catch (err) {
+      console.log(err);
       res.status(500).json({ message: "Failed to create new user" });
     }
   },
