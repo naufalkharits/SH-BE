@@ -54,7 +54,9 @@ test("Get Product by ID", async () => {
     seller_id: newUser.id,
   });
   console.log(newProduct);
-  const { body, statusCode, error } = await request(app).get("/product/" + newProduct.id);
+  const { body, statusCode, error } = await request(app).get(
+    "/product/" + newProduct.id
+  );
   expect(statusCode).toEqual(200);
 });
 
@@ -189,24 +191,69 @@ describe("Delete Product", () => {
   });
 });
 
-describe("Register", () => {
+describe("Login", () => {
   test("200 Success", async () => {
-    await request(app).post("/auth/register").send({ email: "test321@gmail.com", password: "123456" }).expect(200);
+    await request(app)
+      .post("/auth/login")
+      .send({ email: "test321@gmail.com", password: "123456" })
+      .expect(200);
   });
 
   test("409 Email already exists", async () => {
-    await request(app).post("/auth/register").send({ email: "test321@gmail.com", password: "123456" }).expect(409);
+    await request(app)
+      .post("/auth/login")
+      .send({ email: "test321@gmail.com", password: "123456" })
+      .expect(409);
   });
 
   test("400 Invalid Email", async () => {
-    await request(app).post("/auth/register").send({ email: "inibukanemail", password: "123456" }).expect(400);
+    await request(app)
+      .post("/auth/login")
+      .send({ email: "inibukanemail", password: "123456" })
+      .expect(400);
+  });
+
+  test("500 system error / unexpected error", async () => {
+    User.create = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app)
+      .post("/auth/login")
+      .send({ email: "test3210@gmail.com", password: "123456" })
+      .expect(500);
+  });
+});
+
+describe("Register", () => {
+  test("200 Success", async () => {
+    await request(app)
+      .post("/auth/register")
+      .send({ email: "test321@gmail.com", password: "123456" })
+      .expect(200);
+  });
+
+  test("409 Email already exists", async () => {
+    await request(app)
+      .post("/auth/register")
+      .send({ email: "test321@gmail.com", password: "123456" })
+      .expect(409);
+  });
+
+  test("400 Invalid Email", async () => {
+    await request(app)
+      .post("/auth/register")
+      .send({ email: "inibukanemail", password: "123456" })
+      .expect(400);
   });
 
   test("500 Failed Create New User", async () => {
     User.create = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
-    await request(app).post("/auth/register").send({ email: "test3210@gmail.com", password: "123456" }).expect(500);
+    await request(app)
+      .post("/auth/register")
+      .send({ email: "test3210@gmail.com", password: "123456" })
+      .expect(500);
   });
 });
 
