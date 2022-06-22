@@ -23,10 +23,37 @@
     {
       "name": "Product",
       "description": "Product Data Endpoints"
+    },
+    {
+      "name": "Category",
+      "description": "Category Endpoint"
     }
   ],
   "schemes": ["https"],
   "paths": {
+    "/category": {
+      "get": {
+        "tags": ["Category"],
+        "summary": "Get Category",
+        "description": "Get All Category",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful Get All Category",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Category"
+              }
+            }
+          },
+          "404": {
+            "description": "Category Not Found"
+          }
+        }
+      }
+    },
+
     "/auth/login": {
       "post": {
         "tags": ["auth"],
@@ -518,6 +545,16 @@
     }
   },
   "definitions": {
+    "Category": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "Office"
+        }
+      }
+    },
     "Auth": {
       "type": "object",
       "required": ["email", "password"],
