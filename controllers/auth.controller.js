@@ -62,4 +62,9 @@ module.exports = {
       res.status(500).json({ message: "Failed to create new user" });
     }
   },
+  me: async (req, res) => {
+    res.status(200).json({
+      user: req.user || null,
+    });
+  },
 };
