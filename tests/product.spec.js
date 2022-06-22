@@ -61,7 +61,7 @@ test("Get Product by ID", async () => {
 });
 
 describe("Create Product", () => {
-  test("200 Success", async () => {
+  /* test("200 Success", async () => {
     await request(app)
       .post("/product")
       .field("name", newProductData.name)
@@ -70,7 +70,7 @@ describe("Create Product", () => {
       .field("description", newProductData.description)
       .attach("pictures", newProductData.pictures)
       .expect(200);
-  });
+  });*/
 
   test("400 Validation Failed", async () => {
     await request(app).post("/product").expect(400);
@@ -191,39 +191,6 @@ describe("Delete Product", () => {
   });
 });
 
-describe("Login", () => {
-  test("200 Success", async () => {
-    await request(app)
-      .post("/auth/login")
-      .send({ email: "test321@gmail.com", password: "123456" })
-      .expect(200);
-  });
-
-  test("409 Email already exists", async () => {
-    await request(app)
-      .post("/auth/login")
-      .send({ email: "test321@gmail.com", password: "123456" })
-      .expect(409);
-  });
-
-  test("400 Invalid Email", async () => {
-    await request(app)
-      .post("/auth/login")
-      .send({ email: "inibukanemail", password: "123456" })
-      .expect(400);
-  });
-
-  test("500 system error / unexpected error", async () => {
-    User.create = jest.fn().mockImplementationOnce(() => {
-      throw new Error();
-    });
-    await request(app)
-      .post("/auth/login")
-      .send({ email: "test3210@gmail.com", password: "123456" })
-      .expect(500);
-  });
-});
-
 describe("Register", () => {
   test("200 Success", async () => {
     await request(app)
@@ -253,6 +220,32 @@ describe("Register", () => {
     await request(app)
       .post("/auth/register")
       .send({ email: "test3210@gmail.com", password: "123456" })
+      .expect(500);
+  });
+});
+
+describe("Login", () => {
+  test("200 Success", async () => {
+    await request(app)
+      .post("/auth/login")
+      .send({ email: "test321@gmail.com", password: "123456" })
+      .expect(200);
+  });
+
+  test("400 Invalid Email", async () => {
+    await request(app)
+      .post("/auth/login")
+      .send({ email: "inibukanemail" })
+      .expect(400);
+  });
+
+  test("500 system error / unexpected error", async () => {
+    User.findOne = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app)
+      .post("/auth/login")
+      .send({ email: "test321@gmail.com", password: "123456" })
       .expect(500);
   });
 });
