@@ -27,7 +27,7 @@ module.exports = {
         res.status(400).json({ message: "Invalid Credentials" });
       }
     } catch (err) {
-      console.log(err);
+      res.status(500).json({ message: "system error" });
     }
   },
   register: async (req, res) => {
