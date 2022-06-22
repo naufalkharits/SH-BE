@@ -5,6 +5,7 @@ const path = require("path");
 const swaggerJSON = require("./swagger.json");
 const swaggerUI = require("swagger-ui-express");
 const firebaseStorage = require("./utils/firebase-storage");
+require("./utils/passport-jwt");
 
 firebaseStorage.setup();
 
