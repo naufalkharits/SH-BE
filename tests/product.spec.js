@@ -2,6 +2,7 @@ const request = require("supertest");
 const { app, server } = require("../index");
 const path = require("path");
 const { Product, User, Category } = require("../models");
+const bcrypt = require("bcrypt");
 
 jest.mock("../utils/picture.js");
 
@@ -13,12 +14,16 @@ const newProductData = {
   pictures: path.join(__dirname, "resources", "product.png"),
 };
 
-let testUser, testProduct;
+let testUser, testProduct, testUserToken;
 
 beforeAll(async () => {
-  testUser = await User.create({
+  const testUserData = {
     email: "test@gmail.com",
     password: "test123",
+  };
+  testUser = await User.create({
+    email: testUserData.email,
+    password: await bcrypt.hash(testUserData.password, 10),
   });
   testProduct = await Product.create({
     name: "New Test Product",
@@ -27,6 +32,12 @@ beforeAll(async () => {
     description: "This is new test product",
     seller_id: testUser.id,
   });
+  console.log("Test User Data : ", testUser);
+  const loginResponse = await request(app).post("/auth/login").send({
+    email: testUserData.email,
+    password: testUserData.password,
+  });
+  testUserToken = loginResponse.body.accessToken;
 });
 
 afterAll(async () => {
@@ -61,7 +72,7 @@ test("Get Product by ID", async () => {
 });
 
 describe("Create Product", () => {
-  /* test("200 Success", async () => {
+  test("200 Success", async () => {
     await request(app)
       .post("/product")
       .field("name", newProductData.name)
@@ -70,7 +81,7 @@ describe("Create Product", () => {
       .field("description", newProductData.description)
       .attach("pictures", newProductData.pictures)
       .expect(200);
-  });*/
+  });
 
   test("400 Validation Failed", async () => {
     await request(app).post("/product").expect(400);

@@ -1,5 +1,10 @@
 const { Product, Category, Picture } = require("../models");
-const { validatePictures, uploadProductImages, updateProductImages, deleteProductImages } = require("../utils/picture");
+const {
+  validatePictures,
+  uploadProductImages,
+  updateProductImages,
+  deleteProductImages,
+} = require("../utils/picture");
 const { Op } = require("sequelize");
 
 module.exports = {
@@ -112,14 +117,23 @@ module.exports = {
     if (!req.files) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
-        message: "Product name, price, category, description, and picture is required",
+        message:
+          "Product name, price, category, description, and picture is required",
       });
     }
 
-    if (!req.body || !req.body.name || !req.body.price || !req.body.category || !req.body.description || req.files.length < 1) {
+    if (
+      !req.body ||
+      !req.body.name ||
+      !req.body.price ||
+      !req.body.category ||
+      !req.body.description ||
+      req.files.length < 1
+    ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
-        message: "Product name, price, category, description, and picture is required",
+        message:
+          "Product name, price, category, description, and picture is required",
       });
     }
 
@@ -157,7 +171,7 @@ module.exports = {
         price,
         category_id: productCategory.id,
         description,
-        seller_id: 1,
+        seller_id: req.user.id,
       });
 
       // Upload product pictures
@@ -289,7 +303,9 @@ module.exports = {
         Product.destroy({ where: { id: req.params.id } }).then((result) => {
           // Check if product not found
           if (result === 0) {
-            res.status(404).json({ type: "NOT_FOUND", message: "Product not found" });
+            res
+              .status(404)
+              .json({ type: "NOT_FOUND", message: "Product not found" });
           } else {
             res.status(200).json({ message: "Product successfully deleted" });
           }
