@@ -17,27 +17,30 @@ const newProductData = {
 let testUser, testProduct, testUserToken;
 
 beforeAll(async () => {
-  const testUserData = {
-    email: "test@gmail.com",
-    password: "test123",
-  };
-  testUser = await User.create({
-    email: testUserData.email,
-    password: await bcrypt.hash(testUserData.password, 10),
-  });
-  testProduct = await Product.create({
-    name: "New Test Product",
-    price: 50000,
-    category_id: 3,
-    description: "This is new test product",
-    seller_id: testUser.id,
-  });
-  console.log("Test User Data : ", testUser);
-  const loginResponse = await request(app).post("/auth/login").send({
-    email: testUserData.email,
-    password: testUserData.password,
-  });
-  testUserToken = loginResponse.body.accessToken;
+  try {
+    const testUserData = {
+      email: "test@gmail.com",
+      password: "test123",
+    };
+    testUser = await User.create({
+      email: testUserData.email,
+      password: await bcrypt.hash(testUserData.password, 10),
+    });
+    testProduct = await Product.create({
+      name: "New Test Product",
+      price: 50000,
+      category_id: 3,
+      description: "This is new test product",
+      seller_id: testUser.id,
+    });
+    const loginResponse = await request(app).post("/auth/login").send({
+      email: testUserData.email,
+      password: testUserData.password,
+    });
+    testUserToken = loginResponse.body.accessToken;
+  } catch (error) {
+    console.log("Error : ", error);
+  }
 });
 
 afterAll(async () => {
@@ -88,6 +91,7 @@ describe("Create Product", () => {
   test("200 Success", async () => {
     await request(app)
       .post("/product")
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", newProductData.category)
@@ -97,12 +101,16 @@ describe("Create Product", () => {
   });
 
   test("400 Validation Failed", async () => {
-    await request(app).post("/product").expect(400);
+    await request(app)
+      .post("/product")
+      .set("Authorization", testUserToken)
+      .expect(400);
   });
 
   test("400 Picture Validation Failed", async () => {
     await request(app)
       .post("/product")
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", newProductData.category)
@@ -114,6 +122,7 @@ describe("Create Product", () => {
   test("400 Invalid Category", async () => {
     await request(app)
       .post("/product")
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", "invalid")
@@ -130,6 +139,7 @@ describe("Create Product", () => {
 
     await request(app)
       .post("/product")
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", newProductData.category)
@@ -144,6 +154,7 @@ describe("Update Product", () => {
   test("200 Success", async () => {
     await request(app)
       .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", newProductData.category)
@@ -155,6 +166,7 @@ describe("Update Product", () => {
   test("400 Invalid Product ID", async () => {
     await request(app)
       .put("/product/abc")
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", newProductData.category)
@@ -166,6 +178,7 @@ describe("Update Product", () => {
   test("400 Invalid Category", async () => {
     await request(app)
       .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", "invalid")
@@ -177,6 +190,7 @@ describe("Update Product", () => {
   test("404 Product Not Found", async () => {
     await request(app)
       .put("/product/")
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", newProductData.category)
@@ -193,6 +207,7 @@ describe("Update Product", () => {
 
     await request(app)
       .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)
       .field("category", newProductData.category)
@@ -207,17 +222,22 @@ describe("Delete Product", () => {
   test("200 Success", async () => {
     await request(app)
       .delete("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
       .expect(200);
   });
 
   test("400 Validation Failed", async () => {
     await request(app)
       .delete("/product/" + "invalid")
+      .set("Authorization", testUserToken)
       .expect(400);
   });
 
   test("404 Product Not Found", async () => {
-    await request(app).delete("/product/").expect(404);
+    await request(app)
+      .delete("/product/")
+      .set("Authorization", testUserToken)
+      .expect(404);
   });
 
   test("500 System Error", async () => {
@@ -227,6 +247,7 @@ describe("Delete Product", () => {
     });
     await request(app)
       .delete("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
       .expect(500);
     Product.destroy = originalFn;
   });

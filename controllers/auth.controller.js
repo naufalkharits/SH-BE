@@ -64,7 +64,7 @@ module.exports = {
   },
   me: async (req, res) => {
     res.status(200).json({
-      user: req.user || null,
+      user: req.user,
     });
   },
 };

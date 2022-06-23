@@ -30,6 +30,7 @@ describe("Register", () => {
   });
 
   test("500 Failed Create New User", async () => {
+    const originalFn = User.create;
     User.create = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
@@ -37,6 +38,7 @@ describe("Register", () => {
       .post("/auth/register")
       .send({ email: "test3210@gmail.com", password: "123456" })
       .expect(500);
+    User.create = originalFn;
   });
 });
 
@@ -63,6 +65,7 @@ describe("Login", () => {
   });
 
   test("500 system error / unexpected error", async () => {
+    const originalFn = User.findOne;
     User.findOne = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
@@ -70,5 +73,18 @@ describe("Login", () => {
       .post("/auth/login")
       .send({ email: "test321@gmail.com", password: "123456" })
       .expect(500);
+    User.findOne = originalFn;
+  });
+});
+
+describe("Me", () => {
+  test("200 Success", async () => {
+    const loginResponse = await request(app)
+      .post("/auth/login")
+      .send({ email: "test321@gmail.com", password: "123456" });
+    await request(app)
+      .get("/auth/me")
+      .set("Authorization", loginResponse.body.accessToken)
+      .expect(200);
   });
 });
