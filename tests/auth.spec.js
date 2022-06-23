@@ -2,6 +2,9 @@ const request = require("supertest");
 const { app, server } = require("../index");
 const { User } = require("../models");
 
+let userAccessToken;
+let userRefreshToken;
+
 afterAll(async () => {
   await User.destroy({ where: {} });
   server.close();
@@ -44,10 +47,13 @@ describe("Register", () => {
 
 describe("Login", () => {
   test("200 Success", async () => {
-    await request(app)
+    const loginResponse = await request(app)
       .post("/auth/login")
       .send({ email: "test321@gmail.com", password: "123456" })
       .expect(200);
+
+    userAccessToken = loginResponse.body.accessToken;
+    userRefreshToken = loginResponse.body.refreshToken;
   });
 
   test("400 Validation Failed", async () => {
@@ -79,12 +85,27 @@ describe("Login", () => {
 
 describe("Me", () => {
   test("200 Success", async () => {
-    const loginResponse = await request(app)
-      .post("/auth/login")
-      .send({ email: "test321@gmail.com", password: "123456" });
     await request(app)
       .get("/auth/me")
-      .set("Authorization", loginResponse.body.accessToken)
+      .set("Authorization", userAccessToken)
       .expect(200);
+  });
+});
+
+describe("Refresh Token", () => {
+  test("200 Success", async () => {
+    await request(app)
+      .post("/auth/refresh")
+      .send({ refreshToken: userRefreshToken })
+      .expect(200);
+  });
+  test("400 Validation Failed", async () => {
+    await request(app).post("/auth/refresh").expect(400);
+  });
+  test("401 Unauthorized", async () => {
+    await request(app)
+      .post("/auth/refresh")
+      .send({ refreshToken: "abc" })
+      .expect(401);
   });
 });
