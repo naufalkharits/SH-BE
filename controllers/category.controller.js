@@ -6,7 +6,8 @@ module.exports = {
       const categories = await Category.findAll();
 
       if (categories.length > 0) {
-        res.status(200).json({ categories });
+        const categoriesData = categories.map((category) => category.name);
+        res.status(200).json({ categories: categoriesData });
       } else {
         res.status(404).json({
           type: "NOT_FOUND",
