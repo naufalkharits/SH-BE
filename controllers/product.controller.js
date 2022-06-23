@@ -170,7 +170,7 @@ module.exports = {
         price,
         category_id: productCategory.id,
         description,
-        seller_id: 1,
+        seller_id: req.user.id,
       });
 
       // Upload product pictures
