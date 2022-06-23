@@ -1,20 +1,24 @@
 const { Category } = require("../models");
 
 module.exports = {
-  getCategory: (req, res) => {
-    Category.findAll()
-      .then((category) => {
-        if (category.length > 0) {
-          res.status(200).json({ message: "Success Get Category", data: category });
-        } else {
-          res.status(404).json({ message: "Category Not Found", data: category });
-        }
-      })
-      .catch((err) => {
-        res.status(500).json({
-          type: "SYSTEM_ERROR",
-          message: "Something wrong with server",
+  getCategories: async (req, res) => {
+    try {
+      const categories = await Category.findAll();
+
+      if (categories.length > 0) {
+        const categoriesData = categories.map((category) => category.name);
+        res.status(200).json({ categories: categoriesData });
+      } else {
+        res.status(404).json({
+          type: "NOT_FOUND",
+          message: "Categories not found",
         });
+      }
+    } catch (error) {
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
       });
+    }
   },
 };

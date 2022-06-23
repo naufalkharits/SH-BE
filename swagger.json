@@ -17,8 +17,8 @@
   "basePath": "/",
   "tags": [
     {
-      "name": "auth",
-      "description": "Register dan Login"
+      "name": "Auth",
+      "description": "Authentication Endpoints"
     },
     {
       "name": "Product",
@@ -26,7 +26,7 @@
     },
     {
       "name": "Category",
-      "description": "Category Endpoint"
+      "description": "Category Endpoints"
     }
   ],
   "schemes": ["https"],
@@ -34,21 +34,47 @@
     "/category": {
       "get": {
         "tags": ["Category"],
-        "summary": "Get Category",
-        "description": "Get All Category",
+        "summary": "Get Categories",
+        "description": "Get All Categories",
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "successful Get All Category",
+            "description": "Success",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Category"
-              }
+              "$ref": "#/definitions/Category"
             }
           },
           "404": {
-            "description": "Category Not Found"
+            "description": "Categories Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Categories not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
           }
         }
       }
@@ -56,39 +82,69 @@
 
     "/auth/login": {
       "post": {
-        "tags": ["auth"],
-        "summary": "add a new user login",
-        "description": "",
-        "operationId": "addUserLogin",
+        "tags": ["Auth"],
+        "summary": "Login User",
+        "description": "Login User",
         "consumes": ["application/json"],
         "produces": ["application/json"],
         "parameters": [
           {
             "in": "body",
             "name": "body",
-            "description": "Login object",
             "required": true,
+            "description": "User Data",
             "schema": {
-              "$ref": "#/definitions/Auth"
+              "$ref": "#/definitions/User"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Email and password is required"
+                }
+              }
+            }
           },
           "500": {
-            "description": "System Error / Unexpected Error"
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
           }
         }
       }
     },
     "/auth/register": {
       "post": {
-        "tags": ["auth"],
-        "summary": "add a new user register",
-        "description": "",
-        "operationId": "registerUser",
+        "tags": ["Auth"],
+        "summary": "Register User",
+        "description": "Register User",
         "consumes": ["application/json"],
         "produces": ["application/json"],
         "parameters": [
@@ -104,16 +160,162 @@
         ],
         "responses": {
           "200": {
-            "description": "User Register Successfully"
-          },
-          "409": {
-            "description": "Email Already Exist"
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
           },
           "400": {
-            "description": "Invalid Email"
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Email and password is required"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already used",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "EMAIL_EXISTS"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Email already used"
+                }
+              }
+            }
           },
           "500": {
-            "description": "Failed to create new user"
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Check User Token",
+        "description": "Check User Token Validity",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Refresh Token",
+        "description": "Get User New Access Token and New Refresh Token",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Refresh Token Data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Refresh token is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Invalid or expired refresh token"
+                }
+              }
+            }
           }
         }
       }
@@ -191,6 +393,11 @@
         "tags": ["Product"],
         "summary": "Create Product",
         "description": "Create New Product",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
         "consumes": ["multipart/form-data"],
         "parameters": [
           {
@@ -360,6 +567,11 @@
         "tags": ["Product"],
         "summary": "Update Product",
         "description": "Update Single Product by Product ID",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
         "consumes": ["multipart/form-data"],
         "parameters": [
           {
@@ -468,6 +680,11 @@
         "tags": ["Product"],
         "summary": "Delete Product",
         "description": "Delete Single Product by Product ID",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
         "produces": ["application/json"],
         "parameters": [
           {
@@ -549,13 +766,22 @@
       "type": "object",
       "required": ["name"],
       "properties": {
-        "name": {
-          "type": "string",
-          "example": "Office"
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "example": [
+              "Health",
+              "Sport",
+              "Automotive",
+              "Electronic",
+              "Property"
+            ]
+          }
         }
       }
     },
-    "Auth": {
+    "User": {
       "type": "object",
       "required": ["email", "password"],
       "properties": {
@@ -613,6 +839,27 @@
           "format": "date-time"
         }
       }
+    },
+    "Token": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        },
+        "refreshToken": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1pY2hhZWwgRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.Xk3hf0UUoSky6RDWjMib6x6yf1aE9xpPeTO_Pcfpw4Q"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "access_token": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "bearerFormat": "JWT"
     }
   },
   "externalDocs": {
