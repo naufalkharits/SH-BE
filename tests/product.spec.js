@@ -41,34 +41,47 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await User.destroy({ where: {} });
-  await Product.destroy({ where: {} });
-  server.close();
+  try {
+    await User.destroy({ where: {} });
+    await Product.destroy({ where: {} });
+    server.close();
+  } catch (error) {
+    console.log("Error : ", error);
+  }
 });
 
 describe("Get Products", () => {
   test("200 Success", async () => {
     await request(app).get("/product").expect(200);
   });
+  test("500 System Error", async () => {
+    const originalFn = Product.findAll;
+    Product.findAll = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app).get("/product").expect(500);
+    Product.findAll = originalFn;
+  });
 });
 
-test("Get Product by ID", async () => {
-  const newUser = await User.create({
-    email: "a@gmail.com",
-    password: "test123",
+describe("Get Product", () => {
+  test("200 Success", async () => {
+    await request(app).get(`/product/${testProduct.id}`).expect(200);
   });
-  const newProduct = await Product.create({
-    name: "New Test Product",
-    price: 50000,
-    category_id: 3,
-    description: "This is new test product",
-    seller_id: newUser.id,
+  test("400 Validation Failed", async () => {
+    await request(app).get(`/product/abc`).expect(400);
   });
-  console.log(newProduct);
-  const { body, statusCode, error } = await request(app).get(
-    "/product/" + newProduct.id
-  );
-  expect(statusCode).toEqual(200);
+  test("404 Product Not Found", async () => {
+    await request(app).get(`/product/0`).expect(404);
+  });
+  test("500 System Error", async () => {
+    const originalFn = Product.findOne;
+    Product.findOne = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app).get(`/product/${testProduct.id}`).expect(500);
+    Product.findOne = originalFn;
+  });
 });
 
 describe("Create Product", () => {
@@ -110,6 +123,7 @@ describe("Create Product", () => {
   });
 
   test("500 System Error", async () => {
+    const originalFn = Product.create;
     Product.create = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
@@ -122,6 +136,7 @@ describe("Create Product", () => {
       .field("description", newProductData.description)
       .attach("pictures", newProductData.pictures)
       .expect(500);
+    Product.create = originalFn;
   });
 });
 
@@ -137,7 +152,18 @@ describe("Update Product", () => {
       .expect(200);
   });
 
-  test("400 Validation Failed", async () => {
+  test("400 Invalid Product ID", async () => {
+    await request(app)
+      .put("/product/abc")
+      .field("name", newProductData.name)
+      .field("price", newProductData.price)
+      .field("category", newProductData.category)
+      .field("description", newProductData.description)
+      .attach("pictures", newProductData.pictures)
+      .expect(400);
+  });
+
+  test("400 Invalid Category", async () => {
     await request(app)
       .put("/product/" + testProduct.id)
       .field("name", newProductData.name)
@@ -160,6 +186,7 @@ describe("Update Product", () => {
   });
 
   test("500 System Error", async () => {
+    const originalFn = Category.findOne;
     Category.findOne = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
@@ -172,6 +199,7 @@ describe("Update Product", () => {
       .field("description", newProductData.description)
       .attach("pictures", newProductData.pictures)
       .expect(500);
+    Category.findOne = originalFn;
   });
 });
 
@@ -193,72 +221,13 @@ describe("Delete Product", () => {
   });
 
   test("500 System Error", async () => {
+    const originalFn = Product.destroy;
     Product.destroy = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
     await request(app)
       .delete("/product/" + testProduct.id)
       .expect(500);
+    Product.destroy = originalFn;
   });
 });
-
-describe("Register", () => {
-  test("200 Success", async () => {
-    await request(app)
-      .post("/auth/register")
-      .send({ email: "test321@gmail.com", password: "123456" })
-      .expect(200);
-  });
-
-  test("409 Email already exists", async () => {
-    await request(app)
-      .post("/auth/register")
-      .send({ email: "test321@gmail.com", password: "123456" })
-      .expect(409);
-  });
-
-  test("400 Invalid Email", async () => {
-    await request(app)
-      .post("/auth/register")
-      .send({ email: "inibukanemail", password: "123456" })
-      .expect(400);
-  });
-
-  test("500 Failed Create New User", async () => {
-    User.create = jest.fn().mockImplementationOnce(() => {
-      throw new Error();
-    });
-    await request(app)
-      .post("/auth/register")
-      .send({ email: "test3210@gmail.com", password: "123456" })
-      .expect(500);
-  });
-});
-
-describe("Login", () => {
-  test("200 Success", async () => {
-    await request(app)
-      .post("/auth/login")
-      .send({ email: "test321@gmail.com", password: "123456" })
-      .expect(200);
-  });
-
-  test("400 Invalid Email", async () => {
-    await request(app)
-      .post("/auth/login")
-      .send({ email: "inibukanemail" })
-      .expect(400);
-  });
-
-  test("500 system error / unexpected error", async () => {
-    User.findOne = jest.fn().mockImplementationOnce(() => {
-      throw new Error();
-    });
-    await request(app)
-      .post("/auth/login")
-      .send({ email: "test321@gmail.com", password: "123456" })
-      .expect(500);
-  });
-});
-
-module.exports = { testUser };

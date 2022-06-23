@@ -26,7 +26,7 @@ app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
 app.use(router);
 
 const server = app.listen(process.env.PORT || 8000, async () => {
-  console.log("Listening on 8000");
+  console.log(`Listening on ${process.env.PORT || 8000}`);
 });
 
 module.exports = { app, server };
