@@ -16,7 +16,11 @@ app.use((req, res, next) => {
     "GET, POST, PUT, PATCH, DELETE, OPTIONS"
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
+  if (req.method == "OPTIONS") {
+    return res.sendStatus(200);
+  } else {
+    next();
+  }
 });
 
 app.use(express.json());
