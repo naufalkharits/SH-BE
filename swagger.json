@@ -154,7 +154,7 @@
             "description": "Register object",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Auth"
+              "$ref": "#/definitions/User"
             }
           }
         ],
