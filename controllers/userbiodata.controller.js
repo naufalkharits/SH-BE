@@ -1,4 +1,4 @@
-const { userbiodata } = require("../models");
+const { UserBiodata } = require("../models");
 
 module.exports = {
   getuserbiodata: async (req, res) => {
