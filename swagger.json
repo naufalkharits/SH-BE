@@ -27,6 +27,10 @@
     {
       "name": "Category",
       "description": "Category Endpoints"
+    },
+    {
+      "name": "User Biodata",
+      "description": "Biodata Endpoints"
     }
   ],
   "schemes": ["https"],
@@ -773,111 +777,231 @@
           }
         }
       }
-    }
-  },
-  "definitions": {
-    "Category": {
-      "type": "object",
-      "required": ["name"],
-      "properties": {
-        "categories": {
-          "type": "array",
-          "items": {
+    },
+
+    "/biodata/{id}": {
+      "put": {
+        "tags": ["User Biodata"],
+        "summary": "Update Biodata",
+        "description": "Update User Biodata by User ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "example": 1,
+            "required": true,
+            "description": "User ID"
+          },
+          {
+            "in": "formData",
+            "name": "name",
             "type": "string",
-            "example": [
-              "Health",
-              "Sport",
-              "Automotive",
-              "Electronic",
-              "Property"
-            ]
+            "description": "User's Name"
+          },
+          {
+            "in": "formData",
+            "name": "city",
+            "type": "string",
+            "description": "City"
+          },
+          {
+            "in": "formData",
+            "name": "address",
+            "type": "string",
+            "description": "Address"
+          },
+          {
+            "in": "formData",
+            "name": "phone_number",
+            "type": "string",
+            "description": "Phone Number"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "updatedProduct": {
+                  "$ref": "#/definitions/UserBiodata"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid User ID is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "user not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
           }
         }
       }
     },
-    "User": {
-      "type": "object",
-      "required": ["email", "password"],
-      "properties": {
-        "email": {
-          "type": "string",
-          "example": "user@mail.com"
-        },
-        "password": {
-          "type": "string",
-          "example": "12345"
-        }
-      }
-    },
-    "Product": {
-      "type": "object",
-      "required": ["name", "price", "category", "description", "pictures"],
-      "properties": {
-        "id": {
-          "type": "integer",
-          "example": "1"
-        },
-        "name": {
-          "type": "string",
-          "example": "Jam Tangan"
-        },
-        "price": {
-          "type": "integer",
-          "example": "150000"
-        },
-        "category": {
-          "type": "string",
-          "example": "Electronic"
-        },
-        "description": {
-          "type": "string",
-          "example": "Jam Tangan Kualitas Bagus"
-        },
-        "seller_id": {
-          "type": "integer",
-          "example": "1"
-        },
-        "pictures": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "example": ["jam_tangan_1.png", "jam_tangan_2.png"]
+    "definitions": {
+      "Category": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
+            }
           }
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@mail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "12345"
+          }
+        }
+      },
+      "UserBiodata": {
+        "type": "object",
+        "required": ["name", "city", "address", "phone_number"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "Muhammad Zaky Aonillah"
+          },
+          "password": {
+            "type": "string",
+            "example": "Jakarta"
+          },
+          "address": {
+            "type": "string",
+            "example": "Jalan Jendral Sudirman"
+          },
+          "phone_number": {
+            "type": "string",
+            "example": "082398327564"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "required": ["name", "price", "category", "description", "pictures"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": "1"
+          },
+          "name": {
+            "type": "string",
+            "example": "Jam Tangan"
+          },
+          "price": {
+            "type": "integer",
+            "example": "150000"
+          },
+          "category": {
+            "type": "string",
+            "example": "Electronic"
+          },
+          "description": {
+            "type": "string",
+            "example": "Jam Tangan Kualitas Bagus"
+          },
+          "seller_id": {
+            "type": "integer",
+            "example": "1"
+          },
+          "pictures": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": ["jam_tangan_1.png", "jam_tangan_2.png"]
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Token": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1pY2hhZWwgRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.Xk3hf0UUoSky6RDWjMib6x6yf1aE9xpPeTO_Pcfpw4Q"
+          }
         }
       }
     },
-    "Token": {
-      "type": "object",
-      "properties": {
-        "accessToken": {
-          "type": "string",
-          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-        },
-        "refreshToken": {
-          "type": "string",
-          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1pY2hhZWwgRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.Xk3hf0UUoSky6RDWjMib6x6yf1aE9xpPeTO_Pcfpw4Q"
-        }
+    "securityDefinitions": {
+      "access_token": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "bearerFormat": "JWT"
       }
+    },
+    "externalDocs": {
+      "description": "Find out more about Swagger",
+      "url": "http://swagger.io"
     }
-  },
-  "securityDefinitions": {
-    "access_token": {
-      "type": "apiKey",
-      "name": "Authorization",
-      "in": "header",
-      "bearerFormat": "JWT"
-    }
-  },
-  "externalDocs": {
-    "description": "Find out more about Swagger",
-    "url": "http://swagger.io"
   }
 }
