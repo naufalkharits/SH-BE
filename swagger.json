@@ -154,7 +154,21 @@
             "description": "Register object",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/User"
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Test User"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "testuser@gmail.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "123456"
+                }
+              }
             }
           }
         ],

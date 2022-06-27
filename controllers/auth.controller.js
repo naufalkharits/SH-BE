@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, UserBiodata } = require("../models");
 const bcrypt = require("bcrypt");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 const jwt = require("jsonwebtoken");
@@ -42,13 +42,13 @@ module.exports = {
     }
   },
   register: async (req, res) => {
-    if (!req.body.email || !req.body.password) {
+    if (!req.body.email || !req.body.password || !req.body.name) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
-        message: "Email and password is required",
+        message: "Email, password and name is required",
       });
     }
-    
+
     try {
       const { email, password } = req.body;
       const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -66,6 +66,12 @@ module.exports = {
             email,
             password: encryptedPassword,
           });
+
+          await UserBiodata.create({
+            user_id: newUser.id,
+            name: req.body.name,
+          });
+
           const accessToken = generateAccessToken(newUser.id);
           const refreshToken = generateRefreshToken(newUser.id);
 

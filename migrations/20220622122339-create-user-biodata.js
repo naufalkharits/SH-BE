@@ -20,23 +20,33 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
       },
       city: {
         type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
       },
       address: {
         type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
       },
       phone_number: {
         type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal("NOW()"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal("NOW()"),
       },
     });
   },
