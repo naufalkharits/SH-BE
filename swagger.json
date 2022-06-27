@@ -778,8 +778,84 @@
         }
       }
     },
-
     "/biodata/{id}": {
+      "get": {
+        "tags": ["User Biodata"],
+        "summary": "Get User Biodata",
+        "description": "Get Single User Biodata by User Biodata ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "example": 1,
+            "required": true,
+            "description": "User ID"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userbiodata": {
+                  "$ref": "#/definitions/UserBiodata"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid User Biodata ID is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User Biodata Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User Biodata not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
+      },
       "put": {
         "tags": ["User Biodata"],
         "summary": "Update Biodata",
@@ -825,7 +901,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "updatedProduct": {
+                "userbiodata": {
                   "$ref": "#/definitions/UserBiodata"
                 }
               }
@@ -842,13 +918,13 @@
                 },
                 "message": {
                   "type": "string",
-                  "example": "Valid User ID is required"
+                  "example": "Valid User Biodata ID is required"
                 }
               }
             }
           },
           "404": {
-            "description": "User Not Found",
+            "description": "User Biodata Not Found",
             "schema": {
               "type": "object",
               "properties": {
@@ -858,7 +934,7 @@
                 },
                 "message": {
                   "type": "string",
-                  "example": "user not found"
+                  "example": "User Biodata not found"
                 }
               }
             }
@@ -892,7 +968,13 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
+            "example": [
+              "Health",
+              "Sport",
+              "Automotive",
+              "Electronic",
+              "Property"
+            ]
           }
         }
       }
