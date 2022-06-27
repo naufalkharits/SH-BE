@@ -17,10 +17,14 @@ module.exports = (sequelize, DataTypes) => {
   UserBiodata.init(
     {
       user_id: { type: DataTypes.INTEGER, allowNull: false },
-      name: DataTypes.STRING,
-      city: DataTypes.STRING,
-      address: DataTypes.STRING,
-      phone_number: DataTypes.STRING,
+      name: { type: DataTypes.STRING, allowNull: true, defaultValue: null },
+      city: { type: DataTypes.STRING, allowNull: true, defaultValue: null },
+      address: { type: DataTypes.STRING, allowNull: true, defaultValue: null },
+      phone_number: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
     },
     {
       sequelize,
