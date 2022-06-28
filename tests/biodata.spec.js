@@ -1,26 +1,23 @@
 const request = require("supertest");
-const { app, server } = require("../index");
-const { UserBiodata } = require("../models");
+const { app } = require("../index");
+const { UserBiodata, User } = require("../models");
 
 const newUserBiodata = {
   name: "Zaky",
   city: "Jakarta",
   address: "Jalan Sudirman",
-  phone_number: "083934237583",
+  phone_number: "0839424242424",
 };
 
-let testUserToken;
-
+let testUser;
 beforeAll(async () => {
-  try {
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  await request(app).post("/auth/register").send({ name: "testUser", email: "a@gmail.com", password: "12345" });
+  testUser = await User.findOne({ where: { email: "a@gmail.com" } });
 });
 
 afterAll(async () => {
   try {
-    await UserBiodata.destroy({ where: {} });
+    await User.destroy({ where: {} });
     server.close();
   } catch (error) {
     console.log("Error : ", error);
@@ -30,7 +27,7 @@ afterAll(async () => {
 describe("Update Biodata", () => {
   test("200 success", async () => {
     await request(app)
-      .put("/biodata/" + newUserBiodata.id)
+      .put("/biodata/" + testUser.id)
       .field("name", newUserBiodata.name)
       .field("city", newUserBiodata.city)
       .field("address", newUserBiodata.address)
@@ -47,11 +44,33 @@ describe("Update Biodata", () => {
   });
 
   test("500 System Error", async () => {
-    const originalFn = UserBiodata.findAll;
-    UserBiodata.findAll = jest.fn().mockImplementationOnce(() => {
+    const originalFn = UserBiodata.update;
+    UserBiodata.update = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
-    await request(app).get("/biodata").expect(500);
-    UserBiodata.findAll = originalFn;
+    await request(app)
+      .put("/biodata/" + testUser.id)
+      .expect(500);
+    UserBiodata.update = originalFn;
+  });
+});
+
+describe("Get Biodata", () => {
+  test("200 Success", async () => {
+    await request(app).get(`/biodata/${testUser.id}`).expect(200);
+  });
+  test("400 Validation Failed", async () => {
+    await request(app).get(`/biodata/abc`).expect(400);
+  });
+  test("404 User Not Found", async () => {
+    await request(app).get(`/biodata/0`).expect(404);
+  });
+  test("500 System Error", async () => {
+    const originalFn = UserBiodata.findOne;
+    UserBiodata.findOne = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app).get(`/biodata/${testUser.id}`).expect(500);
+    UserBiodata.findOne = originalFn;
   });
 });
