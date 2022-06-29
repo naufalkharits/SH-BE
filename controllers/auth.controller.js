@@ -21,20 +21,29 @@ module.exports = {
         },
       });
 
-      if (user && (await bcrypt.compare(password, user.password))) {
-        const accessToken = generateAccessToken(user.id);
-        const refreshToken = generateRefreshToken(user.id);
-
-        res.status(200).json({
-          accessToken,
-          refreshToken,
-        });
-      } else {
-        res.status(400).json({
-          type: "INVALID_CREDENTIALS",
-          message: "Wrong email or password",
+      if (!user) {
+        return res.status(404).json({
+          type: "EMAIL_NOT_FOUND",
+          message: "User / E-Mail not found",
         });
       }
+
+      const isEqualPw = await bcrypt.compare(password, user.password);
+
+      if (!isEqualPw) {
+        return res.status(403).json({
+          type: "WRONG_PASSWORD",
+          message: "Wrong password",
+        });
+      }
+
+      const accessToken = generateAccessToken(user.id);
+      const refreshToken = generateRefreshToken(user.id);
+
+      res.status(200).json({
+        accessToken,
+        refreshToken,
+      });
     } catch (err) {
       res
         .status(500)
