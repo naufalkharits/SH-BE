@@ -1,4 +1,5 @@
 const Picture = require("../../models").Picture;
+const UserBiodata = require("../../models").UserBiodata;
 const { v4 } = require("uuid");
 
 const validatePictures = (pictures) => {
@@ -62,9 +63,66 @@ const deleteProductImages = async (productId) => {
   }
 };
 
+const uploadProfileImage = async (image, userId) => {
+  if (!image) return;
+
+  try {
+    // Remove existing profile picture
+    await deleteProfileImage(userId);
+
+    const newPictureName = v4();
+
+    const imageExt = image.mimetype.replace("image/", "");
+    const imageName = `${newPictureName}.${imageExt}`;
+    const imagePath = `profiles/${imageName}`;
+
+    const publicUrl = `localhost/${imagePath}`;
+
+    // Add picture to DB
+    await UserBiodata.update(
+      {
+        picture: publicUrl,
+      },
+      {
+        where: {
+          user_id: userId,
+        },
+      }
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteProfileImage = async (userId) => {
+  try {
+    const userBio = await UserBiodata.findOne({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    if (!userBio || !userBio.picture) return;
+
+    await UserBiodata.update(
+      {
+        picture: null,
+      },
+      {
+        where: {
+          user_id: userId,
+        },
+      }
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   validatePictures,
   uploadProductImages,
   updateProductImages,
   deleteProductImages,
+  uploadProfileImage,
 };

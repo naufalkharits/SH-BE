@@ -30,7 +30,6 @@ module.exports = {
         biodata,
       });
     } catch (error) {
-      console.log(error);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -38,37 +37,14 @@ module.exports = {
     }
   },
   updateBiodata: async (req, res) => {
-    // check if biodata id is valid
-    if (!req.params.id || !Number.isInteger(+req.params.id)) {
-      return res.status(400).json({
-        type: "VALIDATION_VAILED",
-        message: "Valid Biodata ID is required",
-      });
-    }
-
     const { name, city, address, phone_number } = req.body;
 
     const profilePicture = req.file;
 
     try {
-      console.log("User ID : ", req.params.id);
-      // Find biodata id if biodata updated
-      const user = await User.findOne({
-        where: {
-          id: req.params.id,
-        },
-      });
-
-      if (!user) {
-        return res.status(400).json({
-          type: "VALIDATON_FAILED",
-          message: "Valid User ID is required",
-        });
-      }
-
       // Update Profile Image
       if (profilePicture) {
-        await uploadProfileImage(profilePicture, req.params.id);
+        await uploadProfileImage(profilePicture, req.user.id);
       }
 
       // Update Biodata
@@ -81,19 +57,18 @@ module.exports = {
         },
         {
           where: {
-            user_id: req.params.id,
+            user_id: req.user.id,
           },
         }
       );
 
       // get Updated Biodata
       const biodata = await UserBiodata.findOne({
-        where: { user_id: req.params.id },
+        where: { user_id: req.user.id },
       });
 
       res.status(200).json({ updatedBiodata: biodata });
     } catch (err) {
-      console.log(err);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",

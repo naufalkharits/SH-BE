@@ -87,15 +87,29 @@ module.exports = {
           .json({ type: "VALIDATION_FAILED", message: "Invalid email input" });
       }
     } catch (err) {
-      console.log(err);
       res
         .status(500)
         .json({ type: "SYSTEM_ERROR", message: "Something wrong with server" });
     }
   },
   me: async (req, res) => {
+    const userData = await UserBiodata.findOne({
+      where: {
+        user_id: req.user.id,
+      },
+      include: [User],
+    });
+
     res.status(200).json({
-      user: req.user,
+      user: {
+        id: userData.user_id,
+        name: userData.name,
+        city: userData.city,
+        address: userData.address,
+        phone_number: userData.phone_number,
+        picture: userData.picture,
+        email: userData.User.email,
+      },
     });
   },
   refresh: async (req, res) => {
