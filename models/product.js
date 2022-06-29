@@ -15,6 +15,9 @@ module.exports = (sequelize, DataTypes) => {
       Product.hasMany(models.Picture, {
         foreignKey: "product_id",
       });
+      Product.hasMany(models.Transaction, {
+        foreignKey: "product_id",
+      });
       Product.belongsTo(models.User, {
         foreignKey: "seller_id",
       });

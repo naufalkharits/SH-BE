@@ -38,6 +38,11 @@ module.exports = {
         allowNull: true,
         defaultValue: null,
       },
+      picture: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -1,6 +1,5 @@
 const Picture = require("../models").Picture;
-const path = require("path");
-const syncFs = require("fs");
+const UserBiodata = require("../models").UserBiodata;
 const { v4 } = require("uuid");
 const admin = require("firebase-admin");
 
@@ -74,8 +73,7 @@ const deleteProductImages = async (productId) => {
     // Remove existing pictures
     for (const picture of pictures) {
       const imagePath = `images/${picture.name}`;
-      // if (!syncFs.existsSync(path.join(imagesPath, picture.name))) return;
-      // await fs.unlink(path.join(imagesPath, picture.name));
+
       await admin
         .storage()
         .bucket()
@@ -89,9 +87,86 @@ const deleteProductImages = async (productId) => {
   }
 };
 
+const uploadProfileImage = async (image, userId) => {
+  if (!image) return;
+
+  try {
+    // Remove existing profile picture
+    await deleteProfileImage(userId);
+
+    const newPictureName = v4();
+
+    const imageExt = image.mimetype.replace("image/", "");
+    const imageName = `${newPictureName}.${imageExt}`;
+    const imagePath = `profiles/${imageName}`;
+
+    // Upload picture
+    await admin.storage().bucket().file(imagePath).save(image.buffer);
+
+    await admin.storage().bucket().file(imagePath).makePublic();
+
+    const publicUrl = admin.storage().bucket().file(imagePath).publicUrl();
+
+    // Add picture to DB
+    await UserBiodata.update(
+      {
+        picture: publicUrl,
+      },
+      {
+        where: {
+          user_id: userId,
+        },
+      }
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteProfileImage = async (userId) => {
+  try {
+    const userBio = await UserBiodata.findOne({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    if (!userBio) return;
+
+    const pictureName = userBio.picture
+      .replace(
+        "https://storage.googleapis.com/final-project-binar-d4a7b.appspot.com/profiles%2F",
+        ""
+      )
+      .trim();
+
+    const imagePath = `profiles/${pictureName}`;
+
+    await admin
+      .storage()
+      .bucket()
+      .file(imagePath)
+      .delete({ ignoreNotFound: true });
+
+    await UserBiodata.update(
+      {
+        picture: null,
+      },
+      {
+        where: {
+          user_id: userId,
+        },
+      }
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   validatePictures,
   uploadProductImages,
   updateProductImages,
   deleteProductImages,
+  uploadProfileImage,
 };
