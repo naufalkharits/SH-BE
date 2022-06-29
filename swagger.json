@@ -125,6 +125,38 @@
               }
             }
           },
+          "404": {
+            "description": "Wrong E-Mail / User Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "EMAIL_NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User / E-Mail not found"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Wrong Password",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "WRONG_PASSWORD"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Wrong password"
+                }
+              }
+            }
+          },
           "500": {
             "description": "System Error / Unexpected Error",
             "schema": {
@@ -237,8 +269,8 @@
     "/auth/me": {
       "post": {
         "tags": ["Auth"],
-        "summary": "Check User Token",
-        "description": "Check User Token Validity",
+        "summary": "Check User Token & Get User Biodata",
+        "description": "Check User Token Validity and Get User Self Biodata",
         "security": [
           {
             "access_token": []
@@ -250,7 +282,42 @@
           "200": {
             "description": "Success",
             "schema": {
-              "$ref": "#/definitions/Token"
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 10
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Kurniawan Cristianto"
+                    },
+                    "city": {
+                      "type": "string",
+                      "example": "Jambi"
+                    },
+                    "address": {
+                      "type": "string",
+                      "example": "Jl. Jambi No.17"
+                    },
+                    "phone_numver": {
+                      "type": "string",
+                      "example": "08123456789"
+                    },
+                    "picture": {
+                      "type": "string",
+                      "example": "kurniawan.png"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "kurniawan@gmail.com"
+                    }
+                  }
+                }
+              }
             }
           },
           "401": {
@@ -338,6 +405,7 @@
         }
       }
     },
+
     "/product": {
       "get": {
         "tags": ["Product"],
@@ -467,6 +535,22 @@
               }
             }
           },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Validation Failed",
             "schema": {
@@ -502,7 +586,6 @@
         }
       }
     },
-
     "/product/{id}": {
       "get": {
         "tags": ["Product"],
@@ -644,6 +727,22 @@
               }
             }
           },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Validation Failed",
             "schema": {
@@ -727,6 +826,22 @@
               }
             }
           },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Validation Failed",
             "schema": {
@@ -778,6 +893,7 @@
         }
       }
     },
+
     "/biodata/{id}": {
       "get": {
         "tags": ["User Biodata"],
@@ -800,7 +916,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "userbiodata": {
+                "biodata": {
                   "$ref": "#/definitions/UserBiodata"
                 }
               }
@@ -855,43 +971,48 @@
             }
           }
         }
-      },
+      }
+    },
+    "/biodata": {
       "put": {
         "tags": ["User Biodata"],
         "summary": "Update Biodata",
-        "description": "Update User Biodata by User ID",
-        "parameters": [
+        "description": "Update User Biodata",
+        "security": [
           {
-            "in": "path",
-            "name": "id",
-            "type": "integer",
-            "example": 1,
-            "required": true,
-            "description": "User ID"
-          },
+            "access_token": []
+          }
+        ],
+        "parameters": [
           {
             "in": "formData",
             "name": "name",
             "type": "string",
-            "description": "User's Name"
+            "description": "User Full Name"
           },
           {
             "in": "formData",
             "name": "city",
             "type": "string",
-            "description": "City"
+            "description": "User City"
           },
           {
             "in": "formData",
             "name": "address",
             "type": "string",
-            "description": "Address"
+            "description": "User Address"
           },
           {
             "in": "formData",
             "name": "phone_number",
             "type": "string",
-            "description": "Phone Number"
+            "description": "User Phone Number"
+          },
+          {
+            "in": "formData",
+            "name": "pictures",
+            "type": "file",
+            "description": "User Profile Pictures"
           }
         ],
         "produces": ["application/json"],
@@ -901,40 +1022,24 @@
             "schema": {
               "type": "object",
               "properties": {
-                "userbiodata": {
+                "updatedBiodata": {
                   "$ref": "#/definitions/UserBiodata"
                 }
               }
             }
           },
-          "400": {
-            "description": "Validation Failed",
+          "401": {
+            "description": "Invalid / Expired Token",
             "schema": {
               "type": "object",
               "properties": {
                 "type": {
                   "type": "string",
-                  "example": "VALIDATION_FAILED"
+                  "example": "UNAUTHORIZED"
                 },
                 "message": {
                   "type": "string",
-                  "example": "Valid User Biodata ID is required"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User Biodata Not Found",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "NOT_FOUND"
-                },
-                "message": {
-                  "type": "string",
-                  "example": "User Biodata not found"
+                  "example": "Unauthorized Access"
                 }
               }
             }
@@ -995,13 +1100,16 @@
     },
     "UserBiodata": {
       "type": "object",
-      "required": ["name", "city", "address", "phone_number"],
       "properties": {
-        "email": {
+        "user_id": {
+          "type": "integer",
+          "example": 10
+        },
+        "name": {
           "type": "string",
           "example": "Muhammad Zaky Aonillah"
         },
-        "password": {
+        "city": {
           "type": "string",
           "example": "Jakarta"
         },
@@ -1012,6 +1120,18 @@
         "phone_number": {
           "type": "string",
           "example": "082398327564"
+        },
+        "picture": {
+          "type": "string",
+          "example": "user_profile.png"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },

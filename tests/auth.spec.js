@@ -26,6 +26,13 @@ describe("Register", () => {
       .expect(200);
   });
 
+  test("400 Validation Failed", async () => {
+    await request(app)
+      .post("/auth/register")
+      .send({ name: "Test User", email: "inibukanemail" })
+      .expect(400);
+  });
+
   test("409 Email already exists", async () => {
     await request(app)
       .post("/auth/register")
@@ -79,11 +86,18 @@ describe("Login", () => {
       .expect(400);
   });
 
-  test("400 Wrong Password", async () => {
+  test("404 User / Email Not Found", async () => {
+    await request(app)
+      .post("/auth/login")
+      .send({ email: "test123@gmail.com", password: "123456" })
+      .expect(404);
+  });
+
+  test("403 Wrong Password", async () => {
     await request(app)
       .post("/auth/login")
       .send({ email: "test321@gmail.com", password: "wrong" })
-      .expect(400);
+      .expect(403);
   });
 
   test("500 system error / unexpected error", async () => {
