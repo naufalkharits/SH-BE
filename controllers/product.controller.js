@@ -38,6 +38,7 @@ module.exports = {
         },
         limit: limit || undefined,
         offset: offset || undefined,
+        order: [["createdAt", "DESC"]],
       });
 
       const productsData = products.map((product) => ({
