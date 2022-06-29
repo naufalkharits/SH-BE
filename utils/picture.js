@@ -131,7 +131,7 @@ const deleteProfileImage = async (userId) => {
       },
     });
 
-    if (!userBio) return;
+    if (!userBio || !userBio.picture) return;
 
     const pictureName = userBio.picture
       .replace(

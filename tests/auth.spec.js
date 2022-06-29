@@ -6,29 +6,41 @@ let userAccessToken;
 let userRefreshToken;
 
 afterAll(async () => {
-  await User.destroy({ where: {} });
-  server.close();
+  try {
+    await User.destroy({ where: {} });
+    server.close();
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 describe("Register", () => {
   test("200 Success", async () => {
     await request(app)
       .post("/auth/register")
-      .send({ email: "test321@gmail.com", password: "123456" })
+      .send({
+        name: "Test User",
+        email: "test321@gmail.com",
+        password: "123456",
+      })
       .expect(200);
   });
 
   test("409 Email already exists", async () => {
     await request(app)
       .post("/auth/register")
-      .send({ email: "test321@gmail.com", password: "123456" })
+      .send({
+        name: "Test User",
+        email: "test321@gmail.com",
+        password: "123456",
+      })
       .expect(409);
   });
 
   test("400 Invalid Email", async () => {
     await request(app)
       .post("/auth/register")
-      .send({ email: "inibukanemail", password: "123456" })
+      .send({ name: "Test User", email: "inibukanemail", password: "123456" })
       .expect(400);
   });
 
@@ -39,7 +51,11 @@ describe("Register", () => {
     });
     await request(app)
       .post("/auth/register")
-      .send({ email: "test3210@gmail.com", password: "123456" })
+      .send({
+        name: "Test User",
+        email: "test3210@gmail.com",
+        password: "123456",
+      })
       .expect(500);
     User.create = originalFn;
   });
