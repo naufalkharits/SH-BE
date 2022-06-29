@@ -1,4 +1,5 @@
 const { UserBiodata, User } = require("../models");
+const { uploadProfileImage } = require("../utils/picture");
 
 module.exports = {
   getBiodata: async (req, res) => {
@@ -38,28 +39,36 @@ module.exports = {
   },
   updateBiodata: async (req, res) => {
     // check if biodata id is valid
-    if (!Number.isInteger(+req.params.id)) {
+    if (!req.params.id || !Number.isInteger(+req.params.id)) {
       return res.status(400).json({
         type: "VALIDATION_VAILED",
         message: "Valid Biodata ID is required",
       });
     }
 
-    const { user_id, name, city, address, phone_number } = req.body;
+    const { name, city, address, phone_number } = req.body;
+
+    const profilePicture = req.file;
 
     try {
+      console.log("User ID : ", req.params.id);
       // Find biodata id if biodata updated
-      const userBiodata = await User.findOne({
+      const user = await User.findOne({
         where: {
-          id: user_id || null,
+          id: req.params.id,
         },
       });
 
-      if (user_id && !userBiodata) {
+      if (!user) {
         return res.status(400).json({
           type: "VALIDATON_FAILED",
-          message: "Valid Biodata ID is required",
+          message: "Valid User ID is required",
         });
+      }
+
+      // Update Profile Image
+      if (profilePicture) {
+        await uploadProfileImage(profilePicture, req.params.id);
       }
 
       // Update Biodata
@@ -82,26 +91,11 @@ module.exports = {
         where: { user_id: req.params.id },
       });
 
-      if (!biodata) {
-        return res.status(404).json({
-          type: "NOT_FOUND",
-          message: "User Biodata Not Found",
-        });
-      }
-
-      const updatedBiodata = {
-        id: biodata.id,
-        name: biodata.name,
-        city: biodata.city,
-        address: biodata.address,
-        phone_number: biodata.phone_number,
-        createdAt: biodata.createdAt,
-        updateAt: biodata.updateAt,
-      };
-      res.status(200).json({ message: "Biodata Updated!", updatedBiodata });
+      res.status(200).json({ updatedBiodata: biodata });
     } catch (err) {
+      console.log(err);
       res.status(500).json({
-        type: "SYSTEM _ERROR",
+        type: "SYSTEM_ERROR",
         message: "Something wrong with server",
       });
     }
