@@ -3,7 +3,12 @@ const { Wishlist, Product, User } = require("../models");
 module.exports = {
   createWishlist: async (req, res) => {
     // check if product_id and user_id is provided
-    if (!req.body.product_id || !req.body.user_id || !Number.isInteger(+req.body.product_id) || !Number.isInteger(+req.body.user_id)) {
+    if (
+      !req.body.product_id ||
+      !req.body.user_id ||
+      !Number.isInteger(+req.body.product_id) ||
+      !Number.isInteger(+req.body.user_id)
+    ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message: "Product id and user id is required and valid",
@@ -75,10 +80,15 @@ module.exports = {
     }
   },
   deleteWishlist: async (req, res) => {
-    if (!Number.isInteger(+req.params.id)) {
+    if (
+      !req.body.product_id ||
+      !req.body.user_id ||
+      !Number.isInteger(+req.body.product_id) ||
+      !Number.isInteger(+req.body.user_id)
+    ) {
       return res.status(400).json({
-        type: "VALIDATION_ERROR",
-        message: "Valid Wishlist ID is required",
+        type: "VALIDATION_FAILED",
+        message: "Product id and user id is required and valid",
       });
     }
 
@@ -87,10 +97,14 @@ module.exports = {
       //await deleteProductImages(req.params.id);
 
       // Delete Wishlist
-      const result = await Wishlist.destroy({ where: { id: req.params.id } });
+      const result = await Wishlist.destroy({
+        where: { product_id: req.body.product_id, user_id: req.body.user_id },
+      });
       // Check if Wishlist not found
       if (result === 0) {
-        res.status(404).json({ type: "NOT_FOUND", message: "Wishlist not found" });
+        res
+          .status(404)
+          .json({ type: "NOT_FOUND", message: "Wishlist not found" });
       } else {
         res.status(200).json({ message: "Wishlist successfully deleted" });
       }
