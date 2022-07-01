@@ -1,6 +1,24 @@
 const { Wishlist, Product, User } = require("../models");
 
 module.exports = {
+  getWishlists: async (req, res) => {
+    try {
+      const wishlists = await Wishlist.findAll({
+        where: {
+          user_id: req.user.id,
+        },
+      });
+
+      res.status(200).json({
+        wishlists,
+      });
+    } catch (error) {
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
+  },
   createWishlist: async (req, res) => {
     // check if product_id and user_id is provided
     if (
