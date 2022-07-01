@@ -21,74 +21,51 @@ module.exports = {
   },
   createWishlist: async (req, res) => {
     // check if product_id and user_id is provided
-    if (
-      !req.body.product_id ||
-      !req.body.user_id ||
-      !Number.isInteger(+req.body.product_id) ||
-      !Number.isInteger(+req.body.user_id)
-    ) {
+    if (!Number.isInteger(+req.params.productId)) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
-        message: "Product id and user id is required and valid",
+        message: "Valid product ID is required",
       });
     }
-
-    const { product_id, user_id } = req.body;
 
     try {
       // check if product exists
       const product = await Product.findOne({
         where: {
-          id: product_id,
+          id: req.params.productId,
         },
       });
 
       if (!product) {
         return res.status(404).json({
           type: "NOT_FOUND",
-          message: "Product does not exist",
-        });
-      }
-
-      // check if user exists
-      const user = await User.findOne({
-        where: {
-          id: user_id,
-        },
-      });
-
-      if (!user) {
-        return res.status(404).json({
-          type: "NOT_FOUND",
-          message: "User does not exist",
+          message: "Product not found",
         });
       }
 
       // check if product is already in wishlist
       const wishlist = await Wishlist.findOne({
         where: {
-          product_id,
-          user_id,
+          product_id: req.params.productId,
+          user_id: req.user.id,
         },
       });
 
       if (wishlist) {
-        return res.status(400).json({
-          type: "VALIDATION_FAILED",
+        return res.status(409).json({
+          type: "ALREADY_EXISTS",
           message: "Product is already in wishlist",
         });
       }
 
       // create new wishlist
       const newWishlist = await Wishlist.create({
-        product_id,
-        user_id,
+        product_id: req.params.productId,
+        user_id: req.user.id,
       });
 
-      return res.status(200).json({
-        type: "SUCCESS",
-        message: "Product added to wishlist",
-        data: newWishlist,
+      res.status(200).json({
+        wishlist: newWishlist,
       });
     } catch (err) {
       res.status(500).json({
@@ -98,26 +75,19 @@ module.exports = {
     }
   },
   deleteWishlist: async (req, res) => {
-    if (
-      !req.body.product_id ||
-      !req.body.user_id ||
-      !Number.isInteger(+req.body.product_id) ||
-      !Number.isInteger(+req.body.user_id)
-    ) {
+    if (!Number.isInteger(+req.params.productId)) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
-        message: "Product id and user id is required and valid",
+        message: "Valid product ID is required",
       });
     }
 
     try {
-      // Delete Wishlist pictures
-      //await deleteProductImages(req.params.id);
-
       // Delete Wishlist
       const result = await Wishlist.destroy({
-        where: { product_id: req.body.product_id, user_id: req.body.user_id },
+        where: { product_id: req.params.productId, user_id: req.user.id },
       });
+
       // Check if Wishlist not found
       if (result === 0) {
         res

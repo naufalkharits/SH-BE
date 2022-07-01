@@ -1077,6 +1077,11 @@
         "tags": ["Wishlist"],
         "summary": "Get Wishlists",
         "description": "Get User Wishlists",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
         "produces": ["application/json"],
         "responses": {
           "200": {
@@ -1089,6 +1094,22 @@
                   "items": {
                     "$ref": "#/definitions/Wishlist"
                   }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
                 }
               }
             }
@@ -1110,23 +1131,24 @@
             }
           }
         }
-      },
+      }
+    },
+    "/wishlist/{id}": {
       "post": {
         "tags": ["Wishlist"],
         "summary": "Add to Wishlist",
         "description": "Add Product to User Wishlist",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
         "parameters": [
           {
-            "in": "formData",
-            "name": "product_id",
+            "in": "path",
+            "name": "id",
             "type": "integer",
             "description": "Product ID"
-          },
-          {
-            "in": "formData",
-            "name": "user_id",
-            "type": "integer",
-            "description": "User ID"
           }
         ],
         "produces": ["application/json"],
@@ -1153,7 +1175,23 @@
                 },
                 "message": {
                   "type": "string",
-                  "example": "Product ID and Use ID is required"
+                  "example": "Valid Product ID is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
                 }
               }
             }
@@ -1170,6 +1208,22 @@
                 "message": {
                   "type": "string",
                   "example": "Product not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Wishlist Already Exists",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "ALREADY_EXISTS"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Product is already in wishlist"
                 }
               }
             }
@@ -1195,20 +1249,19 @@
       "delete": {
         "tags": ["Wishlist"],
         "summary": "Delete Wishlist",
-        "description": "Delete Single Product by Product ID",
+        "description": "Delete Product from User Wishlists",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
         "produces": ["application/json"],
         "parameters": [
           {
-            "in": "formData",
-            "name": "product_id",
+            "in": "path",
+            "name": "id",
             "type": "integer",
             "description": "Product ID"
-          },
-          {
-            "in": "formData",
-            "name": "user_id",
-            "type": "integer",
-            "description": "User ID"
           }
         ],
         "responses": {
@@ -1217,8 +1270,9 @@
             "schema": {
               "type": "object",
               "properties": {
-                "wishlist": {
-                  "$ref": "#/definitions/Wishlist"
+                "message": {
+                  "type": "string",
+                  "example": "Wishlist successfully deleted"
                 }
               }
             }
@@ -1234,13 +1288,29 @@
                 },
                 "message": {
                   "type": "string",
-                  "example": "Product ID and Use ID is required"
+                  "example": "Valid product ID is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
                 }
               }
             }
           },
           "404": {
-            "description": "Product Not Found",
+            "description": "Wishlist Not Found",
             "schema": {
               "type": "object",
               "properties": {
@@ -1250,7 +1320,7 @@
                 },
                 "message": {
                   "type": "string",
-                  "example": "Product not found"
+                  "example": "Wishlist not found"
                 }
               }
             }
