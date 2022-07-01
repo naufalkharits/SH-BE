@@ -111,41 +111,22 @@ describe("Create Wishlist", () => {
 describe("Delete Wishlist", () => {
   test("200 Success", async () => {
     await request(app)
-      .delete("/wishlist/")
-      .send({
-        product_id: testProduct.id,
-        user_id: testUser.id,
-      })
+      .delete(`/wishlist/${testProduct.id}`)
+      .set("Authorization", testUserAccessToken)
       .expect(200);
   });
 
   test("400 Validation Failed", async () => {
     await request(app)
-      .delete("/wishlist/")
-      .send({
-        product_id: "abc",
-        user_id: "abc",
-      })
+      .delete(`/wishlist/abc`)
+      .set("Authorization", testUserAccessToken)
       .expect(400);
   });
 
   test("404 Product Does Not Exist", async () => {
     await request(app)
-      .post("/wishlist")
-      .send({
-        product_id: 2,
-        user_id: testUser.id,
-      })
-      .expect(404);
-  });
-
-  test("404 User Does Not Exist", async () => {
-    await request(app)
-      .post("/wishlist")
-      .send({
-        product_id: testProduct.id,
-        user_id: 2,
-      })
+      .post("/wishlist/0")
+      .set("Authorization", testUserAccessToken)
       .expect(404);
   });
 
@@ -155,11 +136,8 @@ describe("Delete Wishlist", () => {
       throw new Error();
     });
     await request(app)
-      .delete("/wishlist/")
-      .send({
-        product_id: testProduct2.id,
-        user_id: testUser.id,
-      })
+      .delete(`/wishlist/${testProduct2.id}`)
+      .set("Authorization", testUserAccessToken)
       .expect(500);
     Wishlist.destroy = originalFn;
   });

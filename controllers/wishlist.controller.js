@@ -75,26 +75,19 @@ module.exports = {
     }
   },
   deleteWishlist: async (req, res) => {
-    if (
-      !req.body.product_id ||
-      !req.body.user_id ||
-      !Number.isInteger(+req.body.product_id) ||
-      !Number.isInteger(+req.body.user_id)
-    ) {
+    if (!Number.isInteger(+req.params.productId)) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
-        message: "Product id and user id is required and valid",
+        message: "Valid product ID is required",
       });
     }
 
     try {
-      // Delete Wishlist pictures
-      //await deleteProductImages(req.params.id);
-
       // Delete Wishlist
       const result = await Wishlist.destroy({
-        where: { product_id: req.body.product_id, user_id: req.body.user_id },
+        where: { product_id: req.params.productId, user_id: req.user.id },
       });
+
       // Check if Wishlist not found
       if (result === 0) {
         res

@@ -4,6 +4,6 @@ const checkAuth = require("../middlewares/check-auth");
 
 router.get("/", checkAuth, controller.getWishlists);
 router.post("/:productId", checkAuth, controller.createWishlist);
-router.delete("/", controller.deleteWishlist);
+router.delete("/:productId", checkAuth, controller.deleteWishlist);
 
 module.exports = router;
