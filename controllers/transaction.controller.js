@@ -2,7 +2,12 @@ const { Transaction, Product } = require("../models");
 
 module.exports = {
   createTransaction: async (req, res) => {
-    if (!req.params.productId || !req.body || !req.body.price) {
+    if (
+      !Number.isInteger(+req.params.productId) ||
+      !req.body ||
+      !req.body.price ||
+      !Number.isInteger(+req.body.price)
+    ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message: "Valid product ID and offered price is required",
