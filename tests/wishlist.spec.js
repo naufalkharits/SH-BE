@@ -69,52 +69,30 @@ describe("Get Wishlists", () => {
 describe("Create Wishlist", () => {
   test("200 Success", async () => {
     await request(app)
-      .post("/wishlist")
-      .send({
-        product_id: testProduct.id,
-        user_id: testUser.id,
-      })
+      .post(`/wishlist/${testProduct.id}`)
+      .set("Authorization", testUserAccessToken)
       .expect(200);
   });
 
   test("400 Validation Failed", async () => {
     await request(app)
-      .post("/wishlist")
-      .send({
-        product_id: "abc",
-        user_id: "abc",
-      })
+      .post("/wishlist/abc")
+      .set("Authorization", testUserAccessToken)
       .expect(400);
   });
 
-  test("400 Product is alrerady in wishlist", async () => {
+  test("404 Product Not Found", async () => {
     await request(app)
-      .post("/wishlist")
-      .send({
-        product_id: testProduct.id,
-        user_id: testUser.id,
-      })
-      .expect(400);
-  });
-
-  test("404 Product Does Not Exist", async () => {
-    await request(app)
-      .post("/wishlist")
-      .send({
-        product_id: 2,
-        user_id: testUser.id,
-      })
+      .post("/wishlist/0")
+      .set("Authorization", testUserAccessToken)
       .expect(404);
   });
 
-  test("404 User Does Not Exist", async () => {
+  test("409 Product is alrerady in wishlist", async () => {
     await request(app)
-      .post("/wishlist")
-      .send({
-        product_id: testProduct.id,
-        user_id: 2,
-      })
-      .expect(404);
+      .post(`/wishlist/${testProduct.id}`)
+      .set("Authorization", testUserAccessToken)
+      .expect(409);
   });
 
   test("500 System Error", async () => {
@@ -123,11 +101,8 @@ describe("Create Wishlist", () => {
       throw new Error();
     });
     await request(app)
-      .post("/wishlist")
-      .send({
-        product_id: testProduct2.id,
-        user_id: testUser.id,
-      })
+      .post(`/wishlist/${testProduct2.id}`)
+      .set("Authorization", testUserAccessToken)
       .expect(500);
     Wishlist.create = originalFn;
   });
