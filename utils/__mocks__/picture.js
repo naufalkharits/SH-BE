@@ -1,7 +1,6 @@
-const Picture = require("../models").Picture;
-const UserBiodata = require("../models").UserBiodata;
+const Picture = require("../../models").Picture;
+const UserBiodata = require("../../models").UserBiodata;
 const { v4 } = require("uuid");
-const admin = require("firebase-admin");
 
 const validatePictures = (pictures) => {
   let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"];
@@ -29,13 +28,7 @@ const uploadProductImages = async (images, productId) => {
       const imageName = `${newPictureName}.${imageExt}`;
       const imagePath = `images/${imageName}`;
 
-      // Upload picture
-      // await fs.writeFile(path.join(imagesPath, imageName), image.buffer);
-      await admin.storage().bucket().file(imagePath).save(image.buffer);
-
-      await admin.storage().bucket().file(imagePath).makePublic();
-
-      const publicUrl = admin.storage().bucket().file(imagePath).publicUrl();
+      const publicUrl = `localhost/${imagePath}`;
 
       // Add picture to DB
       await Picture.create({
@@ -63,23 +56,6 @@ const updateProductImages = async (images, productId) => {
 
 const deleteProductImages = async (productId) => {
   try {
-    // Get existing pictures
-    const pictures = await Picture.findAll({
-      where: {
-        product_id: productId,
-      },
-    });
-
-    // Remove existing pictures
-    for (const picture of pictures) {
-      const imagePath = `images/${picture.name}`;
-
-      await admin
-        .storage()
-        .bucket()
-        .file(imagePath)
-        .delete({ ignoreNotFound: true });
-    }
     // Remove picture from DB
     await Picture.destroy({ where: { product_id: productId } });
   } catch (error) {
@@ -100,12 +76,7 @@ const uploadProfileImage = async (image, userId) => {
     const imageName = `${newPictureName}.${imageExt}`;
     const imagePath = `profiles/${imageName}`;
 
-    // Upload picture
-    await admin.storage().bucket().file(imagePath).save(image.buffer);
-
-    await admin.storage().bucket().file(imagePath).makePublic();
-
-    const publicUrl = admin.storage().bucket().file(imagePath).publicUrl();
+    const publicUrl = `localhost/${imagePath}`;
 
     // Add picture to DB
     await UserBiodata.update(
@@ -132,21 +103,6 @@ const deleteProfileImage = async (userId) => {
     });
 
     if (!userBio || !userBio.picture) return;
-
-    const pictureName = userBio.picture
-      .replace(
-        "https://storage.googleapis.com/final-project-binar-d4a7b.appspot.com/profiles%2F",
-        ""
-      )
-      .trim();
-
-    const imagePath = `profiles/${pictureName}`;
-
-    await admin
-      .storage()
-      .bucket()
-      .file(imagePath)
-      .delete({ ignoreNotFound: true });
 
     await UserBiodata.update(
       {

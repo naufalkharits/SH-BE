@@ -1,68 +1,70 @@
 const { Product, Category, Picture } = require("../models");
 const {
   validatePictures,
-  uploadImages,
-  updateImages,
-  deleteImages,
+  uploadProductImages,
+  updateProductImages,
+  deleteProductImages,
 } = require("../utils/picture");
 const { Op } = require("sequelize");
 
 module.exports = {
-  getProducts: (req, res) => {
+  getProducts: async (req, res) => {
     const { category, keyword, limit, offset } = req.query;
 
-    // Get products
-    Product.findAll({
-      include: [
-        // Filter by category
-        {
-          model: Category,
-          where: {
+    try {
+      // Get products
+      const products = await Product.findAll({
+        include: [
+          // Filter by category
+          {
+            model: Category,
+            where: {
+              name: {
+                [Op.iLike]: category || "%",
+              },
+            },
+          },
+          Picture,
+        ],
+        where: {
+          [Op.or]: {
             name: {
-              [Op.iLike]: category || "%",
+              [Op.iLike]: keyword ? `%${keyword}%` : "%",
+            },
+            description: {
+              [Op.iLike]: keyword ? `%${keyword}%` : "%",
             },
           },
         },
-        Picture,
-      ],
-      where: {
-        [Op.or]: {
-          name: {
-            [Op.iLike]: keyword ? `%${keyword}%` : "%",
-          },
-          description: {
-            [Op.iLike]: keyword ? `%${keyword}%` : "%",
-          },
-        },
-      },
-      limit: limit || undefined,
-      offset: offset || undefined,
-    })
-      .then((products) => {
-        // Get product category and pictures
-        const productsData = products.map((product) => ({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          category: product.Category.name,
-          description: product.description,
-          seller_id: product.seller_id,
-          pictures: product.Pictures.map((picture) => picture.name),
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt,
-        }));
-        res.status(200).json({ products: productsData });
-      })
-      .catch((error) => {
-        console.log(error);
-        res.status(500).json({
-          type: "SYSTEM_ERROR",
-          message: "Something wrong with server",
-        });
+        limit: limit || undefined,
+        offset: offset || undefined,
+        order: [["createdAt", "DESC"]],
       });
+
+      const productsData = products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        category: product.Category.name,
+        description: product.description,
+        seller_id: product.seller_id,
+        pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
+          (picture) => picture.url
+        ),
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      }));
+
+      res.status(200).json({ products: productsData });
+    } catch (error) {
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
   },
 
-  getProduct: (req, res) => {
+  getProduct: async (req, res) => {
     // Validate product ID param
     if (!req.params || !req.params.id || !Number.isInteger(+req.params.id)) {
       return res.status(400).json({
@@ -71,49 +73,59 @@ module.exports = {
       });
     }
 
-    // Get product
-    Product.findOne({
-      where: {
-        id: req.params.id,
-      },
-      include: [Category, Picture],
-    })
-      .then((product) => {
-        // Check if product not found
-        if (!product) {
-          return res.status(404).json({
-            type: "NOT_FOUND",
-            message: "Product not found",
-          });
-        }
-
-        // Get product pictures filename
-        const productData = {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          category: product.Category.name,
-          description: product.description,
-          seller_id: product.seller_id,
-          pictures: product.Pictures.map((picture) => picture.name),
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt,
-        };
-
-        res.status(200).json({
-          product: productData,
-        });
-      })
-      .catch((error) => {
-        res.status(500).json({
-          type: "SYSTEM_ERROR",
-          message: "Something wrong with server",
-        });
+    try {
+      // Get product
+      const product = await Product.findOne({
+        where: {
+          id: req.params.id,
+        },
+        include: [Category, Picture],
       });
+
+      // Check if product not found
+      if (!product) {
+        return res.status(404).json({
+          type: "NOT_FOUND",
+          message: "Product not found",
+        });
+      }
+
+      // Get product pictures filename
+      const productData = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        category: product.Category.name,
+        description: product.description,
+        seller_id: product.seller_id,
+        pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
+          (picture) => picture.url
+        ),
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      };
+
+      res.status(200).json({
+        product: productData,
+      });
+    } catch (error) {
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
   },
 
   createProduct: async (req, res) => {
     // Validate product required data
+    if (!req.files) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message:
+          "Product name, price, category, description, and picture is required",
+      });
+    }
+
     if (
       !req.body ||
       !req.body.name ||
@@ -163,11 +175,11 @@ module.exports = {
         price,
         category_id: productCategory.id,
         description,
-        seller_id: 1,
+        seller_id: req.user.id,
       });
 
       // Upload product pictures
-      await uploadImages(req.files, newProduct.id);
+      await uploadProductImages(req.files, newProduct.id);
 
       // Get new product data
       const product = await Product.findOne({
@@ -184,7 +196,7 @@ module.exports = {
         category: product.Category.name,
         description: product.description,
         seller_id: product.seller_id,
-        pictures: product.Pictures.map((picture) => picture.name),
+        pictures: product.Pictures.map((picture) => picture.url),
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
       };
@@ -200,7 +212,7 @@ module.exports = {
     }
   },
 
-  updateProduct: (req, res) => {
+  updateProduct: async (req, res) => {
     // Check if product id is valid
     if (!Number.isInteger(+req.params.id)) {
       return res.status(400).json({
@@ -211,20 +223,23 @@ module.exports = {
 
     const { name, price, category, description } = req.body;
 
-    // Find category id if category updated
-    Category.findOne({
-      where: {
-        name: category || null,
-      },
-    }).then((productCategory) => {
+    try {
+      // Find category id if category updated
+      const productCategory = await Category.findOne({
+        where: {
+          name: category || null,
+        },
+      });
+
       if (category && !productCategory) {
-        return res
-          .status(404)
-          .json({ type: "NOT_FOUND", message: "Category not found" });
+        return res.status(400).json({
+          type: "VALIDATION_FAILED",
+          message: "Valid category name is required",
+        });
       }
 
       // Update product
-      Product.update(
+      await Product.update(
         {
           name: name,
           price: price,
@@ -236,50 +251,47 @@ module.exports = {
             id: req.params.id,
           },
         }
-      )
-        .then((result) => {
-          // Check if product not found
-          if (result[0] === 0) {
-            res
-              .status(404)
-              .json({ type: "NOT_FOUND", message: "Product not found" });
-          } else {
-            // Update product pictures
-            updateImages(req.files, req.params.id).then(() => {
-              // Get updated product data
-              Product.findOne({
-                where: { id: req.params.id },
-                include: [Category, Picture],
-              }).then((product) => {
-                // Format product response data
-                const updatedProduct = {
-                  id: product.id,
-                  name: product.name,
-                  price: product.price,
-                  category: product.Category.name,
-                  description: product.description,
-                  seller_id: product.seller_id,
-                  pictures: product.Pictures.map((picture) => picture.name),
-                  createdAt: product.createdAt,
-                  updatedAt: product.updatedAt,
-                };
+      );
 
-                res.status(200).json({ updatedProduct });
-              });
-            });
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          res.status(500).json({
-            type: "SYSTEM_ERROR",
-            message: "Something wrong with server",
-          });
+      // Update product pictures
+      await updateProductImages(req.files, req.params.id);
+
+      // Get updated product data
+      const product = await Product.findOne({
+        where: { id: req.params.id },
+        include: [Category, Picture],
+      });
+
+      if (!product) {
+        return res.status(404).json({
+          type: "NOT_FOUND",
+          message: "Product not found",
         });
-    });
+      }
+
+      // Format product response data
+      const updatedProduct = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        category: product.Category.name,
+        description: product.description,
+        seller_id: product.seller_id,
+        pictures: product.Pictures.map((picture) => picture.url),
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      };
+
+      res.status(200).json({ updatedProduct });
+    } catch (error) {
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
   },
 
-  deleteProduct: (req, res) => {
+  deleteProduct: async (req, res) => {
     // Check if product id is valid
     if (!Number.isInteger(+req.params.id)) {
       return res.status(400).json({
@@ -288,26 +300,25 @@ module.exports = {
       });
     }
 
-    // Delete product pictures
-    deleteImages(req.params.id)
-      .then(() => {
-        // Delete Product
-        Product.destroy({ where: { id: req.params.id } }).then((result) => {
-          // Check if product not found
-          if (result === 0) {
-            res
-              .status(404)
-              .json({ type: "NOT_FOUND", message: "Product not found" });
-          } else {
-            res.status(200).json({ message: "Product Successfully Deleted" });
-          }
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          type: "SYSTEM_ERROR",
-          message: "Something wrong with server",
-        });
+    try {
+      // Delete product pictures
+      await deleteProductImages(req.params.id);
+
+      // Delete Product
+      const result = Product.destroy({ where: { id: req.params.id } });
+      // Check if product not found
+      if (result === 0) {
+        res
+          .status(404)
+          .json({ type: "NOT_FOUND", message: "Product not found" });
+      } else {
+        res.status(200).json({ message: "Product successfully deleted" });
+      }
+    } catch (error) {
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
       });
+    }
   },
 };
