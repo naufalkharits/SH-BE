@@ -3,7 +3,7 @@ const { app, server } = require("../index");
 const { Wishlist, Product, User } = require("../models");
 const bcrypt = require("bcrypt");
 
-let testUser, testProduct, testProduct2;
+let testUser, testProduct, testProduct2, testUserAccessToken;
 
 beforeAll(async () => {
   const testUserData = {
@@ -28,6 +28,12 @@ beforeAll(async () => {
     description: "This is new test product2",
     seller_id: testUser.id,
   });
+
+  const loginResponse = await request(app)
+    .post("/auth/login")
+    .send(testUserData);
+
+  testUserAccessToken = loginResponse.body.accessToken;
 });
 afterAll(async () => {
   try {
@@ -38,6 +44,26 @@ afterAll(async () => {
   } catch (error) {
     console.log("Error : ", error);
   }
+});
+
+describe("Get Wishlists", () => {
+  test("200 Success", async () => {
+    await request(app)
+      .get("/wishlist")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+  test("500 System Error", async () => {
+    const originalFn = Wishlist.findAll;
+    Wishlist.findAll = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app)
+      .get("/wishlist")
+      .set("Authorization", testUserAccessToken)
+      .expect(500);
+    Wishlist.findAll = originalFn;
+  });
 });
 
 describe("Create Wishlist", () => {
