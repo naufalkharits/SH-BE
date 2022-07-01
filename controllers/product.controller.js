@@ -48,7 +48,9 @@ module.exports = {
         category: product.Category.name,
         description: product.description,
         seller_id: product.seller_id,
-        pictures: product.Pictures.map((picture) => picture.url),
+        pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
+          (picture) => picture.url
+        ),
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
       }));
@@ -96,7 +98,9 @@ module.exports = {
         category: product.Category.name,
         description: product.description,
         seller_id: product.seller_id,
-        pictures: product.Pictures.map((picture) => picture.url),
+        pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
+          (picture) => picture.url
+        ),
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
       };
