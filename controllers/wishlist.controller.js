@@ -11,8 +11,10 @@ module.exports = {
 
     try {
       const product = await Product.findOne({
-        id: req.params.productId,
+        where: { id: req.params.productId },
       });
+
+      console.log("Product : ", product);
 
       if (!product) {
         return res.status(404).json({
