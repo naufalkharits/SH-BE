@@ -1,6 +1,44 @@
-const { Wishlist, Product, User } = require("../models");
+const { Wishlist, Product } = require("../models");
 
 module.exports = {
+  checkWishlist: async (req, res) => {
+    if (!Number.isInteger(+req.params.productId)) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: "Valid product ID is required",
+      });
+    }
+
+    try {
+      const product = await Product.findOne({
+        id: req.params.productId,
+      });
+
+      if (!product) {
+        return res.status(404).json({
+          type: "NOT_FOUND",
+          message: "Product not found",
+        });
+      }
+
+      const wishlist = await Wishlist.findOne({
+        where: {
+          user_id: req.user.id,
+          product_id: req.params.productId,
+        },
+      });
+
+      res.status(200).json({
+        isWishlist: wishlist ? true : false,
+      });
+    } catch (error) {
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
+  },
+
   getWishlists: async (req, res) => {
     try {
       const wishlists = await Wishlist.findAll({
@@ -19,6 +57,7 @@ module.exports = {
       });
     }
   },
+
   createWishlist: async (req, res) => {
     // check if product_id and user_id is provided
     if (!Number.isInteger(+req.params.productId)) {
@@ -74,6 +113,7 @@ module.exports = {
       });
     }
   },
+
   deleteWishlist: async (req, res) => {
     if (!Number.isInteger(+req.params.productId)) {
       return res.status(400).json({
