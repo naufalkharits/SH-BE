@@ -1641,12 +1641,30 @@
       "type": "object",
       "properties": {
         "accessToken": {
-          "type": "string",
-          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string",
+              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            },
+            "expireAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
         },
         "refreshToken": {
-          "type": "string",
-          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1pY2hhZWwgRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.Xk3hf0UUoSky6RDWjMib6x6yf1aE9xpPeTO_Pcfpw4Q"
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string",
+              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1pY2hhZWwgRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.Xk3hf0UUoSky6RDWjMib6x6yf1aE9xpPeTO_Pcfpw4Q"
+            },
+            "expireAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
         }
       }
     }
