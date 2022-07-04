@@ -1,13 +1,17 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models").User;
 require("dotenv").config();
 
 const generateAccessToken = (userId) => {
   const token = jwt.sign({ id: userId }, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "3m",
   });
 
-  return token;
+  const expiredAt = new Date(new Date().getTime() + 3 * 60000);
+
+  return {
+    token,
+    expiredAt,
+  };
 };
 
 const generateRefreshToken = (userId) => {
@@ -15,7 +19,9 @@ const generateRefreshToken = (userId) => {
     expiresIn: "7d",
   });
 
-  return token;
+  const expiredAt = new Date(new Date().getTime() + 7 * 24 * 60 * 60000);
+
+  return { token, expiredAt };
 };
 
 module.exports = {

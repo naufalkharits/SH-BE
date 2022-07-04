@@ -30,7 +30,6 @@ const uploadProductImages = async (images, productId) => {
       const imagePath = `images/${imageName}`;
 
       // Upload picture
-      // await fs.writeFile(path.join(imagesPath, imageName), image.buffer);
       await admin.storage().bucket().file(imagePath).save(image.buffer);
 
       await admin.storage().bucket().file(imagePath).makePublic();

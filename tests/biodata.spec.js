@@ -21,7 +21,7 @@ beforeAll(async () => {
     .send({ name: "testUser", email: "a@gmail.com", password: "12345" });
 
   testUser = await User.findOne({ where: { email: "a@gmail.com" } });
-  testUserAccessToken = registerResponse.body.accessToken;
+  testUserAccessToken = registerResponse.body.accessToken.token;
 });
 
 afterAll(async () => {

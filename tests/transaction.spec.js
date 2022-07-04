@@ -1,7 +1,9 @@
 const request = require("supertest");
 const { app, server } = require("../index");
-const { Transaction, User } = require("../models");
+const { Transaction, User, Product } = require("../models");
 const path = require("path");
+
+jest.mock("../utils/picture.js");
 
 const testUserData = {
   name: "Test User",
@@ -25,7 +27,7 @@ beforeAll(async () => {
       .post("/auth/register")
       .send(testUserData);
 
-    testUserAccessToken = registerResponse.body.accessToken;
+    testUserAccessToken = registerResponse.body.accessToken.token;
 
     const createProductResponse = await request(app)
       .post("/product")

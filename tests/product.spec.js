@@ -37,7 +37,7 @@ beforeAll(async () => {
       email: testUserData.email,
       password: testUserData.password,
     });
-    testUserToken = loginResponse.body.accessToken;
+    testUserToken = loginResponse.body.accessToken.token;
   } catch (error) {
     console.log("Error : ", error);
   }
