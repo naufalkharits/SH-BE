@@ -75,8 +75,8 @@ describe("Login", () => {
       .send({ email: "test321@gmail.com", password: "123456" })
       .expect(200);
 
-    userAccessToken = loginResponse.body.accessToken;
-    userRefreshToken = loginResponse.body.refreshToken;
+    userAccessToken = loginResponse.body.accessToken.token;
+    userRefreshToken = loginResponse.body.refreshToken.token;
   });
 
   test("400 Validation Failed", async () => {

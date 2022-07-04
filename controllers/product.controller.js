@@ -201,6 +201,7 @@ module.exports = {
         product: newProductData,
       });
     } catch (error) {
+      console.log("Error : ", error);
       return res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",

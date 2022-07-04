@@ -33,7 +33,7 @@ beforeAll(async () => {
     .post("/auth/login")
     .send(testUserData);
 
-  testUserAccessToken = loginResponse.body.accessToken;
+  testUserAccessToken = loginResponse.body.accessToken.token;
 });
 afterAll(async () => {
   try {
