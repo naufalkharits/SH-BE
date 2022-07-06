@@ -19,13 +19,11 @@ const testProductData = {
   pictures: path.join(__dirname, "resources", "product.png"),
 };
 
-let testProduct, testUserAccessToken;
+let testProduct, testUserAccessToken, testTransaction;
 
 beforeAll(async () => {
   try {
-    const registerResponse = await request(app)
-      .post("/auth/register")
-      .send(testUserData);
+    const registerResponse = await request(app).post("/auth/register").send(testUserData);
 
     testUserAccessToken = registerResponse.body.accessToken.token;
 
@@ -59,18 +57,12 @@ afterAll(async () => {
 
 describe("Create Transaction", () => {
   test("200 Success", async () => {
-    await request(app)
-      .post(`/transaction/${testProduct.id}`)
-      .set("Authorization", testUserAccessToken)
-      .send({ price: 50000 })
-      .expect(200);
+    const createRespone = await request(app).post(`/transaction/${testProduct.id}`).set("Authorization", testUserAccessToken).send({ price: 50000 }).expect(200);
+    testTransaction = createRespone.body.transaction;
   });
 
   test("400 Validation Failed", async () => {
-    await request(app)
-      .post("/transaction/abc")
-      .set("Authorization", testUserAccessToken)
-      .expect(400);
+    await request(app).post("/transaction/abc").set("Authorization", testUserAccessToken).expect(400);
   });
 
   test("404 Product Not Found", async () => {
@@ -89,11 +81,91 @@ describe("Create Transaction", () => {
       throw new Error();
     });
 
-    await request(app)
-      .post(`/transaction/${testProduct.id}`)
-      .set("Authorization", testUserAccessToken)
-      .send({ price: 50000 })
-      .expect(500);
+    await request(app).post(`/transaction/${testProduct.id}`).set("Authorization", testUserAccessToken).send({ price: 50000 }).expect(500);
     Transaction.create = originalFn;
+  });
+});
+
+describe("Update Transaction", () => {
+  test("200 Success", async () => {
+    await request(app)
+      .put("/transaction/" + testTransaction.id)
+      .send({
+        price: 40000,
+        status: "Rejected",
+      })
+      .expect(200);
+  });
+
+  test("400 Validation Transaction ID Failed", async () => {
+    await request(app)
+      .put("/transaction/abc")
+      .send({
+        price: 40000,
+        status: "Rejected",
+      })
+      .expect(400);
+  });
+
+  test("400 Validation Status Transaction Failed", async () => {
+    await request(app)
+      .put("/transaction/" + testTransaction.id)
+      .send({
+        price: 40000,
+        status: "abc",
+      })
+      .expect(400);
+  });
+
+  test("404 Transaction Not Found", async () => {
+    await request(app)
+      .put("/transaction/0")
+      .send({
+        price: 40000,
+        status: "Rejected",
+      })
+      .expect(404);
+  });
+
+  test("500 System Error", async () => {
+    const originalFn = Transaction.update;
+    Transaction.update = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app)
+      .put("/transaction/" + testTransaction.id)
+      .send({
+        price: 40000,
+        status: "Rejected",
+      })
+      .expect(500);
+    Transaction.update = originalFn;
+  });
+});
+
+describe("Delete Transaction", () => {
+  test("200 Success", async () => {
+    await request(app)
+      .delete("/transaction/" + testTransaction.id)
+      .expect(200);
+  });
+
+  test("400 Validation Failed", async () => {
+    await request(app).delete("/transaction/abc").expect(400);
+  });
+
+  test("404 Transaction Not Found", async () => {
+    await request(app).delete("/transaction/0").expect(404);
+  });
+
+  test("500 System Error", async () => {
+    const originalFn = Transaction.destroy;
+    Transaction.destroy = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app)
+      .delete("/transaction/" + testTransaction.id)
+      .expect(500);
+    Transaction.destroy = originalFn;
   });
 });
