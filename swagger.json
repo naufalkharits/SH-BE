@@ -1556,6 +1556,208 @@
             }
           }
         }
+      },
+      "put": {
+        "tags": ["Transaction"],
+        "summary": "Update Transaction",
+        "description": "Update Transaction",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "example": 1,
+            "required": true,
+            "description": "Transaction ID"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Transaction Data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "price": {
+                  "type": "integer",
+                  "example": 50000,
+                  "description": "Offered price from buyer"
+                },
+                "status": {
+                  "type": "string",
+                  "example": "ACCEPTED",
+                  "description": "Transaction status"
+                }
+              }
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "transaction": {
+                  "$ref": "#/definitions/Transaction"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid product ID and offered price is required"
+                }
+              }
+            }
+          },
+
+          "404": {
+            "description": "Transaction Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Transaction not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Transaction"],
+        "summary": "Delete Transaction",
+        "description": "Delete Transaction",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "example": 1,
+            "required": true,
+            "description": "Transaction ID"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "transaction": {
+                  "$ref": "#/definitions/Transaction"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Transaction not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -1568,13 +1770,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": [
-              "Health",
-              "Sport",
-              "Automotive",
-              "Electronic",
-              "Property"
-            ]
+            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
           }
         }
       }
