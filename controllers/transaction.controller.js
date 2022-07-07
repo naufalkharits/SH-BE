@@ -1,15 +1,29 @@
 const { Transaction, Product } = require("../models");
+const { Op, col } = require("sequelize");
 
 module.exports = {
   getTransactions: async (req, res) => {
     try {
       // Get User Transaction
-      const transactions = await Transaction.findAll();
+      const transactions = await Transaction.findAll({
+        where: {
+          [Op.or]: [
+            {
+              buyer_id: req.user.id,
+            },
+            {
+              "$Product.seller_id$": req.user.id,
+            },
+          ],
+        },
+        include: [Product],
+      });
 
       res.status(200).json({
         transactions,
       });
     } catch (error) {
+      console.log(error);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -35,10 +49,10 @@ module.exports = {
       });
 
       // Check if product not found
-      if (!product) {
+      if (!transaction) {
         return res.status(404).json({
           type: "NOT_FOUND",
-          message: "Product not found",
+          message: "Transaction not found",
         });
       }
 
@@ -54,7 +68,12 @@ module.exports = {
   },
 
   createTransaction: async (req, res) => {
-    if (!Number.isInteger(+req.params.productId) || !req.body || !req.body.price || !Number.isInteger(+req.body.price)) {
+    if (
+      !Number.isInteger(+req.params.productId) ||
+      !req.body ||
+      !req.body.price ||
+      !Number.isInteger(+req.body.price)
+    ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message: "Valid product ID and offered price is required",
@@ -99,7 +118,12 @@ module.exports = {
       });
     }
 
-    if (req.body.status.toLowerCase() !== "pending" && req.body.status.toLowerCase() !== "accepted" && req.body.status.toLowerCase() !== "rejected") {
+    if (
+      req.body.status &&
+      req.body.status.toLowerCase() !== "pending" &&
+      req.body.status.toLowerCase() !== "accepted" &&
+      req.body.status.toLowerCase() !== "rejected"
+    ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message: "Valid status is required",
@@ -112,7 +136,7 @@ module.exports = {
       await Transaction.update(
         {
           price: price,
-          status: status.toUpperCase(),
+          status: status?.toUpperCase(),
         },
         {
           where: {
@@ -131,7 +155,9 @@ module.exports = {
           message: "Transaction not found",
         });
       }
-      res.status(200).json({ message: "Transaction successfully updated", transaction });
+      res
+        .status(200)
+        .json({ message: "Transaction successfully updated", transaction });
     } catch (err) {
       console.log(err);
       res.status(500).json({
@@ -150,9 +176,13 @@ module.exports = {
     }
 
     try {
-      const result = await Transaction.destroy({ where: { id: req.params.id } });
+      const result = await Transaction.destroy({
+        where: { id: req.params.id },
+      });
       if (result === 0) {
-        res.status(404).json({ type: "NOT_FOUND", message: "Transaction not found" });
+        res
+          .status(404)
+          .json({ type: "NOT_FOUND", message: "Transaction not found" });
       } else {
         console.log(result);
         res.status(200).json({ message: "Transaction successfully deleted" });
