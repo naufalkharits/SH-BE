@@ -1451,6 +1451,22 @@
             "access_token": []
           }
         ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "type": "string",
+            "enum": ["accepted", "rejected", "pending"],
+            "description": "Filter transactions based on status"
+          },
+          {
+            "in": "query",
+            "name": "as",
+            "type": "string",
+            "enum": ["buyer", "seller"],
+            "description": "Filter transactions based on role"
+          }
+        ],
         "produces": ["application/json"],
         "responses": {
           "200": {
