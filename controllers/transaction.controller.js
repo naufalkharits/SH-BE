@@ -9,12 +9,16 @@ module.exports = {
         where: {
           [Op.or]: [
             {
-              buyer_id: req.user.id,
+              buyer_id: req.query.as === "seller" ? -1 : req.user.id,
             },
             {
-              "$Product.seller_id$": req.user.id,
+              "$Product.seller_id$":
+                req.query.as === "buyer" ? -1 : req.user.id,
             },
           ],
+          status: {
+            [Op.like]: req.query.status ? req.query.status.toUpperCase() : "%",
+          },
         },
         include: [Product],
       });
