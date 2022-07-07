@@ -1445,7 +1445,12 @@
       "get": {
         "tags": ["Transaction"],
         "summary": "Get Transactions",
-        "description": "Get All Transaction",
+        "description": "Get All Transactions",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
         "produces": ["application/json"],
         "responses": {
           "200": {
@@ -1453,8 +1458,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "transaction": {
-                  "$ref": "#/definitions/Transaction"
+                "transactions": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Transaction"
+                  }
                 }
               }
             }
@@ -1471,38 +1479,6 @@
                 "message": {
                   "type": "string",
                   "example": "Unauthorized Access"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation Failed",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "VALIDATION_FAILED"
-                },
-                "message": {
-                  "type": "string",
-                  "example": "Valid product ID and offered price is required"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Product Not Found",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "NOT_FOUND"
-                },
-                "message": {
-                  "type": "string",
-                  "example": "Product not found"
                 }
               }
             }
@@ -1532,6 +1508,11 @@
         "tags": ["Transaction"],
         "summary": "Get Transaction",
         "description": "Get Single Transaction by Transaction ID",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -1540,22 +1521,6 @@
             "example": 1,
             "required": true,
             "description": "Product ID"
-          },
-          {
-            "in": "body",
-            "name": "body",
-            "description": "Transaction Data",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "price": {
-                  "type": "integer",
-                  "example": 50000,
-                  "description": "Offered price from buyer"
-                }
-              }
-            }
           }
         ],
         "produces": ["application/json"],
@@ -1598,13 +1563,13 @@
                 },
                 "message": {
                   "type": "string",
-                  "example": "Valid product ID and offered price is required"
+                  "example": "Valid Transaction ID is required"
                 }
               }
             }
           },
           "404": {
-            "description": "Product Not Found",
+            "description": "Transaction Not Found",
             "schema": {
               "type": "object",
               "properties": {
@@ -1614,7 +1579,7 @@
                 },
                 "message": {
                   "type": "string",
-                  "example": "Product not found"
+                  "example": "Transaction not found"
                 }
               }
             }
@@ -1784,7 +1749,7 @@
                 },
                 "status": {
                   "type": "string",
-                  "example": "ACCEPTED",
+                  "enum": ["accepted", "rejected", "pending"],
                   "description": "Transaction status"
                 }
               }
@@ -1798,7 +1763,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "transaction": {
+                "updatedTransaction": {
                   "$ref": "#/definitions/Transaction"
                 }
               }
@@ -1897,8 +1862,9 @@
             "schema": {
               "type": "object",
               "properties": {
-                "transaction": {
-                  "$ref": "#/definitions/Transaction"
+                "message": {
+                  "type": "string",
+                  "example": "Transaction successfully deleted"
                 }
               }
             }
@@ -1964,7 +1930,13 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
+            "example": [
+              "Health",
+              "Sport",
+              "Automotive",
+              "Electronic",
+              "Property"
+            ]
           }
         }
       }
