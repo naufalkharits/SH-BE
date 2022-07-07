@@ -57,6 +57,16 @@ afterAll(async () => {
   }
 });
 
+describe("Get Transactions", () => {
+  test("200 Success", async () => {
+    await request(app)
+      .post(`/transaction`)
+      .set("Authorization", testUserAccessToken)
+      .send({ price: 50000 })
+      .expect(200);
+  });
+});
+
 describe("Create Transaction", () => {
   test("200 Success", async () => {
     await request(app)
