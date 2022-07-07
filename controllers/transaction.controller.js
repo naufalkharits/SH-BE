@@ -155,9 +155,7 @@ module.exports = {
           message: "Transaction not found",
         });
       }
-      res
-        .status(200)
-        .json({ message: "Transaction successfully updated", transaction });
+      res.status(200).json({ updatedtransaction: transaction });
     } catch (err) {
       console.log(err);
       res.status(500).json({
