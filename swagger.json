@@ -1444,7 +1444,7 @@
     "/transaction": {
       "get": {
         "tags": ["Transaction"],
-        "summary": "Get Transaction",
+        "summary": "Get Transactions",
         "description": "Get All Transaction",
         "produces": ["application/json"],
         "responses": {
@@ -1530,7 +1530,7 @@
     "/transaction/{id}": {
       "get": {
         "tags": ["Transaction"],
-        "summary": "Check Transaction",
+        "summary": "Get Transaction",
         "description": "Get Single Transaction by Transaction ID",
         "parameters": [
           {
