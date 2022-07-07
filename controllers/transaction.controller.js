@@ -1,5 +1,31 @@
-const { Transaction, Product } = require("../models");
-const { Op, col } = require("sequelize");
+const { Transaction, Product, Picture, Category } = require("../models");
+const { Op } = require("sequelize");
+
+const mapTransaction = (transaction) => {
+  const mappedProductData = {
+    id: transaction.Product.id,
+    name: transaction.Product.name,
+    price: transaction.Product.price,
+    category: transaction.Product.Category.name,
+    description: transaction.Product.description,
+    seller_id: transaction.Product.seller_id,
+    pictures: transaction.Product.Pictures.sort((a, b) => a.id - b.id).map(
+      (picture) => picture.url
+    ),
+    createdAt: transaction.Product.createdAt,
+    updatedAt: transaction.Product.updatedAt,
+  };
+
+  return {
+    id: transaction.id,
+    product: mappedProductData,
+    buyer_id: transaction.buyer_id,
+    price: transaction.price,
+    status: transaction.status,
+    createdAt: transaction.createdAt,
+    updatedAt: transaction.updatedAt,
+  };
+};
 
 module.exports = {
   getTransactions: async (req, res) => {
@@ -20,11 +46,20 @@ module.exports = {
             [Op.like]: req.query.status ? req.query.status.toUpperCase() : "%",
           },
         },
-        include: [Product],
+        include: [
+          {
+            model: Product,
+            include: [Picture, Category],
+          },
+        ],
       });
 
+      const transactionsData = transactions.map((transaction) =>
+        mapTransaction(transaction)
+      );
+
       res.status(200).json({
-        transactions,
+        transactions: transactionsData,
       });
     } catch (error) {
       console.log(error);
@@ -50,6 +85,12 @@ module.exports = {
         where: {
           id: req.params.id,
         },
+        include: [
+          {
+            model: Product,
+            include: [Picture, Category],
+          },
+        ],
       });
 
       // Check if product not found
@@ -61,7 +102,7 @@ module.exports = {
       }
 
       res.status(200).json({
-        transaction,
+        transaction: mapTransaction(transaction),
       });
     } catch (error) {
       res.status(500).json({
@@ -96,15 +137,27 @@ module.exports = {
         });
       }
 
-      const transaction = await Transaction.create({
+      const newTransaction = await Transaction.create({
         product_id: req.params.productId,
         buyer_id: req.user.id,
         price: req.body.price,
         status: "PENDING",
       });
 
+      const transaction = await Transaction.findOne({
+        where: {
+          id: newTransaction.id,
+        },
+        include: [
+          {
+            model: Product,
+            include: [Picture, Category],
+          },
+        ],
+      });
+
       res.status(200).json({
-        transaction,
+        transaction: mapTransaction(transaction),
       });
     } catch (error) {
       res.status(500).json({
@@ -126,7 +179,8 @@ module.exports = {
       req.body.status &&
       req.body.status.toLowerCase() !== "pending" &&
       req.body.status.toLowerCase() !== "accepted" &&
-      req.body.status.toLowerCase() !== "rejected"
+      req.body.status.toLowerCase() !== "rejected" &&
+      req.body.status.toLowerCase() !== "completed"
     ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
@@ -152,6 +206,12 @@ module.exports = {
         where: {
           id: req.params.id,
         },
+        include: [
+          {
+            model: Product,
+            include: [Picture, Category],
+          },
+        ],
       });
       if (!transaction) {
         return res.status(404).json({
@@ -159,7 +219,7 @@ module.exports = {
           message: "Transaction not found",
         });
       }
-      res.status(200).json({ updatedtransaction: transaction });
+      res.status(200).json({ updatedtransaction: mapTransaction(transaction) });
     } catch (err) {
       console.log(err);
       res.status(500).json({
