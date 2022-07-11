@@ -1,4 +1,4 @@
-const { Product, Category, Picture } = require("../models");
+const { Product, Category, Picture, Notification } = require("../models");
 const {
   validatePictures,
   uploadProductImages,
@@ -200,6 +200,13 @@ module.exports = {
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
       };
+
+      // Create New Product Notification
+      await Notification.create({
+        type: "NEW_PRODUCT",
+        user_id: req.user.id,
+        product_id: product.id,
+      });
 
       res.status(200).json({
         product: newProductData,

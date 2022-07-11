@@ -12,6 +12,16 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        onDelete: "CASCADE",
+        references: {
+          model: "Users",
+          key: "id",
+          as: "user_id",
+        },
+      },
       transaction_id: {
         type: Sequelize.INTEGER,
         allowNull: true,

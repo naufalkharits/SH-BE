@@ -9,6 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Notification.belongsTo(models.User, {
+        foreignKey: "user_id",
+      });
       Notification.belongsTo(models.Transaction, {
         foreignKey: "transaction_id",
       });
@@ -20,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
   Notification.init(
     {
       type: { type: DataTypes.STRING, allowNull: false },
+      user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       transaction_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
