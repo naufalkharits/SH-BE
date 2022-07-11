@@ -1,4 +1,10 @@
-const { Transaction, Product, Picture, Category } = require("../models");
+const {
+  Transaction,
+  Product,
+  Picture,
+  Category,
+  Notification,
+} = require("../models");
 const { Op } = require("sequelize");
 
 const mapTransaction = (transaction) => {
@@ -154,6 +160,13 @@ module.exports = {
             include: [Picture, Category],
           },
         ],
+      });
+
+      // Create New Product Offer Notification
+      await Notification.create({
+        type: "NEW_OFFER",
+        user_id: product.seller_id,
+        transaction_id: transaction.id,
       });
 
       res.status(200).json({
