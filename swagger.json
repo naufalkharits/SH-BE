@@ -2090,9 +2090,8 @@
         "product": {
           "$ref": "#/definitions/Product"
         },
-        "buyer_id": {
-          "type": "integer",
-          "example": "1"
+        "buyer": {
+          "$ref": "#/definitions/UserBiodata"
         },
         "price": {
           "type": "integer",
