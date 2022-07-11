@@ -2051,9 +2051,8 @@
           "type": "string",
           "example": "Jam Tangan Kualitas Bagus"
         },
-        "seller_id": {
-          "type": "integer",
-          "example": "1"
+        "seller": {
+          "$ref": "#/definitions/UserBiodata"
         },
         "pictures": {
           "type": "array",
