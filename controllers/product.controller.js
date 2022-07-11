@@ -178,6 +178,21 @@ module.exports = {
         });
       }
 
+      const userProductsCount = await Product.count({
+        where: {
+          seller_id: req.user.id,
+        },
+      });
+
+      console.log("Count : ", userProductsCount);
+
+      if (userProductsCount >= 4) {
+        return res.status(409).json({
+          type: "MAX_PRODUCTS_COUNT",
+          message: "Maximum products count is 4 per User",
+        });
+      }
+
       // Create new product
       const newProduct = await Product.create({
         name,
