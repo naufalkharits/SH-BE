@@ -29,6 +29,7 @@ const mapProduct = (product) => ({
 });
 
 module.exports = {
+  mapProduct,
   getProducts: async (req, res) => {
     const { category, keyword, limit, offset } = req.query;
 
