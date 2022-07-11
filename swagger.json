@@ -39,6 +39,10 @@
     {
       "name": "Transaction",
       "description": "Transaction Endpoints"
+    },
+    {
+      "name": "Notification",
+      "description": "Notification Endpoints"
     }
   ],
   "schemes": ["https"],
@@ -1935,6 +1939,21 @@
           }
         }
       }
+    },
+
+    "/notification": {
+      "get": {
+        "tags": ["Notification"]
+      }
+    },
+
+    "/notification/{id}": {
+      "put": {
+        "tags": ["Notification"]
+      },
+      "delete": {
+        "tags": ["Notification"]
+      }
     }
   },
   "definitions": {
@@ -2100,6 +2119,39 @@
         "status": {
           "type": "string",
           "example": "PENDING"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "Notification": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": "1"
+        },
+        "user_id": {
+          "type": "integer",
+          "example": "1"
+        },
+        "transaction_id": {
+          "type": "integer",
+          "example": "2"
+        },
+        "product_id": {
+          "type": "integer",
+          "example": "2"
+        },
+        "read": {
+          "type": "boolean",
+          "example": false
         },
         "createdAt": {
           "type": "string",
