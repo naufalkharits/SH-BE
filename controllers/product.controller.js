@@ -1,4 +1,11 @@
-const { Product, Category, Picture, Notification } = require("../models");
+const {
+  Product,
+  Category,
+  Picture,
+  Notification,
+  User,
+  UserBiodata,
+} = require("../models");
 const {
   validatePictures,
   uploadProductImages,
@@ -7,7 +14,22 @@ const {
 } = require("../utils/picture");
 const { Op } = require("sequelize");
 
+const mapProduct = (product) => ({
+  id: product.id,
+  name: product.name,
+  price: product.price,
+  category: product.Category.name,
+  description: product.description,
+  seller: product.User.UserBiodatum,
+  pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
+    (picture) => picture.url
+  ),
+  createdAt: product.createdAt,
+  updatedAt: product.updatedAt,
+});
+
 module.exports = {
+  mapProduct,
   getProducts: async (req, res) => {
     const { category, keyword, limit, offset } = req.query;
 
@@ -25,6 +47,10 @@ module.exports = {
             },
           },
           Picture,
+          {
+            model: User,
+            include: [UserBiodata],
+          },
         ],
         where: {
           [Op.or]: {
@@ -41,19 +67,7 @@ module.exports = {
         order: [["createdAt", "DESC"]],
       });
 
-      const productsData = products.map((product) => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        category: product.Category.name,
-        description: product.description,
-        seller_id: product.seller_id,
-        pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
-          (picture) => picture.url
-        ),
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      }));
+      const productsData = products.map((product) => mapProduct(product));
 
       res.status(200).json({ products: productsData });
     } catch (error) {
@@ -79,7 +93,14 @@ module.exports = {
         where: {
           id: req.params.id,
         },
-        include: [Category, Picture],
+        include: [
+          Category,
+          Picture,
+          {
+            model: User,
+            include: [UserBiodata],
+          },
+        ],
       });
 
       // Check if product not found
@@ -91,19 +112,7 @@ module.exports = {
       }
 
       // Get product pictures filename
-      const productData = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        category: product.Category.name,
-        description: product.description,
-        seller_id: product.seller_id,
-        pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
-          (picture) => picture.url
-        ),
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      };
+      const productData = mapProduct(product);
 
       res.status(200).json({
         product: productData,
@@ -186,20 +195,17 @@ module.exports = {
         where: {
           id: newProduct.id,
         },
-        include: [Category, Picture],
+        include: [
+          Category,
+          Picture,
+          {
+            model: User,
+            include: [UserBiodata],
+          },
+        ],
       });
 
-      const newProductData = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        category: product.Category.name,
-        description: product.description,
-        seller_id: product.seller_id,
-        pictures: product.Pictures.map((picture) => picture.url),
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      };
+      const newProductData = mapProduct(product);
 
       // Create New Product Notification
       await Notification.create({

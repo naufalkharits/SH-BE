@@ -1,4 +1,16 @@
-const { Wishlist, Product } = require("../models");
+const {
+  Wishlist,
+  Product,
+  Category,
+  Picture,
+  User,
+  UserBiodata,
+} = require("../models");
+const { mapProduct } = require("./product.controller");
+
+const mapWishlist = (wishlist) => ({
+  product: mapProduct(wishlist.Product),
+});
 
 module.exports = {
   checkWishlist: async (req, res) => {
@@ -47,10 +59,25 @@ module.exports = {
         where: {
           user_id: req.user.id,
         },
+        include: [
+          {
+            model: Product,
+            include: [
+              Category,
+              Picture,
+              {
+                model: User,
+                include: [UserBiodata],
+              },
+            ],
+          },
+        ],
       });
 
+      const wishlistsData = wishlists.map((wishlist) => mapWishlist(wishlist));
+
       res.status(200).json({
-        wishlists,
+        wishlists: wishlistsData,
       });
     } catch (error) {
       res.status(500).json({
@@ -100,13 +127,35 @@ module.exports = {
       }
 
       // create new wishlist
-      const newWishlist = await Wishlist.create({
+      await Wishlist.create({
         product_id: req.params.productId,
         user_id: req.user.id,
       });
 
+      const newWishlist = await Wishlist.findOne({
+        where: {
+          product_id: req.params.productId,
+          user_id: req.user.id,
+        },
+        include: [
+          {
+            model: Product,
+            include: [
+              Category,
+              Picture,
+              {
+                model: User,
+                include: [UserBiodata],
+              },
+            ],
+          },
+        ],
+      });
+
+      const newWishlistData = mapWishlist(newWishlist);
+
       res.status(200).json({
-        wishlist: newWishlist,
+        wishlist: newWishlistData,
       });
     } catch (err) {
       res.status(500).json({

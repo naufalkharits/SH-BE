@@ -2051,9 +2051,8 @@
           "type": "string",
           "example": "Jam Tangan Kualitas Bagus"
         },
-        "seller_id": {
-          "type": "integer",
-          "example": "1"
+        "seller": {
+          "$ref": "#/definitions/UserBiodata"
         },
         "pictures": {
           "type": "array",
@@ -2076,25 +2075,8 @@
       "type": "object",
       "required": ["product_id, user_id"],
       "properties": {
-        "id": {
-          "type": "integer",
-          "example": "1"
-        },
-        "product_id": {
-          "type": "integer",
-          "example": "1"
-        },
-        "user_id": {
-          "type": "integer",
-          "example": "1"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+        "product": {
+          "$ref": "#/definitions/Product"
         }
       }
     },
@@ -2108,9 +2090,8 @@
         "product": {
           "$ref": "#/definitions/Product"
         },
-        "buyer_id": {
-          "type": "integer",
-          "example": "1"
+        "buyer": {
+          "$ref": "#/definitions/UserBiodata"
         },
         "price": {
           "type": "integer",

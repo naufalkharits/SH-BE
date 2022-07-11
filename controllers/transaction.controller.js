@@ -4,28 +4,19 @@ const {
   Picture,
   Category,
   Notification,
+  User,
+  UserBiodata,
 } = require("../models");
 const { Op } = require("sequelize");
+const { mapProduct } = require("./product.controller");
 
 const mapTransaction = (transaction) => {
-  const mappedProductData = {
-    id: transaction.Product.id,
-    name: transaction.Product.name,
-    price: transaction.Product.price,
-    category: transaction.Product.Category.name,
-    description: transaction.Product.description,
-    seller_id: transaction.Product.seller_id,
-    pictures: transaction.Product.Pictures.sort((a, b) => a.id - b.id).map(
-      (picture) => picture.url
-    ),
-    createdAt: transaction.Product.createdAt,
-    updatedAt: transaction.Product.updatedAt,
-  };
+  const mappedProductData = mapProduct(transaction.Product);
 
   return {
     id: transaction.id,
     product: mappedProductData,
-    buyer_id: transaction.buyer_id,
+    buyer: transaction.User.UserBiodatum,
     price: transaction.price,
     status: transaction.status,
     createdAt: transaction.createdAt,
@@ -55,7 +46,18 @@ module.exports = {
         include: [
           {
             model: Product,
-            include: [Picture, Category],
+            include: [
+              Picture,
+              Category,
+              {
+                model: User,
+                include: [UserBiodata],
+              },
+            ],
+          },
+          {
+            model: User,
+            include: [UserBiodata],
           },
         ],
       });
@@ -94,7 +96,18 @@ module.exports = {
         include: [
           {
             model: Product,
-            include: [Picture, Category],
+            include: [
+              Picture,
+              Category,
+              {
+                model: User,
+                include: [UserBiodata],
+              },
+            ],
+          },
+          {
+            model: User,
+            include: [UserBiodata],
           },
         ],
       });
@@ -157,7 +170,18 @@ module.exports = {
         include: [
           {
             model: Product,
-            include: [Picture, Category],
+            include: [
+              Picture,
+              Category,
+              {
+                model: User,
+                include: [UserBiodata],
+              },
+            ],
+          },
+          {
+            model: User,
+            include: [UserBiodata],
           },
         ],
       });
@@ -222,7 +246,18 @@ module.exports = {
         include: [
           {
             model: Product,
-            include: [Picture, Category],
+            include: [
+              Picture,
+              Category,
+              {
+                model: User,
+                include: [UserBiodata],
+              },
+            ],
+          },
+          {
+            model: User,
+            include: [UserBiodata],
           },
         ],
       });
