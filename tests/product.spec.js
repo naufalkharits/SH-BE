@@ -215,6 +215,14 @@ describe("Update Product", () => {
       .expect(404);
   });
 
+  test("400 Picture Validation Failed", async () => {
+    await request(app)
+      .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
+      .attach("pictures", path.join(__dirname, "resources", "product.txt"))
+      .expect(400);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Category.findOne;
     Category.findOne = jest.fn().mockImplementationOnce(() => {

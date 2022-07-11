@@ -46,6 +46,14 @@ describe("Update Biodata", () => {
       .expect(200);
   });
 
+  test("400 Picture Validation Failed", async () => {
+    await request(app)
+      .put("/biodata")
+      .set("Authorization", testUserAccessToken)
+      .attach("picture", path.join(__dirname, "resources", "product.txt"))
+      .expect(400);
+  });
+
   test("500 System Error", async () => {
     const originalFn = UserBiodata.update;
     UserBiodata.update = jest.fn().mockImplementationOnce(() => {

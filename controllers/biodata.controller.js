@@ -1,5 +1,5 @@
 const { UserBiodata, User } = require("../models");
-const { uploadProfileImage } = require("../utils/picture");
+const { uploadProfileImage, validatePicture } = require("../utils/picture");
 
 module.exports = {
   getBiodata: async (req, res) => {
@@ -44,6 +44,15 @@ module.exports = {
     try {
       // Update Profile Image
       if (profilePicture) {
+        try {
+          validatePicture(profilePicture);
+        } catch (error) {
+          return res.status(400).json({
+            type: "VALIDATION_FAILED",
+            message: error.message,
+          });
+        }
+
         await uploadProfileImage(profilePicture, req.user.id);
       }
 

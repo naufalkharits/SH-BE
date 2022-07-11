@@ -7,7 +7,7 @@ const {
   UserBiodata,
 } = require("../models");
 const {
-  validatePictures,
+  validatePicture,
   uploadProductImages,
   updateProductImages,
   deleteProductImages,
@@ -152,7 +152,9 @@ module.exports = {
 
     // Validate product pictures
     try {
-      validatePictures(req.files);
+      for (const picture of req.files) {
+        validatePicture(picture);
+      }
     } catch (error) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
@@ -282,8 +284,21 @@ module.exports = {
         }
       );
 
-      // Update product pictures
-      await updateProductImages(req.files, req.params.id);
+      if (req.files) {
+        try {
+          for (const picture of req.files) {
+            validatePicture(picture);
+          }
+        } catch (error) {
+          return res.status(400).json({
+            type: "VALIDATION_FAILED",
+            message: error.message,
+          });
+        }
+
+        // Update product pictures
+        await updateProductImages(req.files, req.params.id);
+      }
 
       // Get updated product data
       const product = await Product.findOne({
