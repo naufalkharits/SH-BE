@@ -286,7 +286,7 @@ module.exports = {
           message: "Transaction not found",
         });
       }
-      res.status(200).json({ updatedtransaction: mapTransaction(transaction) });
+      res.status(200).json({ updatedTransaction: mapTransaction(transaction) });
     } catch (err) {
       console.log(err);
       res.status(500).json({

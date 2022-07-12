@@ -1,8 +1,20 @@
 const request = require("supertest");
 const { app, server } = require("../index");
-const { Notification } = require("../models");
+const { Notification, User } = require("../models");
 
-beforeAll(async () => {});
+let testNotification;
+
+beforeAll(async () => {
+  const testUser = await User.create({
+    email: "test@gmail.com",
+    password: "123456",
+  });
+  testNotification = await Notification.create({
+    type: "TEST_NOTIFICATION",
+    user_id: testUser.id,
+    read: false,
+  });
+});
 
 afterAll(async () => {
   server.close();
