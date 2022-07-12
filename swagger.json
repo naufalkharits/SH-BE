@@ -1954,7 +1954,7 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Success",
             "schema": {
               "type": "object",
               "properties": {
@@ -2012,7 +2012,7 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Success",
             "schema": {
               "type": "object",
               "properties": {

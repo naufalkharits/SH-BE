@@ -8,6 +8,8 @@ afterAll(async () => {
   server.close();
 });
 
+let testUserAccessToken;
+
 describe("Get Notifications", () => {
   test("200 Success", async () => {
     await request(app)
