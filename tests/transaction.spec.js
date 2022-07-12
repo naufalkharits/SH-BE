@@ -1,6 +1,6 @@
 const request = require("supertest");
 const { app, server } = require("../index");
-const { Transaction, User } = require("../models");
+const { Transaction, User, UserBiodata } = require("../models");
 const path = require("path");
 
 jest.mock("../utils/picture.js");
@@ -28,6 +28,16 @@ beforeAll(async () => {
       .send(testUserData);
 
     testUserAccessToken = registerResponse.body.accessToken.token;
+
+    await request(app)
+      .put("/biodata")
+      .set("Authorization", testUserAccessToken)
+      .field("name", "Test User")
+      .field("city", "Kota")
+      .field("address", "Alamat")
+      .field("phone_number", "08123456789")
+      .attach("picture", path.join(__dirname, "resources", "product.png"))
+      .expect(200);
 
     const createProductResponse = await request(app)
       .post("/product")
@@ -72,6 +82,18 @@ describe("Create Transaction", () => {
       .post("/transaction/abc")
       .set("Authorization", testUserAccessToken)
       .expect(400);
+  });
+
+  test("400 Biodata Verification Failed", async () => {
+    const originalFn = UserBiodata.findOne;
+    UserBiodata.findOne = jest.fn().mockImplementationOnce(() => null);
+
+    await request(app)
+      .post(`/transaction/${testProduct.id}`)
+      .set("Authorization", testUserAccessToken)
+      .send({ price: 50000 })
+      .expect(400);
+    UserBiodata.findOne = originalFn;
   });
 
   test("404 Product Not Found", async () => {

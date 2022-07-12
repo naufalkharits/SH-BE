@@ -180,13 +180,31 @@ module.exports = {
         });
       }
 
+      // Check User Biodata Verification
+      const biodata = await UserBiodata.findOne({
+        where: { user_id: req.user.id },
+      });
+
+      if (
+        !biodata ||
+        !biodata.name ||
+        !biodata.city ||
+        !biodata.address ||
+        !biodata.phone_number ||
+        !biodata.picture
+      ) {
+        return res.status(400).json({
+          type: "VALIDATION_FAILED",
+          message: "User biodata must be filled in completely",
+        });
+      }
+
+      // Check User Product Count
       const userProductsCount = await Product.count({
         where: {
           seller_id: req.user.id,
         },
       });
-
-      console.log("Count : ", userProductsCount);
 
       if (userProductsCount >= 4) {
         return res.status(409).json({
