@@ -131,6 +131,22 @@ describe("Create Product", () => {
       .expect(400);
   });
 
+  test("409 Max Products Count", async () => {
+    const originalFn = Product.count;
+    Product.count = jest.fn().mockImplementationOnce(() => 4);
+
+    await request(app)
+      .post("/product")
+      .set("Authorization", testUserToken)
+      .field("name", newProductData.name)
+      .field("price", newProductData.price)
+      .field("category", newProductData.category)
+      .field("description", newProductData.description)
+      .attach("pictures", newProductData.pictures)
+      .expect(409);
+    Product.count = originalFn;
+  });
+
   test("500 System Error", async () => {
     const originalFn = Product.create;
     Product.create = jest.fn().mockImplementationOnce(() => {
@@ -197,6 +213,14 @@ describe("Update Product", () => {
       .field("description", newProductData.description)
       .attach("pictures", newProductData.pictures)
       .expect(404);
+  });
+
+  test("400 Picture Validation Failed", async () => {
+    await request(app)
+      .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
+      .attach("pictures", path.join(__dirname, "resources", "product.txt"))
+      .expect(400);
   });
 
   test("500 System Error", async () => {

@@ -7,7 +7,7 @@ const {
   UserBiodata,
 } = require("../models");
 const {
-  validatePictures,
+  validatePicture,
   uploadProductImages,
   updateProductImages,
   deleteProductImages,
@@ -152,7 +152,9 @@ module.exports = {
 
     // Validate product pictures
     try {
-      validatePictures(req.files);
+      for (const picture of req.files) {
+        validatePicture(picture);
+      }
     } catch (error) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
@@ -175,6 +177,21 @@ module.exports = {
         return res.status(400).json({
           type: "VALIDATION_FAILED",
           message: "Valid category name is required",
+        });
+      }
+
+      const userProductsCount = await Product.count({
+        where: {
+          seller_id: req.user.id,
+        },
+      });
+
+      console.log("Count : ", userProductsCount);
+
+      if (userProductsCount >= 4) {
+        return res.status(409).json({
+          type: "MAX_PRODUCTS_COUNT",
+          message: "Maximum products count is 4 per User",
         });
       }
 
@@ -267,8 +284,21 @@ module.exports = {
         }
       );
 
-      // Update product pictures
-      await updateProductImages(req.files, req.params.id);
+      if (req.files) {
+        try {
+          for (const picture of req.files) {
+            validatePicture(picture);
+          }
+        } catch (error) {
+          return res.status(400).json({
+            type: "VALIDATION_FAILED",
+            message: error.message,
+          });
+        }
+
+        // Update product pictures
+        await updateProductImages(req.files, req.params.id);
+      }
 
       // Get updated product data
       const product = await Product.findOne({
