@@ -1943,16 +1943,135 @@
 
     "/notification": {
       "get": {
-        "tags": ["Notification"]
+        "tags": ["Notification"],
+        "summary": "Get Notification",
+        "description": "Get All Notification",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "notifications": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Notification"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
       }
     },
-
     "/notification/{id}": {
       "put": {
         "tags": ["Notification"]
       },
       "delete": {
-        "tags": ["Notification"]
+        "tags": ["Notification"],
+        "summary": "Delete Notification",
+        "description": "Delete Notification",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "example": 1,
+            "required": true,
+            "description": "Notification ID"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Notification successfully deleted"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Notification not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
