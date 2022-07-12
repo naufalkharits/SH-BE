@@ -145,6 +145,25 @@ module.exports = {
     }
 
     try {
+      // Check User Biodata Verification
+      const biodata = await UserBiodata.findOne({
+        where: { user_id: req.user.id },
+      });
+
+      if (
+        !biodata ||
+        !biodata.name ||
+        !biodata.city ||
+        !biodata.address ||
+        !biodata.phone_number ||
+        !biodata.picture
+      ) {
+        return res.status(400).json({
+          type: "VALIDATION_FAILED",
+          message: "User biodata must be filled in completely",
+        });
+      }
+
       const product = await Product.findOne({
         where: { id: req.params.productId },
       });
