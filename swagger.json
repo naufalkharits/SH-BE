@@ -1460,7 +1460,7 @@
             "in": "query",
             "name": "status",
             "type": "string",
-            "enum": ["accepted", "rejected", "pending"],
+            "enum": ["accepted", "rejected", "pending", "completed"],
             "description": "Filter transactions based on status"
           },
           {
@@ -1540,7 +1540,7 @@
             "type": "integer",
             "example": 1,
             "required": true,
-            "description": "Product ID"
+            "description": "Transaction ID"
           }
         ],
         "produces": ["application/json"],
