@@ -3,12 +3,7 @@ const { Notification } = require("../models");
 module.exports = {
   getNotifications: async (req, res) => {
     try {
-      const notifications = await Notification.findAll({
-        where: {
-          user_id: req.user.id,
-        },
-      });
-
+      const notifications = await Notification.findAll();
       res.status(200).json({
         notifications,
       });
