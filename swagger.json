@@ -1086,6 +1086,15 @@
             "access_token": []
           }
         ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "as",
+            "type": "string",
+            "required": false,
+            "description": "Filter transactions by seller perspective"
+          }
+        ],
         "produces": ["application/json"],
         "responses": {
           "200": {
@@ -2323,6 +2332,17 @@
       "properties": {
         "product": {
           "$ref": "#/definitions/Product"
+        }
+      }
+    },
+    "SellerWishlist": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/definitions/Product"
+        },
+        "user": {
+          "$ref": "#/definitions/UserBiodata"
         }
       }
     },

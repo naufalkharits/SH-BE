@@ -12,6 +12,11 @@ const mapWishlist = (wishlist) => ({
   product: mapProduct(wishlist.Product),
 });
 
+const mapSellerWishlist = (wishlist) => ({
+  product: mapProduct(wishlist.Product),
+  user: wishlist.User.UserBiodatum,
+});
+
 module.exports = {
   checkWishlist: async (req, res) => {
     if (!Number.isInteger(+req.params.productId)) {
@@ -54,11 +59,18 @@ module.exports = {
   },
 
   getWishlists: async (req, res) => {
+    const wishlistsFilter =
+      req.query.as && req.query.as === "seller"
+        ? {
+            "$Product.seller_id$": req.user.id,
+          }
+        : {
+            user_id: req.user.id,
+          };
+
     try {
       const wishlists = await Wishlist.findAll({
-        where: {
-          user_id: req.user.id,
-        },
+        where: wishlistsFilter,
         include: [
           {
             model: Product,
@@ -71,14 +83,24 @@ module.exports = {
               },
             ],
           },
+          req.query &&
+            req.query.as === "seller" && {
+              model: User,
+              include: [UserBiodata],
+            },
         ],
       });
 
-      const wishlistsData = wishlists.map((wishlist) => mapWishlist(wishlist));
+      const wishlistsData = wishlists.map((wishlist) =>
+        req.query.as && req.query.as === "seller"
+          ? mapSellerWishlist(wishlist)
+          : mapWishlist(wishlist)
+      );
 
       res.status(200).json({
         wishlists: wishlistsData,
       });
+      
     } catch (error) {
       res.status(500).json({
         type: "SYSTEM_ERROR",
