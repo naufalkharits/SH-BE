@@ -17,7 +17,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  server.close();
+  try {
+    await User.destroy({ where: {} });
+    server.close();
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 describe("Get Notifications", () => {
@@ -36,15 +41,24 @@ describe("Get Notifications", () => {
 
 describe("Update Notification", () => {
   test("200 Success", async () => {
-    await request(app).put(`/notification/${testNotification.id}`).send({ read: true }).expect(200);
+    await request(app)
+      .put(`/notification/${testNotification.id}`)
+      .send({ read: true })
+      .expect(200);
   });
 
   test("400 Validation Invalid Notification ID", async () => {
-    await request(app).put("/notification/abc").send({ read: true }).expect(400);
+    await request(app)
+      .put("/notification/abc")
+      .send({ read: true })
+      .expect(400);
   });
 
   test("400 Validation Invalid Read Value", async () => {
-    await request(app).put(`/notification/${testNotification.id}`).send({ read: "abc" }).expect(400);
+    await request(app)
+      .put(`/notification/${testNotification.id}`)
+      .send({ read: "abc" })
+      .expect(400);
   });
 
   test("500 System Error", async () => {
@@ -52,7 +66,10 @@ describe("Update Notification", () => {
     Notification.update = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
-    await request(app).put(`/notification/${testNotification.id}`).send({ read: true }).expect(500);
+    await request(app)
+      .put(`/notification/${testNotification.id}`)
+      .send({ read: true })
+      .expect(500);
     Notification.update = originalFn;
   });
 });
