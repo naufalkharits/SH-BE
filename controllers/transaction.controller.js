@@ -1,4 +1,12 @@
-const { Transaction, Product, Picture, Category, Notification, User, UserBiodata } = require("../models");
+const {
+  Transaction,
+  Product,
+  Picture,
+  Category,
+  Notification,
+  User,
+  UserBiodata,
+} = require("../models");
 const { Op } = require("sequelize");
 const { mapProduct } = require("./product.controller");
 
@@ -28,7 +36,8 @@ module.exports = {
               buyer_id: req.query.as === "seller" ? -1 : req.user.id,
             },
             {
-              "$Product.seller_id$": req.query.as === "buyer" ? -1 : req.user.id,
+              "$Product.seller_id$":
+                req.query.as === "buyer" ? -1 : req.user.id,
             },
           ],
           status: {
@@ -54,7 +63,9 @@ module.exports = {
         ],
       });
 
-      const transactionsData = transactions.map((transaction) => mapTransaction(transaction));
+      const transactionsData = transactions.map((transaction) =>
+        mapTransaction(transaction)
+      );
 
       res.status(200).json({
         transactions: transactionsData,
@@ -122,7 +133,12 @@ module.exports = {
   },
 
   createTransaction: async (req, res) => {
-    if (!Number.isInteger(+req.params.productId) || !req.body || !req.body.price || !Number.isInteger(+req.body.price)) {
+    if (
+      !Number.isInteger(+req.params.productId) ||
+      !req.body ||
+      !req.body.price ||
+      !Number.isInteger(+req.body.price)
+    ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message: "Valid product ID and offered price is required",
@@ -135,7 +151,14 @@ module.exports = {
         where: { user_id: req.user.id },
       });
 
-      if (!biodata || !biodata.name || !biodata.city || !biodata.address || !biodata.phone_number || !biodata.picture) {
+      if (
+        !biodata ||
+        !biodata.name ||
+        !biodata.city ||
+        !biodata.address ||
+        !biodata.phone_number ||
+        !biodata.picture
+      ) {
         return res.status(400).json({
           type: "VALIDATION_FAILED",
           message: "User biodata must be filled in completely",
@@ -209,7 +232,13 @@ module.exports = {
       });
     }
 
-    if (req.body.status && req.body.status.toLowerCase() !== "pending" && req.body.status.toLowerCase() !== "accepted" && req.body.status.toLowerCase() !== "rejected" && req.body.status.toLowerCase() !== "completed") {
+    if (
+      req.body.status &&
+      req.body.status.toLowerCase() !== "pending" &&
+      req.body.status.toLowerCase() !== "accepted" &&
+      req.body.status.toLowerCase() !== "rejected" &&
+      req.body.status.toLowerCase() !== "completed"
+    ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message: "Valid status is required",
@@ -224,7 +253,11 @@ module.exports = {
         where: { id: req.params.id },
         include: [Product],
       });
-      if (userTransaction && userTransaction.buyer_id !== req.user.id && userTransaction.Product.seller_id !== req.user.id) {
+      if (
+        userTransaction &&
+        userTransaction.buyer_id !== req.user.id &&
+        userTransaction.Product.seller_id !== req.user.id
+      ) {
         return res.status(401).json({
           type: "UNAUTHORIZED",
           message: "Unauthorized Access",
@@ -294,17 +327,24 @@ module.exports = {
         where: { id: req.params.id },
         include: [Product],
       });
-      if (userTransaction && userTransaction.buyer_id !== req.user.id && userTransaction.Product.seller_id !== req.user.id) {
+      if (
+        userTransaction &&
+        userTransaction.buyer_id !== req.user.id &&
+        userTransaction.Product.seller_id !== req.user.id
+      ) {
         return res.status(401).json({
           type: "UNAUTHORIZED",
           message: "Unauthorized Access",
         });
       }
+
       const result = await Transaction.destroy({
         where: { id: req.params.id },
       });
       if (result === 0) {
-        res.status(404).json({ type: "NOT_FOUND", message: "Transaction not found" });
+        res
+          .status(404)
+          .json({ type: "NOT_FOUND", message: "Transaction not found" });
       } else {
         console.log(result);
         res.status(200).json({ message: "Transaction successfully deleted" });

@@ -1,8 +1,20 @@
-const { Wishlist, Product, Category, Picture, User, UserBiodata } = require("../models");
+const {
+  Wishlist,
+  Product,
+  Category,
+  Picture,
+  User,
+  UserBiodata,
+} = require("../models");
 const { mapProduct } = require("./product.controller");
 
 const mapWishlist = (wishlist) => ({
   product: mapProduct(wishlist.Product),
+});
+
+const mapSellerWishlist = (wishlist) => ({
+  product: mapProduct(wishlist.Product),
+  user: wishlist.User.UserBiodatum,
 });
 
 module.exports = {
@@ -47,11 +59,18 @@ module.exports = {
   },
 
   getWishlists: async (req, res) => {
+    const wishlistsFilter =
+      req.query.as && req.query.as === "seller"
+        ? {
+            "$Product.seller_id$": req.user.id,
+          }
+        : {
+            user_id: req.user.id,
+          };
+
     try {
       const wishlists = await Wishlist.findAll({
-        where: {
-          user_id: req.user.id,
-        },
+        where: wishlistsFilter,
         include: [
           {
             model: Product,
@@ -64,10 +83,18 @@ module.exports = {
               },
             ],
           },
+          {
+            model: User,
+            include: [UserBiodata],
+          },
         ],
       });
 
-      const wishlistsData = wishlists.map((wishlist) => mapWishlist(wishlist));
+      const wishlistsData = wishlists.map((wishlist) =>
+        req.query.as && req.query.as === "seller"
+          ? mapSellerWishlist(wishlist)
+          : mapWishlist(wishlist)
+      );
 
       res.status(200).json({
         wishlists: wishlistsData,
@@ -167,16 +194,6 @@ module.exports = {
     }
 
     try {
-      const userwishlist = await Wishlist.findOne({
-        where: { id: req.params.id },
-      });
-
-      if (userwishlist && userwishlist.user_id !== req.user.id) {
-        return res.status(401).json({
-          type: "UNAUTHORIZED",
-          message: "Unauthorized Access",
-        });
-      }
       // Delete Wishlist
       const result = await Wishlist.destroy({
         where: { product_id: req.params.productId, user_id: req.user.id },
@@ -184,7 +201,9 @@ module.exports = {
 
       // Check if Wishlist not found
       if (result === 0) {
-        res.status(404).json({ type: "NOT_FOUND", message: "Wishlist not found" });
+        res
+          .status(404)
+          .json({ type: "NOT_FOUND", message: "Wishlist not found" });
       } else {
         res.status(200).json({ message: "Wishlist successfully deleted" });
       }
