@@ -277,7 +277,7 @@ module.exports = {
       const userProduct = await Product.findOne({
         where: { id: req.params.id },
       });
-      if (userProduct.seller_id !== req.user.id) {
+      if (userProduct && userProduct.seller_id !== req.user.id) {
         return res.status(401).json({
           type: "UNAUTHORIZED",
           message: "Unauthorized Access",
@@ -374,16 +374,17 @@ module.exports = {
     }
 
     try {
-      // Check if Delete user is product owner
+      // Check if user is product owner
       const userProduct = await Product.findOne({
         where: { id: req.params.id },
       });
-      if (userProduct.seller_id !== req.user.id) {
+      if (userProduct && userProduct.seller_id !== req.user.id) {
         return res.status(401).json({
           type: "UNAUTHORIZED",
           message: "Unauthorized Access",
         });
       }
+
       // Delete product pictures
       await deleteProductImages(req.params.id);
 
