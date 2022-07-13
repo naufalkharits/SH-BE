@@ -273,6 +273,17 @@ module.exports = {
     const { name, price, category, description } = req.body;
 
     try {
+      // Check if user is product owner
+      const userProduct = await Product.findOne({
+        where: { id: req.params.id },
+      });
+      if (userProduct.seller_id !== req.user.id) {
+        return res.status(401).json({
+          type: "UNAUTHORIZED",
+          message: "Unauthorized Access",
+        });
+      }
+
       // Find category id if category updated
       const productCategory = await Category.findOne({
         where: {
