@@ -42,17 +42,6 @@ module.exports = {
     const profilePicture = req.file;
 
     try {
-      // Check if user is product owner
-      const UserBiodata = await Product.findOne({
-        where: { id: req.params.id },
-      });
-      if (UserBiodata.seller_id !== req.user.id) {
-        return res.status(401).json({
-          type: "UNAUTHORIZED",
-          message: "Unauthorized Access",
-        });
-      }
-
       // Update Profile Image
       if (profilePicture) {
         try {
