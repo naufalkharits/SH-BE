@@ -103,7 +103,7 @@ module.exports = {
       });
     }
 
-    if (req.body.read && typeof req.body.read !== "boolean") {
+    if (!req.body.read || typeof req.body.read !== "boolean") {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message: "Valid read value is required",
