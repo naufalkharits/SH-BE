@@ -248,6 +248,15 @@ module.exports = {
     const { price, status } = req.body;
 
     try {
+      const userProduct = await Product.findOne({
+        where: { id: req.params.id },
+      });
+      if (userProduct.seller_id !== req.user.id) {
+        return res.status(401).json({
+          type: "UNAUTHORIZED",
+          message: "Unauthorized Access",
+        });
+      }
       await Transaction.update(
         {
           price: price,
