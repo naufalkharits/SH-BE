@@ -1,4 +1,12 @@
-const { Notification, Product, Transaction, Category, User, UserBiodata, Picture } = require("../models");
+const {
+  Notification,
+  Product,
+  Transaction,
+  Category,
+  User,
+  UserBiodata,
+  Picture,
+} = require("../models");
 const { mapProduct } = require("./product.controller");
 const { mapTransaction } = require("./transaction.controller");
 
@@ -71,7 +79,9 @@ module.exports = {
         include: notificationInclude,
       });
 
-      const mappedNotifications = notifications.map((notification) => mapNotification(notification));
+      const mappedNotifications = notifications.map((notification) =>
+        mapNotification(notification)
+      );
 
       res.status(200).json({
         notifications: mappedNotifications,
@@ -114,11 +124,8 @@ module.exports = {
     const { read } = req.body;
 
     try {
-      const userNotification = await Notification.findOne({
-        where: { id: req.params.id },
-      });
-
-      if (userNotification && userNotification.user_id !== req.user.id) {
+      // Check if user is notification owner
+      if (notification && notification.user_id !== req.user.id) {
         return res.status(401).json({
           type: "UNAUTHORIZED",
           message: "Unauthorized Access",
@@ -157,21 +164,24 @@ module.exports = {
     }
 
     try {
+      // Check if user is notification owner
       const userNotification = await Notification.findOne({
         where: { id: req.params.id },
       });
-
       if (userNotification && userNotification.user_id !== req.user.id) {
         return res.status(401).json({
           type: "UNAUTHORIZED",
           message: "Unauthorized Access",
         });
       }
+
       const result = await Notification.destroy({
         where: { id: req.params.id },
       });
       if (result === 0) {
-        res.status(404).json({ type: "NOT_FOUND", message: "Notification not found" });
+        res
+          .status(404)
+          .json({ type: "NOT_FOUND", message: "Notification not found" });
       } else {
         console.log(result);
         res.status(200).json({ message: "Notification successfully deleted" });
