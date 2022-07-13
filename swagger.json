@@ -1961,8 +1961,24 @@
                 "notifications": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/Notification"
+                    "$ref": "#/definitions/NewProductNotification"
                   }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
                 }
               }
             }
@@ -2008,15 +2024,15 @@
           {
             "in": "body",
             "name": "body",
-            "description": "Notification Data",
+            "description": "Notification Read Status",
             "required": true,
             "schema": {
               "type": "object",
               "properties": {
-                "status": {
-                  "type": "string",
+                "read": {
+                  "type": "boolean",
                   "enum": [true, false],
-                  "description": "Notification status"
+                  "description": "Notification read status"
                 }
               }
             }
@@ -2030,7 +2046,7 @@
               "type": "object",
               "properties": {
                 "updatedNotification": {
-                  "$ref": "#/definitions/Notification"
+                  "$ref": "#/definitions/NewOfferNotification"
                 }
               }
             }
@@ -2046,7 +2062,23 @@
                 },
                 "message": {
                   "type": "string",
-                  "example": "Valid notification ID and status is required"
+                  "example": "Valid Notification ID is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
                 }
               }
             }
@@ -2179,7 +2211,13 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
+            "example": [
+              "Health",
+              "Sport",
+              "Automotive",
+              "Electronic",
+              "Property"
+            ]
           }
         }
       }
@@ -2319,24 +2357,47 @@
         }
       }
     },
-    "Notification": {
+    "NewProductNotification": {
       "type": "object",
       "properties": {
         "id": {
           "type": "integer",
           "example": "1"
         },
-        "user_id": {
+        "type": {
+          "type": "string",
+          "example": "NEW_PRODUCT"
+        },
+        "product": {
+          "$ref": "#/definitions/Product"
+        },
+        "read": {
+          "type": "boolean",
+          "example": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "NewOfferNotification": {
+      "type": "object",
+      "properties": {
+        "id": {
           "type": "integer",
           "example": "1"
         },
-        "transaction_id": {
-          "type": "integer",
-          "example": "2"
+        "type": {
+          "type": "string",
+          "example": "NEW_OFFER"
         },
-        "product_id": {
-          "type": "integer",
-          "example": "2"
+        "transaction": {
+          "$ref": "#/definitions/Transaction"
         },
         "read": {
           "type": "boolean",

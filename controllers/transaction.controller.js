@@ -25,6 +25,7 @@ const mapTransaction = (transaction) => {
 };
 
 module.exports = {
+  mapTransaction,
   getTransactions: async (req, res) => {
     try {
       // Get User Transaction
