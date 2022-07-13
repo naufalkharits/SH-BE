@@ -1,11 +1,4 @@
-const {
-  Wishlist,
-  Product,
-  Category,
-  Picture,
-  User,
-  UserBiodata,
-} = require("../models");
+const { Wishlist, Product, Category, Picture, User, UserBiodata } = require("../models");
 const { mapProduct } = require("./product.controller");
 
 const mapWishlist = (wishlist) => ({
@@ -196,6 +189,16 @@ module.exports = {
     }
 
     try {
+      const userwishlist = await Wishlist.findOne({
+        where: { id: req.params.id },
+      });
+
+      if (userwishlist && userwishlist.user_id !== req.user.id) {
+        return res.status(401).json({
+          type: "UNAUTHORIZED",
+          message: "Unauthorized Access",
+        });
+      }
       // Delete Wishlist
       const result = await Wishlist.destroy({
         where: { product_id: req.params.productId, user_id: req.user.id },
@@ -203,9 +206,7 @@ module.exports = {
 
       // Check if Wishlist not found
       if (result === 0) {
-        res
-          .status(404)
-          .json({ type: "NOT_FOUND", message: "Wishlist not found" });
+        res.status(404).json({ type: "NOT_FOUND", message: "Wishlist not found" });
       } else {
         res.status(200).json({ message: "Wishlist successfully deleted" });
       }
