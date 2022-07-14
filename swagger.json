@@ -278,6 +278,72 @@
         }
       }
     },
+    "/auth/google": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login User using Google OAuth",
+        "description": "Login User using Google OAuth",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Google Auth Code",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "example": "auth-code"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Token"
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid Google auth code is required"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/me": {
       "post": {
         "tags": ["Auth"],
