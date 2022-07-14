@@ -35,4 +35,18 @@ module.exports = {
     }
     return io;
   },
+
+  sendNewNotification: (userId) => {
+    if (!io) {
+      throw new Error("Socket Not Initialized");
+    }
+    const selectedUser = connectedUsers.find((user) => user.userId === userId);
+    console.log("Selected User :", selectedUser);
+
+    if (selectedUser) {
+      io.to(selectedUser.socketId).emit("notification", [
+        "There is new notification !",
+      ]);
+    }
+  },
 };

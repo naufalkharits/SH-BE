@@ -9,6 +9,7 @@ const {
 } = require("../models");
 const { Op } = require("sequelize");
 const { mapProduct } = require("./product.controller");
+const { sendNewNotification } = require("../utils/socket");
 
 const mapTransaction = (transaction) => {
   const mappedProductData = mapProduct(transaction.Product);
@@ -212,6 +213,8 @@ module.exports = {
         user_id: product.seller_id,
         transaction_id: transaction.id,
       });
+
+      sendNewNotification(product.seller_id);
 
       res.status(200).json({
         transaction: mapTransaction(transaction),
