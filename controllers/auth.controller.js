@@ -11,6 +11,7 @@ const googleOAuthClient = new google.auth.OAuth2({
 });
 
 module.exports = {
+  googleOAuthClient,
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -194,6 +195,7 @@ module.exports = {
         refreshToken,
       });
     } catch (err) {
+      console.log("Auth Google Error :", err);
       res
         .status(500)
         .json({ type: "SYSTEM_ERROR", message: "Something wrong with server" });

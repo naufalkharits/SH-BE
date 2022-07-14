@@ -1,6 +1,13 @@
 const request = require("supertest");
 const { app, server } = require("../index");
 const { User } = require("../models");
+const { google } = require("googleapis");
+const jwt = require("jsonwebtoken");
+const { googleOAuthClient } = require("../controllers/auth.controller");
+
+googleOAuthClient.getToken = jest.fn().mockImplementation(() => ({
+  tokens: "abcdefghijklmn",
+}));
 
 let userAccessToken;
 let userRefreshToken;
@@ -108,6 +115,46 @@ describe("Login", () => {
     await request(app)
       .post("/auth/login")
       .send({ email: "test321@gmail.com", password: "123456" })
+      .expect(500);
+    User.findOne = originalFn;
+  });
+});
+
+describe("Google OAuth", () => {
+  let originalJwtDecode = jwt.decode;
+
+  beforeAll(() => {
+    jwt.decode = jest.fn().mockImplementation(() => ({
+      email: "test@gmail.com",
+      sub: "123456789",
+      name: "Test User",
+    }));
+  });
+
+  afterAll(() => {
+    jwt.decode = originalJwtDecode;
+  });
+
+  test("200 Success", async () => {
+    console.log("OAuth2 :", google.auth.OAuth2);
+    await request(app)
+      .post("/auth/google")
+      .send({ code: "abcdefghijklmn" })
+      .expect(200);
+  });
+
+  test("400 Validation Failed", async () => {
+    await request(app).post("/auth/google").send({}).expect(400);
+  });
+
+  test("500 System Error / Unexpected Error", async () => {
+    const originalFn = User.findOne;
+    User.findOne = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app)
+      .post("/auth/google")
+      .send({ code: "abcdefghijklmn" })
       .expect(500);
     User.findOne = originalFn;
   });
