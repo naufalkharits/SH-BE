@@ -5,6 +5,7 @@ const path = require("path");
 const swaggerJSON = require("./swagger.json");
 const swaggerUI = require("swagger-ui-express");
 const firebaseStorage = require("./utils/firebase-storage");
+const socket = require("./utils/socket");
 require("./utils/passport-jwt");
 
 firebaseStorage.setup();
@@ -32,5 +33,7 @@ app.use(router);
 const server = app.listen(process.env.PORT || 8000, async () => {
   console.log(`Listening on ${process.env.PORT || 8000}`);
 });
+
+socket.init(server);
 
 module.exports = { app, server };
