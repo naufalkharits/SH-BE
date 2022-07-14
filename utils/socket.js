@@ -50,13 +50,17 @@ module.exports = {
     }
     console.log("Target User ID :", userId);
     console.log("Connected Users :", connectedUsers);
-    const selectedUser = connectedUsers.find((user) => user.userId == userId);
-    console.log("Selected User :", selectedUser);
+    const selectedUsers = connectedUsers.filter(
+      (user) => user.userId == userId
+    );
+    console.log("Selected Users :", selectedUsers);
 
-    if (selectedUser) {
-      io.to(selectedUser.socketId).emit("NOTIFICATION", [
-        "There is new notification !",
-      ]);
+    if (selectedUsers.length > 0) {
+      selectedUsers.forEach((user) => {
+        io.to(user.socketId).emit("NOTIFICATION", [
+          "There is new notification !",
+        ]);
+      });
     }
   },
 };
