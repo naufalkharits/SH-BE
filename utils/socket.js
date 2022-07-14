@@ -2,7 +2,7 @@ const { Server } = require("socket.io");
 
 let io;
 
-const connectedUsers = [];
+let connectedUsers = [];
 
 module.exports = {
   init: (httpServer) => {
@@ -17,11 +17,19 @@ module.exports = {
       console.log("New User Connected");
       console.log("User Socket ID :", socket.id);
 
-      socket.on("start", (args) => {
+      socket.on("START", (args) => {
         connectedUsers.push({
           socketId: socket.id,
           userId: args.id,
         });
+
+        console.log("Connected Users :", connectedUsers);
+      });
+
+      socket.on("disconnect", (reason) => {
+        connectedUsers = connectedUsers.filter(
+          (user) => user.socketId !== socket.id
+        );
 
         console.log("Connected Users :", connectedUsers);
       });
@@ -40,11 +48,13 @@ module.exports = {
     if (!io) {
       throw new Error("Socket Not Initialized");
     }
-    const selectedUser = connectedUsers.find((user) => user.userId === userId);
+    console.log("Target User ID :", userId);
+    console.log("Connected Users :", connectedUsers);
+    const selectedUser = connectedUsers.find((user) => user.userId == userId);
     console.log("Selected User :", selectedUser);
 
     if (selectedUser) {
-      io.to(selectedUser.socketId).emit("notification", [
+      io.to(selectedUser.socketId).emit("NOTIFICATION", [
         "There is new notification !",
       ]);
     }
