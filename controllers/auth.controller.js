@@ -2,6 +2,13 @@ const { User, UserBiodata } = require("../models");
 const bcrypt = require("bcrypt");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 const jwt = require("jsonwebtoken");
+const { google } = require("googleapis");
+
+const googleOAuthClient = new google.auth.OAuth2({
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  redirectUri: "http://localhost:3000",
+});
 
 module.exports = {
   login: async (req, res) => {
@@ -148,6 +155,48 @@ module.exports = {
         type: "UNAUTHORIZED",
         message: "Invalid or expired refresh token",
       });
+    }
+  },
+  googleAuth: async (req, res) => {
+    if (!req.body.code) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: "Valid Google auth code is required",
+      });
+    }
+
+    try {
+      const { tokens } = await googleOAuthClient.getToken(req.body.code);
+
+      const userData = jwt.decode(tokens.id_token);
+
+      let user = await User.findOne({ where: { email: userData.email } });
+
+      if (!user) {
+        const encryptedPassword = await bcrypt.hash(userData.sub, 10);
+
+        user = await User.create({
+          email: userData.email,
+          password: encryptedPassword,
+        });
+
+        await UserBiodata.create({
+          user_id: user.id,
+          name: userData.name,
+        });
+      }
+
+      const accessToken = generateAccessToken(user.id);
+      const refreshToken = generateRefreshToken(user.id);
+
+      res.status(200).json({
+        accessToken,
+        refreshToken,
+      });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ type: "SYSTEM_ERROR", message: "Something wrong with server" });
     }
   },
 };
