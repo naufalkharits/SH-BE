@@ -23,15 +23,6 @@ const mapNotification = (notification) => {
       };
 
     case "NEW_OFFER":
-      return {
-        id: notification.id,
-        type: notification.type,
-        read: notification.read,
-        transaction: mapTransaction(notification.Transaction),
-        createdAt: notification.createdAt,
-        updatedAt: notification.updatedAt,
-      };
-
     case "TRANSACTION_COMPLETE":
       return {
         id: notification.id,
