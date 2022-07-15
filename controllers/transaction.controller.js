@@ -252,11 +252,19 @@ module.exports = {
     const { price, status } = req.body;
 
     try {
-      // Check if user is either buyer or seller from transaction
       const userTransaction = await Transaction.findOne({
         where: { id: req.params.id },
         include: [Product],
       });
+
+      if (!userTransaction) {
+        return res.status(404).json({
+          type: "NOT_FOUND",
+          message: "Transaction not found",
+        });
+      }
+
+      // Check if user is either buyer or seller from transaction
       if (
         userTransaction &&
         userTransaction.buyer_id !== req.user.id &&
@@ -301,12 +309,17 @@ module.exports = {
           },
         ],
       });
-      if (!transaction) {
-        return res.status(404).json({
-          type: "NOT_FOUND",
-          message: "Transaction not found",
+
+      if (status && status.toLowerCase() === "completed") {
+        await Notification.create({
+          type: "TRANSACTION_COMPLETE",
+          user_id: transaction.buyer_id,
+          transaction_id: transaction.id,
         });
+
+        sendNewNotification(transaction.buyer_id);
       }
+
       res.status(200).json({ updatedTransaction: mapTransaction(transaction) });
     } catch (err) {
       console.log(err);

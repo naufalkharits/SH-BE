@@ -22,7 +22,7 @@ const mapNotification = (notification) => {
         updatedAt: notification.updatedAt,
       };
 
-    case "NEW_OFFER":
+    case "NEW_OFFER" || "TRANSACTION_COMPLETED":
       return {
         id: notification.id,
         type: notification.type,
