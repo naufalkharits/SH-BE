@@ -77,6 +77,7 @@ module.exports = {
       const notifications = await Notification.findAll({
         where: { user_id: req.user.id },
         include: notificationInclude,
+        order: [["createdAt", "DESC"]],
       });
 
       const mappedNotifications = notifications.map((notification) =>
