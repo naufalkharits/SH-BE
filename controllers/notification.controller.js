@@ -23,6 +23,7 @@ const mapNotification = (notification) => {
       };
 
     case "NEW_OFFER":
+    case "TRANSACTION_COMPLETE":
       return {
         id: notification.id,
         type: notification.type,
