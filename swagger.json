@@ -2491,6 +2491,10 @@
           "type": "string",
           "example": "Jam Tangan Kualitas Bagus"
         },
+        "status": {
+          "type": "string",
+          "example": "READY"
+        },
         "seller": {
           "$ref": "#/definitions/UserBiodata"
         },
