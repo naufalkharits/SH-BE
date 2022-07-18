@@ -1,12 +1,4 @@
-const {
-  Notification,
-  Product,
-  Transaction,
-  Category,
-  User,
-  UserBiodata,
-  Picture,
-} = require("../models");
+const { Notification, Product, Transaction, Category, User, UserBiodata, Picture } = require("../models");
 const { mapProduct } = require("./product.controller");
 const { mapTransaction } = require("./transaction.controller");
 
@@ -81,9 +73,7 @@ module.exports = {
         order: [["createdAt", "DESC"]],
       });
 
-      const mappedNotifications = notifications.map((notification) =>
-        mapNotification(notification)
-      );
+      const mappedNotifications = notifications.map((notification) => mapNotification(notification));
 
       res.status(200).json({
         notifications: mappedNotifications,
@@ -157,6 +147,24 @@ module.exports = {
     }
   },
 
+  readAllNotification: async (req, res) => {
+    try {
+      await Notification.update(
+        { read: true },
+        {
+          where: { user_id: req.user.id },
+        }
+      );
+      res.status(200).json({ message: "All notification has been read" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
+  },
+
   deleteNotification: async (req, res) => {
     if (!Number.isInteger(+req.params.id)) {
       return res.status(400).json({
@@ -181,9 +189,7 @@ module.exports = {
         where: { id: req.params.id },
       });
       if (result === 0) {
-        res
-          .status(404)
-          .json({ type: "NOT_FOUND", message: "Notification not found" });
+        res.status(404).json({ type: "NOT_FOUND", message: "Notification not found" });
       } else {
         console.log(result);
         res.status(200).json({ message: "Notification successfully deleted" });
