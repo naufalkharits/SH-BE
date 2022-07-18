@@ -35,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       email: DataTypes.STRING,
       password: DataTypes.STRING,
+      fcm_token: { type: DataTypes.STRING, defaultValue: null },
     },
     {
       sequelize,

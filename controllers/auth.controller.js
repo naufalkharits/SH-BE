@@ -201,4 +201,35 @@ module.exports = {
         .json({ type: "SYSTEM_ERROR", message: "Something wrong with server" });
     }
   },
+  updateFcmToken: async (req, res) => {
+    if (!req.body || !req.body.token) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: "Valid token is required",
+      });
+    }
+
+    try {
+      await User.update(
+        {
+          fcm_token: req.body.token,
+        },
+        {
+          where: {
+            id: req.user.id,
+          },
+        }
+      );
+
+      res.status(200).json({
+        message: "FCM Token has been updated",
+      });
+    } catch (error) {
+      console.log("Error :", error);
+      res.status(500).json({
+        type: "SYSTEM_ERROR",
+        message: "Something wrong with server",
+      });
+    }
+  },
 };

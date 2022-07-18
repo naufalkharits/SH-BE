@@ -274,7 +274,18 @@ module.exports = {
       });
     }
 
-    const { name, price, category, description } = req.body;
+    const { name, price, category, description, status } = req.body;
+
+    if (
+      status &&
+      status.toLowerCase() !== "ready" &&
+      status.toLowerCase() !== "sold"
+    ) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: "Valid product status is required",
+      });
+    }
 
     try {
       // Check if user is product owner
@@ -309,6 +320,7 @@ module.exports = {
           price: price,
           category_id: category ? productCategory.id : undefined,
           description: description,
+          status: status ? status.toUpperCase() : undefined,
         },
         {
           where: {
@@ -336,7 +348,14 @@ module.exports = {
       // Get updated product data
       const product = await Product.findOne({
         where: { id: req.params.id },
-        include: [Category, Picture],
+        include: [
+          Category,
+          Picture,
+          {
+            model: User,
+            include: [UserBiodata],
+          },
+        ],
       });
 
       if (!product) {
@@ -346,21 +365,9 @@ module.exports = {
         });
       }
 
-      // Format product response data
-      const updatedProduct = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        category: product.Category.name,
-        description: product.description,
-        seller_id: product.seller_id,
-        pictures: product.Pictures.map((picture) => picture.url),
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      };
-
-      res.status(200).json({ updatedProduct });
+      res.status(200).json({ updatedProduct: mapProduct(product) });
     } catch (error) {
+      console.log(error);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",

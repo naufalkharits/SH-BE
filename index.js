@@ -4,11 +4,11 @@ const app = express();
 const path = require("path");
 const swaggerJSON = require("./swagger.json");
 const swaggerUI = require("swagger-ui-express");
-const firebaseStorage = require("./utils/firebase-storage");
+const firebase = require("./utils/firebase");
 const socket = require("./utils/socket");
 require("./utils/passport-jwt");
 
-firebaseStorage.setup();
+firebase.setup();
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

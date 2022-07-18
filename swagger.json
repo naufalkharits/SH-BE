@@ -483,6 +483,78 @@
         }
       }
     },
+    "/auth/fcm": {
+      "put": {
+        "tags": ["Auth"],
+        "summary": "Update User FCM Token",
+        "description": "Update User FCM Token for Firebase Push Notification",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "FCM Token from Firebase",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "example": "fcm-token"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "FCM Token has been updated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid token is required"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
     "/product": {
       "get": {
@@ -784,6 +856,12 @@
             "name": "description",
             "type": "string",
             "description": "Product Description"
+          },
+          {
+            "in": "formData",
+            "name": "status",
+            "type": "string",
+            "enum": ["READY", "SOLD"]
           },
           {
             "in": "formData",
@@ -2078,8 +2156,8 @@
       },
       "put": {
         "tags": ["Notification"],
-        "summary": "Read Notification",
-        "description": "Read All Notification",
+        "summary": "Read All Notifications",
+        "description": "Read All Notifications",
         "security": [
           {
             "access_token": []
@@ -2094,7 +2172,7 @@
               "properties": {
                 "message": {
                   "type": "string",
-                  "example": "Notification successfully read"
+                  "example": "All notification has been read"
                 }
               }
             }
@@ -2327,7 +2405,13 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
+            "example": [
+              "Health",
+              "Sport",
+              "Automotive",
+              "Electronic",
+              "Property"
+            ]
           }
         }
       }
@@ -2406,6 +2490,10 @@
         "description": {
           "type": "string",
           "example": "Jam Tangan Kualitas Bagus"
+        },
+        "status": {
+          "type": "string",
+          "example": "READY"
         },
         "seller": {
           "$ref": "#/definitions/UserBiodata"
