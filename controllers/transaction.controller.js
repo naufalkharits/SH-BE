@@ -178,6 +178,13 @@ module.exports = {
         });
       }
 
+      if (product.status != "READY") {
+        return res.status(404).json({
+          type: " SOLD OUT",
+          message: "Product is sold out",
+        });
+      }
+
       const newTransaction = await Transaction.create({
         product_id: req.params.productId,
         buyer_id: req.user.id,
@@ -318,6 +325,17 @@ module.exports = {
         });
 
         sendNewNotification(transaction.buyer_id);
+
+        await Product.update(
+          {
+            status: "SOLD",
+          },
+          {
+            where: {
+              id: transaction.product_id,
+            },
+          }
+        );
       }
 
       res.status(200).json({ updatedTransaction: mapTransaction(transaction) });
