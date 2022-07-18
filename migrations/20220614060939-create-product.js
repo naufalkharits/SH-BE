@@ -26,7 +26,8 @@ module.exports = {
         },
       },
       description: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
+        allowNull: false,
       },
       seller_id: {
         type: Sequelize.INTEGER,
@@ -37,6 +38,11 @@ module.exports = {
           key: "id",
           as: "seller_id",
         },
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "READY",
       },
       createdAt: {
         allowNull: false,

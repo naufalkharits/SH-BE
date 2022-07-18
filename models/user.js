@@ -35,10 +35,6 @@ module.exports = (sequelize, DataTypes) => {
     {
       email: DataTypes.STRING,
       password: DataTypes.STRING,
-      refresh_token: {
-        type: DataTypes.STRING,
-        defaultValue: null,
-      },
     },
     {
       sequelize,
