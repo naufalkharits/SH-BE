@@ -859,6 +859,12 @@
           },
           {
             "in": "formData",
+            "name": "status",
+            "type": "string",
+            "enum": ["READY", "SOLD"]
+          },
+          {
+            "in": "formData",
             "name": "pictures",
             "type": "file",
             "description": "Product Pictures"
@@ -2150,8 +2156,8 @@
       },
       "put": {
         "tags": ["Notification"],
-        "summary": "Read Notification",
-        "description": "Read All Notification",
+        "summary": "Read All Notifications",
+        "description": "Read All Notifications",
         "security": [
           {
             "access_token": []
@@ -2166,7 +2172,7 @@
               "properties": {
                 "message": {
                   "type": "string",
-                  "example": "Notification successfully read"
+                  "example": "All notification has been read"
                 }
               }
             }
@@ -2399,7 +2405,13 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
+            "example": [
+              "Health",
+              "Sport",
+              "Automotive",
+              "Electronic",
+              "Property"
+            ]
           }
         }
       }

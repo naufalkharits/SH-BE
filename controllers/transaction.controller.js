@@ -180,7 +180,7 @@ module.exports = {
 
       if (product.status != "READY") {
         return res.status(404).json({
-          type: " SOLD OUT",
+          type: "SOLD_OUT",
           message: "Product is sold out",
         });
       }
