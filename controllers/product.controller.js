@@ -25,6 +25,7 @@ const mapProduct = (product) => ({
   pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
     (picture) => picture.url
   ),
+  status: product.status,
   createdAt: product.createdAt,
   updatedAt: product.updatedAt,
 });

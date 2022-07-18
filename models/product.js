@@ -35,8 +35,13 @@ module.exports = (sequelize, DataTypes) => {
       name: { type: DataTypes.STRING, allowNull: false },
       price: { type: DataTypes.INTEGER, allowNull: false },
       category_id: { type: DataTypes.INTEGER, allowNull: false },
-      description: DataTypes.TEXT,
+      description: { type: DataTypes.TEXT, allowNull: false },
       seller_id: { type: DataTypes.INTEGER, allowNull: false },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "READY",
+      },
     },
     {
       sequelize,
