@@ -16,21 +16,22 @@ module.exports = {
           id: req.params.id,
         },
       });
-      const ChatMessage = await ChatMessage.findOne({
-        where: {
-          chat_id: req.params.id,
-        },
-      });
 
-      if (!chat && !ChatMessage) {
+      if (!chat) {
         return res.status(404).json({
           type: "NOT_FOUND",
           message: "Chat not found",
         });
       }
 
+      const chatMessages = await ChatMessage.findAll({
+        where: {
+          chat_id: req.params.id,
+        },
+      });
+
       res.status(200).json({
-        chatmessage,
+        chatMessages,
       });
     } catch (error) {
       res.status(500).json({
