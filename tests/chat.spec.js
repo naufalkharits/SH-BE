@@ -58,4 +58,25 @@ describe("Get Chats", () => {
   });
 });
 
-describe("Get Chat", () => {});
+describe("Get Chat", () => {
+  test("200 Success", async () => {
+    await request(app).get(`/chat/${testChat.id}`).expect(200);
+  });
+
+  test("400 Validation Error", async () => {
+    await request(app).get(`/chat/abc`).expect(400);
+  });
+
+  test("404 Chat Not Found", async () => {
+    await request(app).get(`/chat/123`).expect(404);
+  });
+
+  test("500 System Error", async () => {
+    const originalFn = Chat.findOne;
+    Chat.findOne = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app).get(`/chat/${testChat.id}`).expect(500);
+    Chat.findOne = originalFn;
+  });
+});
