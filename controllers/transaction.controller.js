@@ -317,6 +317,26 @@ module.exports = {
         ],
       });
 
+      if (status && status.toLowerCase() === "accepted") {
+        await Notification.create({
+          type: "TRANSACTION_ACCEPTED",
+          user_id: transaction.buyer_id,
+          transaction_id: transaction.id,
+        });
+
+        sendNewNotification(transaction.buyer_id);
+      }
+
+      if (status && status.toLowerCase() === "rejected") {
+        await Notification.create({
+          type: "TRANSACTION_REJECTED",
+          user_id: transaction.buyer_id,
+          transaction_id: transaction.id,
+        });
+
+        sendNewNotification(transaction.buyer_id);
+      }
+
       if (status && status.toLowerCase() === "completed") {
         await Notification.create({
           type: "TRANSACTION_COMPLETE",
