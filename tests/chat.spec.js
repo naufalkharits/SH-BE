@@ -43,7 +43,20 @@ afterAll(async () => {
   }
 });
 
-describe("Get Chats", () => {});
+describe("Get Chats", () => {
+  test("200 Success", async () => {
+    await request(app).get("/chat").expect(200);
+  });
+
+  test("500 System Error", async () => {
+    const originalFn = Chat.findAll;
+    Chat.findAll = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app).get("/chat").expect(500);
+    Chat.findAll = originalFn;
+  });
+});
 
 describe("Get Chat", () => {
   test("200 Success", async () => {
