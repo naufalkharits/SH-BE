@@ -43,6 +43,10 @@
     {
       "name": "Notification",
       "description": "Notification Endpoints"
+    },
+    {
+      "name": "Chat",
+      "description": "Chat Endpoints"
     }
   ],
   "schemes": ["https"],
@@ -2394,6 +2398,35 @@
           }
         }
       }
+    },
+
+    "/chat": {
+      "get": {
+        "tags": ["Chat"],
+        "summary": "Get All Chats",
+        "description": "Get All Chats belongs to User",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {}
+      }
+    },
+    "/chat/{id}": {
+      "get": {
+        "tags": ["Chat"],
+        "summary": "Get All Chat Messages",
+        "description": "Get All Chat Messages belongs to specified Chat",
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {}
+      }
     }
   },
   "definitions": {
@@ -2611,6 +2644,60 @@
         "read": {
           "type": "boolean",
           "example": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "Chat": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": "1"
+        },
+        "buyer_id": {
+          "type": "integer",
+          "example": 1
+        },
+        "seller_id": {
+          "type": "integer",
+          "example": 2
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ChatMessage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": "1"
+        },
+        "chat_id": {
+          "type": "integer",
+          "example": 1
+        },
+        "user_id": {
+          "type": "integer",
+          "example": 2
+        },
+        "message": {
+          "type": "string",
+          "example": "Ini adalah contoh isi pesan"
         },
         "createdAt": {
           "type": "string",
