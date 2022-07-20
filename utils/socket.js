@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const { sendNewPushNotification } = require("./messaging");
 
 let io;
 
@@ -18,10 +19,24 @@ module.exports = {
       console.log("User Socket ID :", socket.id);
 
       socket.on("START", (args) => {
+        if (!args.user_id) return;
+
         connectedUsers.push({
           socketId: socket.id,
-          userId: args.id,
+          userId: args.user_id,
         });
+
+        console.log("Connected Users :", connectedUsers);
+      });
+
+      socket.on("FCM", (args) => {
+        if (!args.user_id || !args.fcm_token) return;
+
+        const userIdx = connectedUsers.findIndex(
+          (user) => user.userId === args.user_id
+        );
+        if (userIdx < 0) return;
+        connectedUsers[userIdx].fcmToken = args.fcm_token;
 
         console.log("Connected Users :", connectedUsers);
       });
@@ -60,6 +75,9 @@ module.exports = {
         io.to(user.socketId).emit("NOTIFICATION", [
           "There is new notification !",
         ]);
+        if (user.fcmToken) {
+          sendNewPushNotification(user.fcmToken);
+        }
       });
     }
   },
