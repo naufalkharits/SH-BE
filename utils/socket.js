@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const { sendNewPushNotification } = require("./messaging");
+const { Chat, ChatMessage } = require("../models");
 
 let io;
 
@@ -14,7 +15,7 @@ module.exports = {
       },
     });
 
-    io.on("connection", (socket) => {
+    io.on("connection", async (socket) => {
       console.log("New User Connected");
       console.log("User Socket ID :", socket.id);
 
@@ -47,6 +48,48 @@ module.exports = {
         );
 
         console.log("Connected Users :", connectedUsers);
+      });
+
+      socket.on("POST_CHAT", async (args) => {
+        if (!args || !args.user_id || !args.as || !args.to || !args.message)
+          return;
+
+        let chat = await Chat.findOne({
+          where:
+            args.as.toLowerCase() === "buyer"
+              ? { buyer_id: args.user_id }
+              : args.as.toLowerCase() === "seller"
+              ? { seller_id: args.user_id }
+              : { id: -1 },
+        });
+
+        if (!chat) {
+          chat = await Chat.create({
+            buyer_id:
+              args.as.toLowerCase() === "buyer" ? args.user_id : args.to,
+            seller_id:
+              args.as.toLowerCase() === "seller" ? args.user_id : args.to,
+          });
+        }
+
+        await ChatMessage.create({
+          chat_id: chat.id,
+          user_id: args.user_id,
+          message: args.message,
+        });
+
+        const chatUsers = connectedUsers.filter(
+          (user) =>
+            user.userId === chat.buyer_id || user.userId === chat.seller_id
+        );
+
+        chatUsers.forEach((user) =>
+          io.to(user.socketId).emit("NEW_CHAT", {
+            chat_id: args.chat_id,
+            user_id: args.user_id,
+            message: args.message,
+          })
+        );
       });
     });
 
