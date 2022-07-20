@@ -1,5 +1,8 @@
 const { Server } = require("socket.io");
-const { sendNewPushNotification } = require("./messaging");
+const {
+  sendNewProductPushNotification,
+  sendTransactionPushNotification,
+} = require("./messaging");
 const { Chat, ChatMessage } = require("../models");
 
 let io;
@@ -102,16 +105,13 @@ module.exports = {
     return io;
   },
 
-  sendNewNotification: (userId) => {
+  sendNewProductNotification: (userId, productId) => {
     if (!io) {
       throw new Error("Socket Not Initialized");
     }
-    console.log("Target User ID :", userId);
-    console.log("Connected Users :", connectedUsers);
     const selectedUsers = connectedUsers.filter(
       (user) => user.userId == userId
     );
-    console.log("Selected Users :", selectedUsers);
 
     if (selectedUsers.length > 0) {
       selectedUsers.forEach((user) => {
@@ -119,7 +119,27 @@ module.exports = {
           "There is new notification !",
         ]);
         if (user.fcmToken) {
-          sendNewPushNotification(user.fcmToken);
+          sendNewProductPushNotification(user.fcmToken, productId);
+        }
+      });
+    }
+  },
+
+  sendTransactionNotification: (userId, transactionId, type) => {
+    if (!io) {
+      throw new Error("Socket Not Initialized");
+    }
+    const selectedUsers = connectedUsers.filter(
+      (user) => user.userId == userId
+    );
+
+    if (selectedUsers.length > 0) {
+      selectedUsers.forEach((user) => {
+        io.to(user.socketId).emit("NOTIFICATION", [
+          "There is new notification !",
+        ]);
+        if (user.fcmToken) {
+          sendTransactionPushNotification(user.fcmToken, transactionId, type);
         }
       });
     }

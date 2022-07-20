@@ -9,7 +9,7 @@ const {
 } = require("../models");
 const { Op } = require("sequelize");
 const { mapProduct } = require("./product.controller");
-const { sendNewNotification } = require("../utils/socket");
+const { sendTransactionNotification } = require("../utils/socket");
 
 const mapTransaction = (transaction) => {
   const mappedProductData = mapProduct(transaction.Product);
@@ -222,7 +222,11 @@ module.exports = {
         transaction_id: transaction.id,
       });
 
-      sendNewNotification(product.seller_id);
+      sendTransactionNotification(
+        transaction.buyer_id,
+        transaction.id,
+        "NEW_TRANSACTION"
+      );
 
       res.status(200).json({
         transaction: mapTransaction(transaction),
@@ -324,7 +328,11 @@ module.exports = {
           transaction_id: transaction.id,
         });
 
-        sendNewNotification(transaction.buyer_id);
+        sendTransactionNotification(
+          transaction.buyer_id,
+          transaction.id,
+          "TRANSACTION_ACCEPTED"
+        );
       }
 
       if (status && status.toLowerCase() === "rejected") {
@@ -334,7 +342,11 @@ module.exports = {
           transaction_id: transaction.id,
         });
 
-        sendNewNotification(transaction.buyer_id);
+        sendTransactionNotification(
+          transaction.buyer_id,
+          transaction.id,
+          "TRANSACTION_REJECTED"
+        );
       }
 
       if (status && status.toLowerCase() === "completed") {
@@ -344,7 +356,11 @@ module.exports = {
           transaction_id: transaction.id,
         });
 
-        sendNewNotification(transaction.buyer_id);
+        sendTransactionNotification(
+          transaction.buyer_id,
+          transaction.id,
+          "TRANSACTION_COMPLETED"
+        );
 
         await Product.update(
           {

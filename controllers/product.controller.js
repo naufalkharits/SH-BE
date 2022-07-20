@@ -13,7 +13,7 @@ const {
   deleteProductImages,
 } = require("../utils/picture");
 const { Op } = require("sequelize");
-const { sendNewNotification } = require("../utils/socket");
+const { sendNewProductNotification } = require("../utils/socket");
 
 const mapProduct = (product) => ({
   id: product.id,
@@ -251,7 +251,7 @@ module.exports = {
         product_id: product.id,
       });
 
-      sendNewNotification(req.user.id);
+      sendNewProductNotification(req.user.id, product.id);
 
       res.status(200).json({
         product: newProductData,
