@@ -2411,7 +2411,54 @@
           }
         ],
         "produces": ["application/json"],
-        "responses": {}
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "chats": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Chat"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid / Expired Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "UNAUTHORIZED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized Access"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/chat/{id}": {
@@ -2424,8 +2471,81 @@
             "access_token": []
           }
         ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "example": 1,
+            "required": true,
+            "description": "Chat ID"
+          }
+        ],
         "produces": ["application/json"],
-        "responses": {}
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "chats": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ChatMessage"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "VALIDATION_FAILED"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Valid Chat ID is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chat Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "NOT_FOUND"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Chat not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System Error / Unexpected Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "SYSTEM_ERROR"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Something wrong with server"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -2438,13 +2558,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": [
-              "Health",
-              "Sport",
-              "Automotive",
-              "Electronic",
-              "Property"
-            ]
+            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
           }
         }
       }
