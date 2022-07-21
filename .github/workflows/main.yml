@@ -19,6 +19,8 @@ jobs:
         run: npm install -g sequelize
       - name: Install Sequelize-cli
         run: npm install -g sequelize-cli
+      - name: Install Dotenv
+        run: npm install dotenv
       - name: Run db migrate
         run: npx sequelize-cli db:migrate --env production
 
