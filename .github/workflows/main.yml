@@ -24,7 +24,13 @@ jobs:
       - name: Install PostgreSQL
         run: npm install -g pg pg-hstore
       - name: Run db migrate
-        run: npx sequelize-cli db:migrate --env production
+        run: npx sequelize-cli db:migrate
+        env:
+          NODE_ENV: production
+          HEROKU_DB_HOST: ${{env.HEROKU_DB_HOST}}
+          HEROKU_DB_USERNAME: ${{env.HEROKU_DB_USERNAME}}
+          HEROKU_DB_PASSWORD: ${{env.HEROKU_DB_PASSWORD}}
+          HEROKU_DB_DATABASE: ${{env.HEROKU_DB_DATABASE}}
 
   deploy:
     runs-on: ubuntu-latest
