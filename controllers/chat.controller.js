@@ -1,8 +1,8 @@
 const { Chat, ChatMessage } = require("../models");
 const chatmessage = require("../models/chatmessage");
+const { Op } = require("sequelize");
 
 module.exports = {
-  getChats: (req, res) => {},
   getChat: async (req, res) => {
     if (!req.params || !req.params.id || !Number.isInteger(+req.params.id)) {
       return res.status(400).json({
@@ -10,6 +10,7 @@ module.exports = {
         message: "Valid User Biodata ID is required",
       });
     }
+
     try {
       const chat = await Chat.findOne({
         where: {
@@ -42,7 +43,14 @@ module.exports = {
   },
   getChats: async (req, res) => {
     try {
-      const chats = await Chat.findAll();
+      const chats = await Chat.findAll({
+        where: {
+          [Op.or]: {
+            buyer_id: req.user.id,
+            seller_id: req.user.id,
+          },
+        },
+      });
       res.status(200).json({ chats });
     } catch (error) {
       res.status(500).json({
