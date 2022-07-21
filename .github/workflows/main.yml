@@ -22,7 +22,7 @@ jobs:
       - name: Install Dotenv
         run: npm install dotenv
       - name: Install PostgreSQL
-        run: npm install pg pg-hstore
+        run: npm install -g pg pg-hstore
       - name: Run db migrate
         run: npx sequelize-cli db:migrate --env production
 
