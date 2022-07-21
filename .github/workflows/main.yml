@@ -14,23 +14,7 @@ jobs:
         with:
           node-version: "14.x"
       - name: Install dependencies
-        run: npm install --env production
-      - name: Install Sequelize
-        run: npm install -g sequelize
-      - name: Install Sequelize-cli
-        run: npm install -g sequelize-cli
-      - name: Install Dotenv
-        run: npm install dotenv
-      - name: Install PostgreSQL
-        run: npm install -g pg pg-hstore
-      - name: Run db migrate
-        run: npx sequelize-cli db:migrate
-        env:
-          NODE_ENV: production
-          HEROKU_DB_HOST: ${{env.HEROKU_DB_HOST}}
-          HEROKU_DB_USERNAME: ${{env.HEROKU_DB_USERNAME}}
-          HEROKU_DB_PASSWORD: ${{env.HEROKU_DB_PASSWORD}}
-          HEROKU_DB_DATABASE: ${{env.HEROKU_DB_DATABASE}}
+        run: npm install
 
   deploy:
     runs-on: ubuntu-latest
