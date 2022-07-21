@@ -2558,7 +2558,13 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
+            "example": [
+              "Health",
+              "Sport",
+              "Automotive",
+              "Electronic",
+              "Property"
+            ]
           }
         }
       }
