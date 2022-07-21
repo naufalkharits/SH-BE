@@ -1,48 +1,36 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Products", {
+    await queryInterface.createTable("ChatMessages", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      price: {
+      chat_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-      },
-      category_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
+        onDelete: "CASCADE",
         references: {
-          model: "Categories",
+          model: "Chats",
           key: "id",
-          as: "category_id",
+          as: "chat_id",
         },
       },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      seller_id: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         onDelete: "CASCADE",
         references: {
           model: "Users",
           key: "id",
-          as: "seller_id",
+          as: "user_id",
         },
       },
-      status: {
-        type: Sequelize.STRING,
+      message: {
+        type: Sequelize.TEXT,
         allowNull: false,
-        defaultValue: "READY",
       },
       createdAt: {
         allowNull: false,
@@ -57,6 +45,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Products");
+    await queryInterface.dropTable("ChatMessages");
   },
 };

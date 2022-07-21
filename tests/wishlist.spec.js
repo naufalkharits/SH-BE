@@ -33,7 +33,7 @@ beforeAll(async () => {
     .post("/auth/login")
     .send(testUserData);
 
-  testUserAccessToken = loginResponse.body.accessToken;
+  testUserAccessToken = loginResponse.body.accessToken.token;
 });
 afterAll(async () => {
   try {
@@ -44,6 +44,41 @@ afterAll(async () => {
   } catch (error) {
     console.log("Error : ", error);
   }
+});
+
+describe("Check Wishlist", () => {
+  test("200 Success", async () => {
+    await request(app)
+      .get(`/wishlist/${testProduct.id}`)
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
+  test("400 Validation Failed", async () => {
+    await request(app)
+      .get("/wishlist/abc")
+      .set("Authorization", testUserAccessToken)
+      .expect(400);
+  });
+
+  test("404 Product Not Found", async () => {
+    await request(app)
+      .get("/wishlist/0")
+      .set("Authorization", testUserAccessToken)
+      .expect(404);
+  });
+
+  test("500 System Error", async () => {
+    const originalFn = Wishlist.findOne;
+    Wishlist.findOne = jest.fn().mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await request(app)
+      .get(`/wishlist/${testProduct.id}`)
+      .set("Authorization", testUserAccessToken)
+      .expect(500);
+    Wishlist.findOne = originalFn;
+  });
 });
 
 describe("Get Wishlists", () => {

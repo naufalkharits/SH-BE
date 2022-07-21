@@ -1,7 +1,7 @@
 const request = require("supertest");
 const { app, server } = require("../index");
 const path = require("path");
-const { Product, User, Category } = require("../models");
+const { Product, User, Category, UserBiodata } = require("../models");
 const bcrypt = require("bcrypt");
 
 jest.mock("../utils/picture.js");
@@ -33,11 +33,19 @@ beforeAll(async () => {
       description: "This is new test product",
       seller_id: testUser.id,
     });
+    await UserBiodata.create({
+      user_id: testUser.id,
+      name: "Test User",
+      city: "Kota",
+      address: "Alamat",
+      phone_number: "08123456789",
+      picture: "profile.png",
+    });
     const loginResponse = await request(app).post("/auth/login").send({
       email: testUserData.email,
       password: testUserData.password,
     });
-    testUserToken = loginResponse.body.accessToken;
+    testUserToken = loginResponse.body.accessToken.token;
   } catch (error) {
     console.log("Error : ", error);
   }
@@ -119,6 +127,22 @@ describe("Create Product", () => {
       .expect(400);
   });
 
+  test("400 Biodata Verification Failed", async () => {
+    const originalFn = UserBiodata.findOne;
+    UserBiodata.findOne = jest.fn().mockImplementationOnce(() => null);
+
+    await request(app)
+      .post("/product")
+      .set("Authorization", testUserToken)
+      .field("name", newProductData.name)
+      .field("price", newProductData.price)
+      .field("category", newProductData.category)
+      .field("description", newProductData.description)
+      .attach("pictures", newProductData.pictures)
+      .expect(400);
+    UserBiodata.findOne = originalFn;
+  });
+
   test("400 Invalid Category", async () => {
     await request(app)
       .post("/product")
@@ -129,6 +153,22 @@ describe("Create Product", () => {
       .field("description", newProductData.description)
       .attach("pictures", newProductData.pictures)
       .expect(400);
+  });
+
+  test("409 Max Products Count", async () => {
+    const originalFn = Product.count;
+    Product.count = jest.fn().mockImplementationOnce(() => 4);
+
+    await request(app)
+      .post("/product")
+      .set("Authorization", testUserToken)
+      .field("name", newProductData.name)
+      .field("price", newProductData.price)
+      .field("category", newProductData.category)
+      .field("description", newProductData.description)
+      .attach("pictures", newProductData.pictures)
+      .expect(409);
+    Product.count = originalFn;
   });
 
   test("500 System Error", async () => {
@@ -197,6 +237,14 @@ describe("Update Product", () => {
       .field("description", newProductData.description)
       .attach("pictures", newProductData.pictures)
       .expect(404);
+  });
+
+  test("400 Picture Validation Failed", async () => {
+    await request(app)
+      .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
+      .attach("pictures", path.join(__dirname, "resources", "product.txt"))
+      .expect(400);
   });
 
   test("500 System Error", async () => {

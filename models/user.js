@@ -21,7 +21,26 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
         onDelete: "CASCADE",
       });
+      User.hasMany(models.Notification, {
+        foreignKey: "user_id",
+        onDelete: "CASCADE",
+      });
       User.hasOne(models.UserBiodata, {
+        foreignKey: "user_id",
+        onDelete: "CASCADE",
+      });
+
+      User.hasMany(models.Chat, {
+        foreignKey: "buyer_id",
+        as: "buyer",
+        onDelete: "CASCADE",
+      });
+      User.hasMany(models.Chat, {
+        foreignKey: "seller_id",
+        as: "seller",
+        onDelete: "CASCADE",
+      });
+      User.hasMany(models.ChatMessage, {
         foreignKey: "user_id",
         onDelete: "CASCADE",
       });
@@ -31,10 +50,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       email: DataTypes.STRING,
       password: DataTypes.STRING,
-      refresh_token: {
-        type: DataTypes.STRING,
-        defaultValue: null,
-      },
+      fcm_token: { type: DataTypes.STRING, defaultValue: null },
     },
     {
       sequelize,

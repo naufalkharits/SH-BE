@@ -21,7 +21,7 @@ beforeAll(async () => {
     .send({ name: "testUser", email: "a@gmail.com", password: "12345" });
 
   testUser = await User.findOne({ where: { email: "a@gmail.com" } });
-  testUserAccessToken = registerResponse.body.accessToken;
+  testUserAccessToken = registerResponse.body.accessToken.token;
 });
 
 afterAll(async () => {
@@ -44,6 +44,14 @@ describe("Update Biodata", () => {
       .field("phone_number", newUserBiodata.phone_number)
       .attach("picture", newUserBiodata.picture)
       .expect(200);
+  });
+
+  test("400 Picture Validation Failed", async () => {
+    await request(app)
+      .put("/biodata")
+      .set("Authorization", testUserAccessToken)
+      .attach("picture", path.join(__dirname, "resources", "product.txt"))
+      .expect(400);
   });
 
   test("500 System Error", async () => {

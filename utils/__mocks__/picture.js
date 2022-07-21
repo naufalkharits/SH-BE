@@ -2,17 +2,15 @@ const Picture = require("../../models").Picture;
 const UserBiodata = require("../../models").UserBiodata;
 const { v4 } = require("uuid");
 
-const validatePictures = (pictures) => {
+const validatePicture = (picture) => {
   let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"];
 
-  for (const picture of pictures) {
-    if (acceptedMimetypes.indexOf(picture.mimetype) < 0) {
-      throw new Error("Valid picture format is required");
-    }
+  if (acceptedMimetypes.indexOf(picture.mimetype) < 0) {
+    throw new Error("Valid picture format is required");
+  }
 
-    if (picture.size > 5 * 1000 * 1000) {
-      throw new Error("Picture size cannot be larger than 5 MB");
-    }
+  if (picture.size > 5 * 1000 * 1000) {
+    throw new Error("Picture size cannot be larger than 5 MB");
   }
 };
 
@@ -120,7 +118,7 @@ const deleteProfileImage = async (userId) => {
 };
 
 module.exports = {
-  validatePictures,
+  validatePicture,
   uploadProductImages,
   updateProductImages,
   deleteProductImages,

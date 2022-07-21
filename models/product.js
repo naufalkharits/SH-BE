@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       Product.hasMany(models.Wishlist, {
         foreignKey: "product_id",
       });
+      Product.hasMany(models.Notification, {
+        foreignKey: "product_id",
+        onDelete: "CASCADE",
+      });
       Product.belongsTo(models.User, {
         foreignKey: "seller_id",
       });
@@ -31,8 +35,13 @@ module.exports = (sequelize, DataTypes) => {
       name: { type: DataTypes.STRING, allowNull: false },
       price: { type: DataTypes.INTEGER, allowNull: false },
       category_id: { type: DataTypes.INTEGER, allowNull: false },
-      description: DataTypes.TEXT,
+      description: { type: DataTypes.TEXT, allowNull: false },
       seller_id: { type: DataTypes.INTEGER, allowNull: false },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "READY",
+      },
     },
     {
       sequelize,

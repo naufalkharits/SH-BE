@@ -14,10 +14,10 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
       },
-      refresh_token: {
+      fcm_token: {
         type: Sequelize.STRING,
         defaultValue: null,
-      }
+      },
     });
   },
   async down(queryInterface, Sequelize) {

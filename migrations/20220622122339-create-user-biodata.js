@@ -29,7 +29,7 @@ module.exports = {
         defaultValue: null,
       },
       address: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: true,
         defaultValue: null,
       },

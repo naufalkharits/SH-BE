@@ -1,13 +1,37 @@
-const { Product, Category, Picture } = require("../models");
 const {
-  validatePictures,
+  Product,
+  Category,
+  Picture,
+  Notification,
+  User,
+  UserBiodata,
+} = require("../models");
+const {
+  validatePicture,
   uploadProductImages,
   updateProductImages,
   deleteProductImages,
 } = require("../utils/picture");
 const { Op } = require("sequelize");
+const { sendNewProductNotification } = require("../utils/socket");
+
+const mapProduct = (product) => ({
+  id: product.id,
+  name: product.name,
+  price: product.price,
+  category: product.Category.name,
+  description: product.description,
+  seller: product.User.UserBiodatum,
+  pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
+    (picture) => picture.url
+  ),
+  status: product.status,
+  createdAt: product.createdAt,
+  updatedAt: product.updatedAt,
+});
 
 module.exports = {
+  mapProduct,
   getProducts: async (req, res) => {
     const { category, keyword, limit, offset } = req.query;
 
@@ -25,6 +49,10 @@ module.exports = {
             },
           },
           Picture,
+          {
+            model: User,
+            include: [UserBiodata],
+          },
         ],
         where: {
           [Op.or]: {
@@ -41,19 +69,7 @@ module.exports = {
         order: [["createdAt", "DESC"]],
       });
 
-      const productsData = products.map((product) => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        category: product.Category.name,
-        description: product.description,
-        seller_id: product.seller_id,
-        pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
-          (picture) => picture.url
-        ),
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      }));
+      const productsData = products.map((product) => mapProduct(product));
 
       res.status(200).json({ products: productsData });
     } catch (error) {
@@ -79,7 +95,14 @@ module.exports = {
         where: {
           id: req.params.id,
         },
-        include: [Category, Picture],
+        include: [
+          Category,
+          Picture,
+          {
+            model: User,
+            include: [UserBiodata],
+          },
+        ],
       });
 
       // Check if product not found
@@ -91,19 +114,7 @@ module.exports = {
       }
 
       // Get product pictures filename
-      const productData = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        category: product.Category.name,
-        description: product.description,
-        seller_id: product.seller_id,
-        pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
-          (picture) => picture.url
-        ),
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      };
+      const productData = mapProduct(product);
 
       res.status(200).json({
         product: productData,
@@ -143,7 +154,9 @@ module.exports = {
 
     // Validate product pictures
     try {
-      validatePictures(req.files);
+      for (const picture of req.files) {
+        validatePicture(picture);
+      }
     } catch (error) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
@@ -169,6 +182,39 @@ module.exports = {
         });
       }
 
+      // Check User Biodata Verification
+      const biodata = await UserBiodata.findOne({
+        where: { user_id: req.user.id },
+      });
+
+      if (
+        !biodata ||
+        !biodata.name ||
+        !biodata.city ||
+        !biodata.address ||
+        !biodata.phone_number ||
+        !biodata.picture
+      ) {
+        return res.status(400).json({
+          type: "VALIDATION_FAILED",
+          message: "User biodata must be filled in completely",
+        });
+      }
+
+      // Check User Product Count
+      const userProductsCount = await Product.count({
+        where: {
+          seller_id: req.user.id,
+        },
+      });
+
+      if (userProductsCount >= 4) {
+        return res.status(409).json({
+          type: "MAX_PRODUCTS_COUNT",
+          message: "Maximum products count is 4 per User",
+        });
+      }
+
       // Create new product
       const newProduct = await Product.create({
         name,
@@ -186,25 +232,32 @@ module.exports = {
         where: {
           id: newProduct.id,
         },
-        include: [Category, Picture],
+        include: [
+          Category,
+          Picture,
+          {
+            model: User,
+            include: [UserBiodata],
+          },
+        ],
       });
 
-      const newProductData = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        category: product.Category.name,
-        description: product.description,
-        seller_id: product.seller_id,
-        pictures: product.Pictures.map((picture) => picture.url),
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      };
+      const newProductData = mapProduct(product);
+
+      // Create New Product Notification
+      await Notification.create({
+        type: "NEW_PRODUCT",
+        user_id: req.user.id,
+        product_id: product.id,
+      });
+
+      sendNewProductNotification(req.user.id, product.id);
 
       res.status(200).json({
         product: newProductData,
       });
     } catch (error) {
+      console.log("Error : ", error);
       return res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -221,9 +274,31 @@ module.exports = {
       });
     }
 
-    const { name, price, category, description } = req.body;
+    const { name, price, category, description, status } = req.body;
+
+    if (
+      status &&
+      status.toLowerCase() !== "ready" &&
+      status.toLowerCase() !== "sold"
+    ) {
+      return res.status(400).json({
+        type: "VALIDATION_FAILED",
+        message: "Valid product status is required",
+      });
+    }
 
     try {
+      // Check if user is product owner
+      const userProduct = await Product.findOne({
+        where: { id: req.params.id },
+      });
+      if (userProduct && userProduct.seller_id !== req.user.id) {
+        return res.status(401).json({
+          type: "UNAUTHORIZED",
+          message: "Unauthorized Access",
+        });
+      }
+
       // Find category id if category updated
       const productCategory = await Category.findOne({
         where: {
@@ -245,6 +320,7 @@ module.exports = {
           price: price,
           category_id: category ? productCategory.id : undefined,
           description: description,
+          status: status ? status.toUpperCase() : undefined,
         },
         {
           where: {
@@ -253,13 +329,33 @@ module.exports = {
         }
       );
 
-      // Update product pictures
-      await updateProductImages(req.files, req.params.id);
+      if (req.files) {
+        try {
+          for (const picture of req.files) {
+            validatePicture(picture);
+          }
+        } catch (error) {
+          return res.status(400).json({
+            type: "VALIDATION_FAILED",
+            message: error.message,
+          });
+        }
+
+        // Update product pictures
+        await updateProductImages(req.files, req.params.id);
+      }
 
       // Get updated product data
       const product = await Product.findOne({
         where: { id: req.params.id },
-        include: [Category, Picture],
+        include: [
+          Category,
+          Picture,
+          {
+            model: User,
+            include: [UserBiodata],
+          },
+        ],
       });
 
       if (!product) {
@@ -269,21 +365,9 @@ module.exports = {
         });
       }
 
-      // Format product response data
-      const updatedProduct = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        category: product.Category.name,
-        description: product.description,
-        seller_id: product.seller_id,
-        pictures: product.Pictures.map((picture) => picture.url),
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      };
-
-      res.status(200).json({ updatedProduct });
+      res.status(200).json({ updatedProduct: mapProduct(product) });
     } catch (error) {
+      console.log(error);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -301,6 +385,17 @@ module.exports = {
     }
 
     try {
+      // Check if user is product owner
+      const userProduct = await Product.findOne({
+        where: { id: req.params.id },
+      });
+      if (userProduct && userProduct.seller_id !== req.user.id) {
+        return res.status(401).json({
+          type: "UNAUTHORIZED",
+          message: "Unauthorized Access",
+        });
+      }
+
       // Delete product pictures
       await deleteProductImages(req.params.id);
 

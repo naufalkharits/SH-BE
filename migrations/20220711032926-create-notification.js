@@ -1,48 +1,53 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Products", {
+    await queryInterface.createTable("Notifications", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      name: {
+      type: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      price: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      category_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Categories",
-          key: "id",
-          as: "category_id",
-        },
-      },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      seller_id: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         onDelete: "CASCADE",
         references: {
           model: "Users",
           key: "id",
-          as: "seller_id",
+          as: "user_id",
         },
       },
-      status: {
-        type: Sequelize.STRING,
+      transaction_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        onDelete: "CASCADE",
+        references: {
+          model: "Transactions",
+          key: "id",
+          as: "transaction_id",
+        },
+        defaultValue: null,
+      },
+      product_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        onDelete: "CASCADE",
+        references: {
+          model: "Products",
+          key: "id",
+          as: "product_id",
+        },
+        defaultValue: null,
+      },
+      read: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: "READY",
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,
@@ -57,6 +62,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Products");
+    await queryInterface.dropTable("Notifications");
   },
 };
