@@ -14,11 +14,11 @@ jobs:
         with:
           node-version: "14.x"
       - name: Install dependencies
-        run: npm install
+        run: npm install --env production
       - name: Run db migrate
-        run: npx sequelize-cli db:migrate
+        run: npx sequelize-cli db:migrate --env production
       - name: Run db seed
-        run: npx sequelize-cli db:seed:all
+        run: npx sequelize-cli db:seed:all --env production
 
   deploy:
     runs-on: ubuntu-latest
