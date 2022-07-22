@@ -65,6 +65,11 @@ describe("Get Products", () => {
   test("200 Success", async () => {
     await request(app).get("/product").expect(200);
   });
+
+  test("200 Success with Searching", async () => {
+    await request(app).get("/product?keyword=abc").expect(200);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Product.findAll;
     Product.findAll = jest.fn().mockImplementationOnce(() => {

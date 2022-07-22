@@ -31,8 +31,6 @@ module.exports = {
         where: { id: req.params.productId },
       });
 
-      console.log("Product : ", product);
-
       if (!product) {
         return res.status(404).json({
           type: "NOT_FOUND",
@@ -193,19 +191,23 @@ module.exports = {
     }
 
     try {
-      // Delete Wishlist
-      const result = await Wishlist.destroy({
+      const wishlist = await Wishlist.findOne({
         where: { product_id: req.params.productId, user_id: req.user.id },
       });
 
       // Check if Wishlist not found
-      if (result === 0) {
-        res
+      if (!wishlist) {
+        return res
           .status(404)
           .json({ type: "NOT_FOUND", message: "Wishlist not found" });
-      } else {
-        res.status(200).json({ message: "Wishlist successfully deleted" });
       }
+
+      // Delete Wishlist
+      await Wishlist.destroy({
+        where: { product_id: req.params.productId, user_id: req.user.id },
+      });
+
+      res.status(200).json({ message: "Wishlist successfully deleted" });
     } catch (error) {
       res.status(500).json({
         type: "SYSTEM_ERROR",

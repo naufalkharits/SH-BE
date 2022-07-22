@@ -142,8 +142,6 @@ module.exports = {
     try {
       const user = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-      if (!user) throw new Error();
-
       const newAccessToken = generateAccessToken(user.id);
       const newRefreshToken = generateRefreshToken(user.id);
 

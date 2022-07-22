@@ -165,6 +165,28 @@ describe("Get Transactions", () => {
       .set("Authorization", testUserAccessToken)
       .expect(200);
   });
+
+  test("200 Success as Seller", async () => {
+    await request(app)
+      .get("/transaction?as=seller")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
+  test("200 Success as Buyer", async () => {
+    await request(app)
+      .get("/transaction?as=buyer")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
+  test("200 Success with filter status", async () => {
+    await request(app)
+      .get("/transaction?status=completed")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Transaction.findAll;
     Transaction.findAll = jest.fn().mockImplementationOnce(() => {

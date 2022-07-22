@@ -1,6 +1,6 @@
 const request = require("supertest");
 const { app, server } = require("../index");
-const { Notification, User, Product } = require("../models");
+const { Notification, User, Product, Transaction } = require("../models");
 const bcrypt = require("bcrypt");
 
 let testNotification, testUserAccessToken, testUser2AccessToken;
@@ -25,6 +25,37 @@ beforeAll(async () => {
     type: "NEW_PRODUCT",
     user_id: testUser.id,
     product_id: testProduct.id,
+    read: false,
+  });
+
+  const testTransaction = await Transaction.create({
+    product_id: testProduct.id,
+    buyer_id: testUser.id,
+    price: 50000,
+    status: "PENDING",
+  });
+  const testNewTransactionNotification = await Notification.create({
+    type: "NEW_OFFER",
+    user_id: testUser.id,
+    transaction_id: testTransaction.id,
+    read: false,
+  });
+  const testTransactionCompleteNotification = await Notification.create({
+    type: "TRANSACTION_COMPLETE",
+    user_id: testUser.id,
+    transaction_id: testTransaction.id,
+    read: false,
+  });
+  const testTransactionRejectedNotification = await Notification.create({
+    type: "TRANSACTION_REJECTED",
+    user_id: testUser.id,
+    transaction_id: testTransaction.id,
+    read: false,
+  });
+  const testTransactionAcceptedNotification = await Notification.create({
+    type: "TRANSACTION_ACCEPTED",
+    user_id: testUser.id,
+    transaction_id: testTransaction.id,
     read: false,
   });
 
