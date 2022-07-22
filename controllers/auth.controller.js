@@ -7,7 +7,10 @@ const { google } = require("googleapis");
 const googleOAuthClient = new google.auth.OAuth2({
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirectUri: "http://localhost:3000",
+  redirectUri:
+    process.env.NODE_ENV === "production"
+      ? "https://secondhanded.vercel.app/login"
+      : "http://localhost:3000",
 });
 
 module.exports = {
