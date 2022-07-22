@@ -9,7 +9,7 @@ const googleOAuthClient = new google.auth.OAuth2({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   redirectUri:
     process.env.NODE_ENV === "production"
-      ? "https://secondhanded.vercel.app/login"
+      ? "https://secondhanded.vercel.app"
       : "http://localhost:3000",
 });
 
