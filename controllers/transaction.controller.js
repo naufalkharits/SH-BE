@@ -228,6 +228,14 @@ module.exports = {
         "NEW_TRANSACTION"
       );
 
+      console.log("Transaction Product :", transaction.Product);
+
+      sendTransactionNotification(
+        transaction.Product.seller_id,
+        transaction.id,
+        "NEW_TRANSACTION"
+      );
+
       res.status(200).json({
         transaction: mapTransaction(transaction),
       });

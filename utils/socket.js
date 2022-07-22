@@ -110,7 +110,7 @@ module.exports = {
       throw new Error("Socket Not Initialized");
     }
     const selectedUsers = connectedUsers.filter(
-      (user) => user.userId == userId
+      (user) => +user.userId == userId
     );
 
     if (selectedUsers.length > 0) {
@@ -129,11 +129,16 @@ module.exports = {
     if (!io) {
       throw new Error("Socket Not Initialized");
     }
+
+    console.log("Connected Users :", connectedUsers);
+    console.log("Target User ID :", userId);
+
     const selectedUsers = connectedUsers.filter(
-      (user) => user.userId == userId
+      (user) => +user.userId === userId
     );
 
     if (selectedUsers.length > 0) {
+      console.log("Selected User :", selectedUsers);
       selectedUsers.forEach((user) => {
         io.to(user.socketId).emit("NOTIFICATION", [
           "There is new notification !",
