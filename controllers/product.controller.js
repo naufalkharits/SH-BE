@@ -292,6 +292,14 @@ module.exports = {
       const userProduct = await Product.findOne({
         where: { id: req.params.id },
       });
+
+      if (!userProduct) {
+        return res.status(404).json({
+          type: "NOT_FOUND",
+          message: "Product not found",
+        });
+      }
+
       if (userProduct && userProduct.seller_id !== req.user.id) {
         return res.status(401).json({
           type: "UNAUTHORIZED",
@@ -357,13 +365,6 @@ module.exports = {
           },
         ],
       });
-
-      if (!product) {
-        return res.status(404).json({
-          type: "NOT_FOUND",
-          message: "Product not found",
-        });
-      }
 
       res.status(200).json({ updatedProduct: mapProduct(product) });
     } catch (error) {

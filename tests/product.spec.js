@@ -227,9 +227,22 @@ describe("Update Product", () => {
       .expect(400);
   });
 
+  test("400 Invalid Status", async () => {
+    await request(app)
+      .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
+      .field("name", newProductData.name)
+      .field("price", newProductData.price)
+      .field("category", "invalid")
+      .field("description", newProductData.description)
+      .field("status", "invalidstatus")
+      .attach("pictures", newProductData.pictures)
+      .expect(400);
+  });
+
   test("404 Product Not Found", async () => {
     await request(app)
-      .put("/product/")
+      .put("/product/0")
       .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)

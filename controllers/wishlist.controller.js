@@ -90,11 +90,10 @@ module.exports = {
         ],
       });
 
-      const wishlistsData = wishlists.map((wishlist) =>
+      const wishlistsData =
         req.query.as && req.query.as === "seller"
-          ? mapSellerWishlist(wishlist)
-          : mapWishlist(wishlist)
-      );
+          ? wishlists.map((wishlist) => mapSellerWishlist(wishlist))
+          : wishlists.map((wishlist) => mapWishlist(wishlist));
 
       res.status(200).json({
         wishlists: wishlistsData,

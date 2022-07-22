@@ -82,12 +82,20 @@ describe("Check Wishlist", () => {
 });
 
 describe("Get Wishlists", () => {
-  test("200 Success", async () => {
+  test("200 Success Buyer", async () => {
     await request(app)
       .get("/wishlist")
       .set("Authorization", testUserAccessToken)
       .expect(200);
   });
+
+  test("200 Success Seller", async () => {
+    await request(app)
+      .get("/wishlist?as=seller")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Wishlist.findAll;
     Wishlist.findAll = jest.fn().mockImplementationOnce(() => {
