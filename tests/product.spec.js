@@ -65,6 +65,11 @@ describe("Get Products", () => {
   test("200 Success", async () => {
     await request(app).get("/product").expect(200);
   });
+
+  test("200 Success with Searching", async () => {
+    await request(app).get("/product?keyword=abc").expect(200);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Product.findAll;
     Product.findAll = jest.fn().mockImplementationOnce(() => {
@@ -227,9 +232,22 @@ describe("Update Product", () => {
       .expect(400);
   });
 
+  test("400 Invalid Status", async () => {
+    await request(app)
+      .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
+      .field("name", newProductData.name)
+      .field("price", newProductData.price)
+      .field("category", "invalid")
+      .field("description", newProductData.description)
+      .field("status", "invalidstatus")
+      .attach("pictures", newProductData.pictures)
+      .expect(400);
+  });
+
   test("404 Product Not Found", async () => {
     await request(app)
-      .put("/product/")
+      .put("/product/0")
       .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)

@@ -34,9 +34,6 @@ const mapNotification = (notification) => {
         createdAt: notification.createdAt,
         updatedAt: notification.updatedAt,
       };
-
-    default:
-      return null;
   }
 };
 

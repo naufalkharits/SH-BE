@@ -7,7 +7,10 @@ const { google } = require("googleapis");
 const googleOAuthClient = new google.auth.OAuth2({
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirectUri: "http://localhost:3000",
+  redirectUri:
+    process.env.NODE_ENV === "production"
+      ? "https://secondhanded.vercel.app"
+      : "http://localhost:3000",
 });
 
 module.exports = {
@@ -142,8 +145,6 @@ module.exports = {
     try {
       const user = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-      if (!user) throw new Error();
-
       const newAccessToken = generateAccessToken(user.id);
       const newRefreshToken = generateRefreshToken(user.id);
 
@@ -199,37 +200,6 @@ module.exports = {
       res
         .status(500)
         .json({ type: "SYSTEM_ERROR", message: "Something wrong with server" });
-    }
-  },
-  updateFcmToken: async (req, res) => {
-    if (!req.body || !req.body.token) {
-      return res.status(400).json({
-        type: "VALIDATION_FAILED",
-        message: "Valid token is required",
-      });
-    }
-
-    try {
-      await User.update(
-        {
-          fcm_token: req.body.token,
-        },
-        {
-          where: {
-            id: req.user.id,
-          },
-        }
-      );
-
-      res.status(200).json({
-        message: "FCM Token has been updated",
-      });
-    } catch (error) {
-      console.log("Error :", error);
-      res.status(500).json({
-        type: "SYSTEM_ERROR",
-        message: "Something wrong with server",
-      });
     }
   },
 };
