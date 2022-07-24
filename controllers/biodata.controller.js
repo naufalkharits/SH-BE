@@ -1,4 +1,4 @@
-const { UserBiodata, User } = require("../models");
+const { UserBiodata } = require("../models");
 const { uploadProfileImage, validatePicture } = require("../utils/picture");
 
 module.exports = {

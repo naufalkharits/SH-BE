@@ -47,14 +47,10 @@ beforeAll(async () => {
   testUserAccessToken = loginResponse.body.accessToken.token;
 });
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    await Product.destroy({ where: {} });
-    await Wishlist.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  await User.destroy({ where: {} });
+  await Product.destroy({ where: {} });
+  await Wishlist.destroy({ where: {} });
+  server.close();
 });
 
 describe("Check Wishlist", () => {
@@ -149,7 +145,7 @@ describe("Create Wishlist", () => {
       .expect(404);
   });
 
-  test("409 Product is alrerady in wishlist", async () => {
+  test("409 Product Already Wishlisted", async () => {
     await request(app)
       .post(`/wishlist/${testProduct.id}`)
       .set("Authorization", testUserAccessToken)

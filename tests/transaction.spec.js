@@ -28,70 +28,62 @@ let testProduct,
   testUser2AccessToken;
 
 beforeAll(async () => {
-  try {
-    const registerResponse = await request(app)
-      .post("/auth/register")
-      .send(testUserData);
+  const registerResponse = await request(app)
+    .post("/auth/register")
+    .send(testUserData);
 
-    testUserAccessToken = registerResponse.body.accessToken.token;
+  testUserAccessToken = registerResponse.body.accessToken.token;
 
-    await request(app)
-      .put("/biodata")
-      .set("Authorization", testUserAccessToken)
-      .field("name", "Test User")
-      .field("city", "Kota")
-      .field("address", "Alamat")
-      .field("phone_number", "08123456789")
-      .attach("picture", path.join(__dirname, "resources", "product.png"))
-      .expect(200);
+  await request(app)
+    .put("/biodata")
+    .set("Authorization", testUserAccessToken)
+    .field("name", "Test User")
+    .field("city", "Kota")
+    .field("address", "Alamat")
+    .field("phone_number", "08123456789")
+    .attach("picture", path.join(__dirname, "resources", "product.png"))
+    .expect(200);
 
-    const createProductResponse = await request(app)
-      .post("/product")
-      .set("Authorization", testUserAccessToken)
-      .field("name", testProductData.name)
-      .field("price", testProductData.price)
-      .field("category", testProductData.category)
-      .field("description", testProductData.description)
-      .attach("pictures", testProductData.pictures);
+  const createProductResponse = await request(app)
+    .post("/product")
+    .set("Authorization", testUserAccessToken)
+    .field("name", testProductData.name)
+    .field("price", testProductData.price)
+    .field("category", testProductData.category)
+    .field("description", testProductData.description)
+    .attach("pictures", testProductData.pictures);
 
-    testProduct = createProductResponse.body.product;
+  testProduct = createProductResponse.body.product;
 
-    testUser2 = await User.create({
-      email: "test2@gmail.com",
-      password: await bcrypt.hash("123456", 10),
-    });
+  testUser2 = await User.create({
+    email: "test2@gmail.com",
+    password: await bcrypt.hash("123456", 10),
+  });
 
-    soldProduct = await Product.create({
-      name: "Sold Product",
-      price: 50000,
-      category_id: 1,
-      description: "This is sold product!",
-      seller_id: testUser2.id,
-      status: "SOLD",
-    });
+  soldProduct = await Product.create({
+    name: "Sold Product",
+    price: 50000,
+    category_id: 1,
+    description: "This is sold product!",
+    seller_id: testUser2.id,
+    status: "SOLD",
+  });
 
-    const loginResponse2 = await request(app).post("/auth/login").send({
-      email: "test2@gmail.com",
-      password: "123456",
-    });
+  const loginResponse2 = await request(app).post("/auth/login").send({
+    email: "test2@gmail.com",
+    password: "123456",
+  });
 
-    testUser2AccessToken = loginResponse2.body.accessToken.token;
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  testUser2AccessToken = loginResponse2.body.accessToken.token;
 });
 
 afterAll(async () => {
-  try {
-    await request(app)
-      .delete("/product/" + testProduct.id)
-      .set("Authorization", testUserAccessToken);
+  await request(app)
+    .delete("/product/" + testProduct.id)
+    .set("Authorization", testUserAccessToken);
 
-    await User.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  await User.destroy({ where: {} });
+  server.close();
 });
 
 describe("Create Transaction", () => {
@@ -180,7 +172,7 @@ describe("Get Transactions", () => {
       .expect(200);
   });
 
-  test("200 Success with filter status", async () => {
+  test("200 Success Status Filtered", async () => {
     await request(app)
       .get("/transaction?status=completed")
       .set("Authorization", testUserAccessToken)

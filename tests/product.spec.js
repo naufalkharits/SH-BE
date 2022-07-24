@@ -17,48 +17,40 @@ const newProductData = {
 let testUser, testProduct, testUserToken;
 
 beforeAll(async () => {
-  try {
-    const testUserData = {
-      email: "test@gmail.com",
-      password: "test123",
-    };
-    testUser = await User.create({
-      email: testUserData.email,
-      password: await bcrypt.hash(testUserData.password, 10),
-    });
-    testProduct = await Product.create({
-      name: "New Test Product",
-      price: 50000,
-      category_id: 3,
-      description: "This is new test product",
-      seller_id: testUser.id,
-    });
-    await UserBiodata.create({
-      user_id: testUser.id,
-      name: "Test User",
-      city: "Kota",
-      address: "Alamat",
-      phone_number: "08123456789",
-      picture: "profile.png",
-    });
-    const loginResponse = await request(app).post("/auth/login").send({
-      email: testUserData.email,
-      password: testUserData.password,
-    });
-    testUserToken = loginResponse.body.accessToken.token;
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  const testUserData = {
+    email: "test@gmail.com",
+    password: "test123",
+  };
+  testUser = await User.create({
+    email: testUserData.email,
+    password: await bcrypt.hash(testUserData.password, 10),
+  });
+  testProduct = await Product.create({
+    name: "New Test Product",
+    price: 50000,
+    category_id: 3,
+    description: "This is new test product",
+    seller_id: testUser.id,
+  });
+  await UserBiodata.create({
+    user_id: testUser.id,
+    name: "Test User",
+    city: "Kota",
+    address: "Alamat",
+    phone_number: "08123456789",
+    picture: "profile.png",
+  });
+  const loginResponse = await request(app).post("/auth/login").send({
+    email: testUserData.email,
+    password: testUserData.password,
+  });
+  testUserToken = loginResponse.body.accessToken.token;
 });
 
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    await Product.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  await User.destroy({ where: {} });
+  await Product.destroy({ where: {} });
+  server.close();
 });
 
 describe("Get Products", () => {

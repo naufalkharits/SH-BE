@@ -73,7 +73,6 @@ module.exports = {
         transactions: transactionsData,
       });
     } catch (error) {
-      console.log(error);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -227,8 +226,6 @@ module.exports = {
         transaction.id,
         "NEW_TRANSACTION"
       );
-
-      console.log("Transaction Product :", transaction.Product);
 
       sendTransactionNotification(
         transaction.Product.seller_id,
@@ -384,7 +381,6 @@ module.exports = {
 
       res.status(200).json({ updatedTransaction: mapTransaction(transaction) });
     } catch (err) {
-      console.log(err);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -425,11 +421,9 @@ module.exports = {
           .status(404)
           .json({ type: "NOT_FOUND", message: "Transaction not found" });
       } else {
-        console.log(result);
         res.status(200).json({ message: "Transaction successfully deleted" });
       }
     } catch (err) {
-      console.log(err);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",

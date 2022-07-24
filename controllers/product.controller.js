@@ -257,7 +257,7 @@ module.exports = {
         product: newProductData,
       });
     } catch (error) {
-      console.log("Error : ", error);
+      
       return res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -368,7 +368,7 @@ module.exports = {
 
       res.status(200).json({ updatedProduct: mapProduct(product) });
     } catch (error) {
-      console.log(error);
+    
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",

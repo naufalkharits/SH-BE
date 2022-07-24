@@ -88,7 +88,6 @@ module.exports = {
         notifications: mappedNotifications,
       });
     } catch (error) {
-      console.log(error);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -166,7 +165,6 @@ module.exports = {
       );
       res.status(200).json({ message: "All notification has been read" });
     } catch (error) {
-      console.log(error);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",
@@ -202,11 +200,9 @@ module.exports = {
           .status(404)
           .json({ type: "NOT_FOUND", message: "Notification not found" });
       } else {
-        console.log(result);
         res.status(200).json({ message: "Notification successfully deleted" });
       }
     } catch (err) {
-      console.log(err);
       res.status(500).json({
         type: "SYSTEM_ERROR",
         message: "Something wrong with server",

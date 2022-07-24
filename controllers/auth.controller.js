@@ -2,19 +2,9 @@ const { User, UserBiodata } = require("../models");
 const bcrypt = require("bcrypt");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 const jwt = require("jsonwebtoken");
-const { google } = require("googleapis");
-
-const googleOAuthClient = new google.auth.OAuth2({
-  clientId: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirectUri:
-    process.env.NODE_ENV === "production"
-      ? "https://secondhanded.vercel.app"
-      : "http://localhost:3000",
-});
+const { googleOAuthClient } = require("../utils/google-oauth");
 
 module.exports = {
-  googleOAuthClient,
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -196,7 +186,6 @@ module.exports = {
         refreshToken,
       });
     } catch (err) {
-      console.log("Auth Google Error :", err);
       res
         .status(500)
         .json({ type: "SYSTEM_ERROR", message: "Something wrong with server" });
