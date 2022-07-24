@@ -28,6 +28,17 @@ beforeAll(async () => {
     description: "This is new test product2",
     seller_id: testUser.id,
   });
+  testProduct3 = await Product.create({
+    name: "New Test Product3",
+    price: 50000,
+    category_id: 3,
+    description: "This is new test product3",
+    seller_id: testUser.id,
+  });
+  await Wishlist.create({
+    product_id: testProduct3.id,
+    user_id: testUser.id,
+  });
 
   const loginResponse = await request(app)
     .post("/auth/login")
@@ -36,20 +47,23 @@ beforeAll(async () => {
   testUserAccessToken = loginResponse.body.accessToken.token;
 });
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    await Product.destroy({ where: {} });
-    await Wishlist.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  await User.destroy({ where: {} });
+  await Product.destroy({ where: {} });
+  await Wishlist.destroy({ where: {} });
+  server.close();
 });
 
 describe("Check Wishlist", () => {
-  test("200 Success", async () => {
+  test("200 Success Wishlist False", async () => {
     await request(app)
       .get(`/wishlist/${testProduct.id}`)
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
+  test("200 Success Wishlist True", async () => {
+    await request(app)
+      .get(`/wishlist/${testProduct3.id}`)
       .set("Authorization", testUserAccessToken)
       .expect(200);
   });
@@ -82,12 +96,20 @@ describe("Check Wishlist", () => {
 });
 
 describe("Get Wishlists", () => {
-  test("200 Success", async () => {
+  test("200 Success Buyer", async () => {
     await request(app)
       .get("/wishlist")
       .set("Authorization", testUserAccessToken)
       .expect(200);
   });
+
+  test("200 Success Seller", async () => {
+    await request(app)
+      .get("/wishlist?as=seller")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Wishlist.findAll;
     Wishlist.findAll = jest.fn().mockImplementationOnce(() => {
@@ -123,7 +145,7 @@ describe("Create Wishlist", () => {
       .expect(404);
   });
 
-  test("409 Product is alrerady in wishlist", async () => {
+  test("409 Product Already Wishlisted", async () => {
     await request(app)
       .post(`/wishlist/${testProduct.id}`)
       .set("Authorization", testUserAccessToken)
@@ -171,7 +193,7 @@ describe("Delete Wishlist", () => {
       throw new Error();
     });
     await request(app)
-      .delete(`/wishlist/${testProduct2.id}`)
+      .delete(`/wishlist/${testProduct3.id}`)
       .set("Authorization", testUserAccessToken)
       .expect(500);
     Wishlist.destroy = originalFn;

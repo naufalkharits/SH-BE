@@ -1,7 +1,8 @@
 const request = require("supertest");
 const { app, server } = require("../index");
-const { Transaction, User, UserBiodata } = require("../models");
+const { Transaction, User, UserBiodata, Product } = require("../models");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
 jest.mock("../utils/picture.js");
 
@@ -19,52 +20,70 @@ const testProductData = {
   pictures: path.join(__dirname, "resources", "product.png"),
 };
 
-let testProduct, testUserAccessToken, testTransaction;
+let testProduct,
+  testUserAccessToken,
+  testTransaction,
+  soldProduct,
+  testUser2,
+  testUser2AccessToken;
 
 beforeAll(async () => {
-  try {
-    const registerResponse = await request(app)
-      .post("/auth/register")
-      .send(testUserData);
+  const registerResponse = await request(app)
+    .post("/auth/register")
+    .send(testUserData);
 
-    testUserAccessToken = registerResponse.body.accessToken.token;
+  testUserAccessToken = registerResponse.body.accessToken.token;
 
-    await request(app)
-      .put("/biodata")
-      .set("Authorization", testUserAccessToken)
-      .field("name", "Test User")
-      .field("city", "Kota")
-      .field("address", "Alamat")
-      .field("phone_number", "08123456789")
-      .attach("picture", path.join(__dirname, "resources", "product.png"))
-      .expect(200);
+  await request(app)
+    .put("/biodata")
+    .set("Authorization", testUserAccessToken)
+    .field("name", "Test User")
+    .field("city", "Kota")
+    .field("address", "Alamat")
+    .field("phone_number", "08123456789")
+    .attach("picture", path.join(__dirname, "resources", "product.png"))
+    .expect(200);
 
-    const createProductResponse = await request(app)
-      .post("/product")
-      .set("Authorization", testUserAccessToken)
-      .field("name", testProductData.name)
-      .field("price", testProductData.price)
-      .field("category", testProductData.category)
-      .field("description", testProductData.description)
-      .attach("pictures", testProductData.pictures);
+  const createProductResponse = await request(app)
+    .post("/product")
+    .set("Authorization", testUserAccessToken)
+    .field("name", testProductData.name)
+    .field("price", testProductData.price)
+    .field("category", testProductData.category)
+    .field("description", testProductData.description)
+    .attach("pictures", testProductData.pictures);
 
-    testProduct = createProductResponse.body.product;
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  testProduct = createProductResponse.body.product;
+
+  testUser2 = await User.create({
+    email: "test2@gmail.com",
+    password: await bcrypt.hash("123456", 10),
+  });
+
+  soldProduct = await Product.create({
+    name: "Sold Product",
+    price: 50000,
+    category_id: 1,
+    description: "This is sold product!",
+    seller_id: testUser2.id,
+    status: "SOLD",
+  });
+
+  const loginResponse2 = await request(app).post("/auth/login").send({
+    email: "test2@gmail.com",
+    password: "123456",
+  });
+
+  testUser2AccessToken = loginResponse2.body.accessToken.token;
 });
 
 afterAll(async () => {
-  try {
-    await request(app)
-      .delete("/product/" + testProduct.id)
-      .set("Authorization", testUserAccessToken);
+  await request(app)
+    .delete("/product/" + testProduct.id)
+    .set("Authorization", testUserAccessToken);
 
-    await User.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  await User.destroy({ where: {} });
+  server.close();
 });
 
 describe("Create Transaction", () => {
@@ -106,6 +125,16 @@ describe("Create Transaction", () => {
       .expect(404);
   });
 
+  test("404 Product Sold Out", async () => {
+    await request(app)
+      .post(`/transaction/${soldProduct.id}`)
+      .set("Authorization", testUserAccessToken)
+      .send({
+        price: 50000,
+      })
+      .expect(404);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Transaction.create;
     Transaction.create = jest.fn().mockImplementationOnce(() => {
@@ -128,6 +157,28 @@ describe("Get Transactions", () => {
       .set("Authorization", testUserAccessToken)
       .expect(200);
   });
+
+  test("200 Success as Seller", async () => {
+    await request(app)
+      .get("/transaction?as=seller")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
+  test("200 Success as Buyer", async () => {
+    await request(app)
+      .get("/transaction?as=buyer")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
+  test("200 Success Status Filtered", async () => {
+    await request(app)
+      .get("/transaction?status=completed")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Transaction.findAll;
     Transaction.findAll = jest.fn().mockImplementationOnce(() => {
@@ -177,13 +228,35 @@ describe("Get Transaction", () => {
 });
 
 describe("Update Transaction", () => {
-  test("200 Success", async () => {
+  test("200 Success Rejected", async () => {
     await request(app)
       .put("/transaction/" + testTransaction.id)
       .set("Authorization", testUserAccessToken)
       .send({
         price: 40000,
         status: "Rejected",
+      })
+      .expect(200);
+  });
+
+  test("200 Success Accepted", async () => {
+    await request(app)
+      .put("/transaction/" + testTransaction.id)
+      .set("Authorization", testUserAccessToken)
+      .send({
+        price: 40000,
+        status: "Accepted",
+      })
+      .expect(200);
+  });
+
+  test("200 Success Completed", async () => {
+    await request(app)
+      .put("/transaction/" + testTransaction.id)
+      .set("Authorization", testUserAccessToken)
+      .send({
+        price: 40000,
+        status: "Completed",
       })
       .expect(200);
   });
@@ -208,6 +281,17 @@ describe("Update Transaction", () => {
         status: "abc",
       })
       .expect(400);
+  });
+
+  test("401 Unauthorized", async () => {
+    await request(app)
+      .put("/transaction/" + testTransaction.id)
+      .set("Authorization", testUser2AccessToken)
+      .send({
+        price: 40000,
+        status: "Rejected",
+      })
+      .expect(401);
   });
 
   test("404 Transaction Not Found", async () => {
@@ -239,6 +323,17 @@ describe("Update Transaction", () => {
 });
 
 describe("Delete Transaction", () => {
+  test("401 Unauthorized", async () => {
+    await request(app)
+      .delete("/transaction/" + testTransaction.id)
+      .set("Authorization", testUser2AccessToken)
+      .send({
+        price: 40000,
+        status: "Rejected",
+      })
+      .expect(401);
+  });
+
   test("200 Success", async () => {
     await request(app)
       .delete("/transaction/" + testTransaction.id)

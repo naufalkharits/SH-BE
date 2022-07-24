@@ -1,9 +1,9 @@
 const request = require("supertest");
 const { app, server } = require("../index");
-const { Chat, ChatMessage, User, Product } = require("../models");
+const { Chat, ChatMessage, User } = require("../models");
 const bcrypt = require("bcrypt");
 
-let testChat;
+let testChat, testUserAccessToken;
 
 beforeAll(async () => {
   const buyer = await User.create({
@@ -31,21 +31,26 @@ beforeAll(async () => {
     user_id: seller.id,
     message: "Hello from Seller!",
   });
+
+  const loginResponse = await request(app).post("/auth/login").send({
+    email: "buyer@gmail.com",
+    password: "123456",
+  });
+  testUserAccessToken = loginResponse.body.accessToken.token;
 });
 
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    await Chat.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log(error);
-  }
+  await User.destroy({ where: {} });
+  await Chat.destroy({ where: {} });
+  server.close();
 });
 
 describe("Get Chats", () => {
   test("200 Success", async () => {
-    await request(app).get("/chat").expect(200);
+    await request(app)
+      .get("/chat")
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
   });
 
   test("500 System Error", async () => {
@@ -53,22 +58,34 @@ describe("Get Chats", () => {
     Chat.findAll = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
-    await request(app).get("/chat").expect(500);
+    await request(app)
+      .get("/chat")
+      .set("Authorization", testUserAccessToken)
+      .expect(500);
     Chat.findAll = originalFn;
   });
 });
 
 describe("Get Chat", () => {
   test("200 Success", async () => {
-    await request(app).get(`/chat/${testChat.id}`).expect(200);
+    await request(app)
+      .get(`/chat/${testChat.id}`)
+      .set("Authorization", testUserAccessToken)
+      .expect(200);
   });
 
   test("400 Validation Error", async () => {
-    await request(app).get(`/chat/abc`).expect(400);
+    await request(app)
+      .get(`/chat/abc`)
+      .set("Authorization", testUserAccessToken)
+      .expect(400);
   });
 
   test("404 Chat Not Found", async () => {
-    await request(app).get(`/chat/123`).expect(404);
+    await request(app)
+      .get(`/chat/123`)
+      .set("Authorization", testUserAccessToken)
+      .expect(404);
   });
 
   test("500 System Error", async () => {
@@ -76,7 +93,10 @@ describe("Get Chat", () => {
     Chat.findOne = jest.fn().mockImplementationOnce(() => {
       throw new Error();
     });
-    await request(app).get(`/chat/${testChat.id}`).expect(500);
+    await request(app)
+      .get(`/chat/${testChat.id}`)
+      .set("Authorization", testUserAccessToken)
+      .expect(500);
     Chat.findOne = originalFn;
   });
 });

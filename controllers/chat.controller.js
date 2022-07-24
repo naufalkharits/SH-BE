@@ -1,5 +1,4 @@
 const { Chat, ChatMessage } = require("../models");
-const chatmessage = require("../models/chatmessage");
 const { Op } = require("sequelize");
 
 module.exports = {

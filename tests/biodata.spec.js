@@ -25,16 +25,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  await User.destroy({ where: {} });
+  server.close();
 });
 
 describe("Update Biodata", () => {
-  test("200 success", async () => {
+  test("200 Success", async () => {
     await request(app)
       .put("/biodata")
       .set("Authorization", testUserAccessToken)

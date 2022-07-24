@@ -17,54 +17,51 @@ const newProductData = {
 let testUser, testProduct, testUserToken;
 
 beforeAll(async () => {
-  try {
-    const testUserData = {
-      email: "test@gmail.com",
-      password: "test123",
-    };
-    testUser = await User.create({
-      email: testUserData.email,
-      password: await bcrypt.hash(testUserData.password, 10),
-    });
-    testProduct = await Product.create({
-      name: "New Test Product",
-      price: 50000,
-      category_id: 3,
-      description: "This is new test product",
-      seller_id: testUser.id,
-    });
-    await UserBiodata.create({
-      user_id: testUser.id,
-      name: "Test User",
-      city: "Kota",
-      address: "Alamat",
-      phone_number: "08123456789",
-      picture: "profile.png",
-    });
-    const loginResponse = await request(app).post("/auth/login").send({
-      email: testUserData.email,
-      password: testUserData.password,
-    });
-    testUserToken = loginResponse.body.accessToken.token;
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  const testUserData = {
+    email: "test@gmail.com",
+    password: "test123",
+  };
+  testUser = await User.create({
+    email: testUserData.email,
+    password: await bcrypt.hash(testUserData.password, 10),
+  });
+  testProduct = await Product.create({
+    name: "New Test Product",
+    price: 50000,
+    category_id: 3,
+    description: "This is new test product",
+    seller_id: testUser.id,
+  });
+  await UserBiodata.create({
+    user_id: testUser.id,
+    name: "Test User",
+    city: "Kota",
+    address: "Alamat",
+    phone_number: "08123456789",
+    picture: "profile.png",
+  });
+  const loginResponse = await request(app).post("/auth/login").send({
+    email: testUserData.email,
+    password: testUserData.password,
+  });
+  testUserToken = loginResponse.body.accessToken.token;
 });
 
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    await Product.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log("Error : ", error);
-  }
+  await User.destroy({ where: {} });
+  await Product.destroy({ where: {} });
+  server.close();
 });
 
 describe("Get Products", () => {
   test("200 Success", async () => {
     await request(app).get("/product").expect(200);
   });
+
+  test("200 Success with Searching", async () => {
+    await request(app).get("/product?keyword=abc").expect(200);
+  });
+
   test("500 System Error", async () => {
     const originalFn = Product.findAll;
     Product.findAll = jest.fn().mockImplementationOnce(() => {
@@ -227,9 +224,22 @@ describe("Update Product", () => {
       .expect(400);
   });
 
+  test("400 Invalid Status", async () => {
+    await request(app)
+      .put("/product/" + testProduct.id)
+      .set("Authorization", testUserToken)
+      .field("name", newProductData.name)
+      .field("price", newProductData.price)
+      .field("category", "invalid")
+      .field("description", newProductData.description)
+      .field("status", "invalidstatus")
+      .attach("pictures", newProductData.pictures)
+      .expect(400);
+  });
+
   test("404 Product Not Found", async () => {
     await request(app)
-      .put("/product/")
+      .put("/product/0")
       .set("Authorization", testUserToken)
       .field("name", newProductData.name)
       .field("price", newProductData.price)

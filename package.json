@@ -9,7 +9,7 @@
     "start": "node index",
     "dev": "nodemon index",
     "postinstall": "yarn sequelize db:migrate",
-    "test": "jest"
+    "test": "jest --runInBand --silent --verbose --collectCoverageFrom=controllers/*.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
