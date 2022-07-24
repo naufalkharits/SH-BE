@@ -4,7 +4,6 @@ const multer = require("multer");
 const checkAuth = require("../middlewares/check-auth");
 
 const checkMulterError = (err, req, res, next) => {
-  console.log(err.message);
   if (err && err.message === "Unexpected field") {
     return res.status(400).json({
       type: "MAX_PICTURES_COUNT",

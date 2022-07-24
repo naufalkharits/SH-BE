@@ -1,6 +1,6 @@
 const request = require("supertest");
 const { app, server } = require("../index");
-const { Chat, ChatMessage, User, Product } = require("../models");
+const { Chat, ChatMessage, User } = require("../models");
 const bcrypt = require("bcrypt");
 
 let testChat, testUserAccessToken;
@@ -40,13 +40,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    await Chat.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log(error);
-  }
+  await User.destroy({ where: {} });
+  await Chat.destroy({ where: {} });
+  server.close();
 });
 
 describe("Get Chats", () => {

@@ -1,24 +1,16 @@
 const request = require("supertest");
 const { app, server } = require("../index");
 const { User } = require("../models");
-const { google } = require("googleapis");
 const jwt = require("jsonwebtoken");
-const { googleOAuthClient } = require("../controllers/auth.controller");
 
-googleOAuthClient.getToken = jest.fn().mockImplementation(() => ({
-  tokens: "abcdefghijklmn",
-}));
+jest.mock("../utils/google-oauth.js");
 
 let userAccessToken;
 let userRefreshToken;
 
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log(error);
-  }
+  await User.destroy({ where: {} });
+  server.close();
 });
 
 describe("Register", () => {
@@ -40,7 +32,7 @@ describe("Register", () => {
       .expect(400);
   });
 
-  test("409 Email already exists", async () => {
+  test("409 Email Already Exists", async () => {
     await request(app)
       .post("/auth/register")
       .send({
@@ -107,7 +99,7 @@ describe("Login", () => {
       .expect(403);
   });
 
-  test("500 system error / unexpected error", async () => {
+  test("500 System Error / Unexpected Error", async () => {
     const originalFn = User.findOne;
     User.findOne = jest.fn().mockImplementationOnce(() => {
       throw new Error();
@@ -136,7 +128,6 @@ describe("Google OAuth", () => {
   });
 
   test("200 Success", async () => {
-    console.log("OAuth2 :", google.auth.OAuth2);
     await request(app)
       .post("/auth/google")
       .send({ code: "abcdefghijklmn" })

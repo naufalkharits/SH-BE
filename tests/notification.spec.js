@@ -72,13 +72,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  try {
-    await User.destroy({ where: {} });
-    await Notification.destroy({ where: {} });
-    server.close();
-  } catch (error) {
-    console.log(error);
-  }
+  await User.destroy({ where: {} });
+  await Notification.destroy({ where: {} });
+  server.close();
 });
 
 describe("Get Notifications", () => {
