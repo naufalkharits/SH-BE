@@ -16,10 +16,10 @@ module.exports = {
     dialect: "postgres",
   },
   production: {
-    username: process.env.HEROKU_DB_USERNAME,
-    password: process.env.HEROKU_DB_PASSWORD,
-    database: process.env.HEROKU_DB_DATABASE,
-    host: process.env.HEROKU_DB_HOST,
+    username: process.env.RAILWAY_DB_USERNAME,
+    password: process.env.RAILWAY_DB_PASSWORD,
+    database: process.env.RAILWAY_DB_DATABASE,
+    host: process.env.RAILWAY_DB_HOST,
     dialect: "postgres",
     dialectOptions: {
       ssl: {
