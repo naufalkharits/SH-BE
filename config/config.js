@@ -5,21 +5,21 @@ module.exports = {
     username: process.env.DB_DEV_USERNAME,
     password: process.env.DB_DEV_PASSWORD,
     database: process.env.DB_DEV_DATABASE,
-    host: "0.0.0.0",
+    host: "127.0.0.1",
     dialect: "postgres",
   },
   test: {
     username: process.env.DB_DEV_USERNAME,
     password: process.env.DB_DEV_PASSWORD,
     database: process.env.DB_DEV_DATABASE,
-    host: "0.0.0.0",
+    host: "127.0.0.1",
     dialect: "postgres",
   },
   production: {
-    username: process.env.RAILWAY_DB_USERNAME,
-    password: process.env.RAILWAY_DB_PASSWORD,
-    database: process.env.RAILWAY_DB_DATABASE,
-    host: process.env.RAILWAY_DB_HOST,
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    host: process.env.DB_HOST,
     dialect: "postgres",
     dialectOptions: {
       ssl: {

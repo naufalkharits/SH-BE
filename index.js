@@ -30,8 +30,8 @@ app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON))
 
 app.use(router)
 
-const server = app.listen(7610, async () => {
-  console.log("Listening on 7610")
+const server = app.listen(process.env.PORT || 8000, async () => {
+  console.log(`Listening on ${process.env.PORT || 8000}`)
 })
 
 socket.init(server)
