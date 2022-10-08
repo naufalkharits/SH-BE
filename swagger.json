@@ -13,7 +13,7 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "host": "https://secondhand-be-production.up.railway.app",
+  "host": "https://secondhand-be.up.railway.app",
   "basePath": "/",
   "tags": [
     {
@@ -2486,13 +2486,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "example": [
-              "Health",
-              "Sport",
-              "Automotive",
-              "Electronic",
-              "Property"
-            ]
+            "example": ["Health", "Sport", "Automotive", "Electronic", "Property"]
           }
         }
       }
