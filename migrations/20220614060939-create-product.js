@@ -29,6 +29,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      weight: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
       seller_id: {
         type: Sequelize.INTEGER,
         allowNull: false,

@@ -11,6 +11,7 @@ const newProductData = {
   price: 50000,
   category: "Electronic",
   description: "This is new test product",
+  weight: 100,
   pictures: path.join(__dirname, "resources", "product.png"),
 };
 
@@ -30,6 +31,7 @@ beforeAll(async () => {
     price: 50000,
     category_id: 3,
     description: "This is new test product",
+    weight: 100,
     seller_id: testUser.id,
   });
   await UserBiodata.create({
@@ -101,6 +103,7 @@ describe("Create Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(200);
   });
@@ -120,6 +123,7 @@ describe("Create Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", path.join(__dirname, "resources", "product.txt"))
       .expect(400);
   });
@@ -135,6 +139,7 @@ describe("Create Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(400);
     UserBiodata.findOne = originalFn;
@@ -148,6 +153,7 @@ describe("Create Product", () => {
       .field("price", newProductData.price)
       .field("category", "invalid")
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(400);
   });
@@ -163,6 +169,7 @@ describe("Create Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(409);
     Product.count = originalFn;
@@ -181,6 +188,7 @@ describe("Create Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(500);
     Product.create = originalFn;
@@ -196,6 +204,7 @@ describe("Update Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(200);
   });
@@ -208,6 +217,7 @@ describe("Update Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(400);
   });
@@ -220,6 +230,7 @@ describe("Update Product", () => {
       .field("price", newProductData.price)
       .field("category", "invalid")
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(400);
   });
@@ -232,6 +243,7 @@ describe("Update Product", () => {
       .field("price", newProductData.price)
       .field("category", "invalid")
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .field("status", "invalidstatus")
       .attach("pictures", newProductData.pictures)
       .expect(400);
@@ -245,6 +257,7 @@ describe("Update Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(404);
   });
@@ -270,6 +283,7 @@ describe("Update Product", () => {
       .field("price", newProductData.price)
       .field("category", newProductData.category)
       .field("description", newProductData.description)
+      .field("weight", newProductData.weight)
       .attach("pictures", newProductData.pictures)
       .expect(500);
     Category.findOne = originalFn;

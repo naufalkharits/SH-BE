@@ -17,6 +17,7 @@ const testProductData = {
   price: 50000,
   category: "Electronic",
   description: "This is new test product",
+  weight: 100,
   pictures: path.join(__dirname, "resources", "product.png"),
 };
 
@@ -51,6 +52,7 @@ beforeAll(async () => {
     .field("price", testProductData.price)
     .field("category", testProductData.category)
     .field("description", testProductData.description)
+    .field("weight", testProductData.weight)
     .attach("pictures", testProductData.pictures);
 
   testProduct = createProductResponse.body.product;
@@ -65,6 +67,7 @@ beforeAll(async () => {
     price: 50000,
     category_id: 1,
     description: "This is sold product!",
+    weight: 100,
     seller_id: testUser2.id,
     status: "SOLD",
   });

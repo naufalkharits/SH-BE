@@ -19,6 +19,7 @@ beforeAll(async () => {
     price: 50000,
     category_id: 3,
     description: "This is new test product",
+    weight: 100,
     seller_id: testUser.id,
   });
   testProduct2 = await Product.create({
@@ -26,6 +27,7 @@ beforeAll(async () => {
     price: 50000,
     category_id: 3,
     description: "This is new test product2",
+    weight: 100,
     seller_id: testUser.id,
   });
   testProduct3 = await Product.create({
@@ -33,6 +35,7 @@ beforeAll(async () => {
     price: 50000,
     category_id: 3,
     description: "This is new test product3",
+    weight: 100,
     seller_id: testUser.id,
   });
   await Wishlist.create({

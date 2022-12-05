@@ -21,6 +21,7 @@ const mapProduct = (product) => ({
   price: product.price,
   category: product.Category.name,
   description: product.description,
+  weight: product.weight,
   seller: product.User.UserBiodatum,
   pictures: product.Pictures.sort((a, b) => a.id - b.id).map(
     (picture) => picture.url
@@ -133,7 +134,7 @@ module.exports = {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message:
-          "Product name, price, category, description, and picture is required",
+          "Product name, price, category, description, weight, and picture is required",
       });
     }
 
@@ -143,12 +144,13 @@ module.exports = {
       !req.body.price ||
       !req.body.category ||
       !req.body.description ||
+      !req.body.weight ||
       req.files.length < 1
     ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
         message:
-          "Product name, price, category, description, and picture is required",
+          "Product name, price, category, description, weight, and picture is required",
       });
     }
 
@@ -164,7 +166,7 @@ module.exports = {
       });
     }
 
-    const { name, price, category, description } = req.body;
+    const { name, price, category, description, weight } = req.body;
 
     try {
       // Get product category name
@@ -221,6 +223,7 @@ module.exports = {
         price,
         category_id: productCategory.id,
         description,
+        weight,
         seller_id: req.user.id,
       });
 
@@ -274,7 +277,7 @@ module.exports = {
       });
     }
 
-    const { name, price, category, description, status } = req.body;
+    const { name, price, category, description, weight, status } = req.body;
 
     if (
       status &&
@@ -328,6 +331,7 @@ module.exports = {
           price: price,
           category_id: category ? productCategory.id : undefined,
           description: description,
+          weight: weight,
           status: status ? status.toUpperCase() : undefined,
         },
         {

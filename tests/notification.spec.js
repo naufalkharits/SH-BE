@@ -19,6 +19,7 @@ beforeAll(async () => {
     price: 50000,
     category_id: 3,
     description: "This is new test product",
+    weight: 100,
     seller_id: testUser.id,
   });
   testNotification = await Notification.create({
