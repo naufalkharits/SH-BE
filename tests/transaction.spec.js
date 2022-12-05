@@ -39,6 +39,7 @@ beforeAll(async () => {
     .put("/biodata")
     .set("Authorization", testUserAccessToken)
     .field("name", "Test User")
+    .field("province", "Provinsi")
     .field("city", "Kota")
     .field("address", "Alamat")
     .field("phone_number", "08123456789")

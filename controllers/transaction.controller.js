@@ -155,6 +155,7 @@ module.exports = {
       if (
         !biodata ||
         !biodata.name ||
+        !biodata.province ||
         !biodata.city ||
         !biodata.address ||
         !biodata.phone_number ||

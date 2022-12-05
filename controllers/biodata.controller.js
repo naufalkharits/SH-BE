@@ -37,7 +37,7 @@ module.exports = {
     }
   },
   updateBiodata: async (req, res) => {
-    const { name, city, address, phone_number } = req.body;
+    const { name, province, city, address, phone_number } = req.body;
 
     const profilePicture = req.file;
 
@@ -60,6 +60,7 @@ module.exports = {
       await UserBiodata.update(
         {
           name: name,
+          province: province,
           city: city,
           address: address,
           phone_number: phone_number,

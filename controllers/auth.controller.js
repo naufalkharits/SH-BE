@@ -114,6 +114,7 @@ module.exports = {
       user: {
         id: userData.user_id,
         name: userData.name,
+        province: userData.province,
         city: userData.city,
         address: userData.address,
         phone_number: userData.phone_number,

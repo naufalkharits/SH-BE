@@ -23,6 +23,11 @@ module.exports = {
         allowNull: true,
         defaultValue: null,
       },
+      province: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
+      },
       city: {
         type: Sequelize.STRING,
         allowNull: true,

@@ -7,7 +7,8 @@ jest.mock("../utils/picture.js");
 
 const newUserBiodata = {
   name: "Zaky",
-  city: "Jakarta",
+  province: "DI Yogyakarta",
+  city: "Bantul",
   address: "Jalan Sudirman",
   phone_number: "0839424242424",
   picture: path.join(__dirname, "resources", "product.png"),
@@ -35,6 +36,7 @@ describe("Update Biodata", () => {
       .put("/biodata")
       .set("Authorization", testUserAccessToken)
       .field("name", newUserBiodata.name)
+      .field("province", newUserBiodata.province)
       .field("city", newUserBiodata.city)
       .field("address", newUserBiodata.address)
       .field("phone_number", newUserBiodata.phone_number)

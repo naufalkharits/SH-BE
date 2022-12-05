@@ -37,6 +37,7 @@ beforeAll(async () => {
   await UserBiodata.create({
     user_id: testUser.id,
     name: "Test User",
+    province: "Provinsi",
     city: "Kota",
     address: "Alamat",
     phone_number: "08123456789",
