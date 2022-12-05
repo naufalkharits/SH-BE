@@ -13,4 +13,12 @@ module.exports = {
       res.send(error)
     }
   },
+  getCities: async (req, res) => {
+    try {
+      const response = await axios.get(`/city?province=${req.body.provinceId}`)
+      res.json(response.data)
+    } catch (error) {
+      res.send(error)
+    }
+  },
 }
