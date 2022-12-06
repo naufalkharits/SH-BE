@@ -328,6 +328,42 @@ module.exports = {
       });
 
       if (status && status.toLowerCase() === "accepted") {
+        const transactions = await Transaction.findAll({
+          where: {
+            product_id: transaction.product_id,
+            status: "PENDING",
+          }
+        });
+        if (transactions) {
+          await Transaction.update(
+            {
+              status: "REJECTED",
+            },
+            {
+              where: {
+                product_id: transaction.product_id,
+                status: "PENDING",
+              },
+            }
+          );
+
+          for (let index = 0; index < transactions.length; index++) {
+            const element = transactions[index];
+
+            await Notification.create({
+              type: "TRANSACTION_REJECTED",
+              user_id: element.buyer_id,
+              transaction_id: element.id,
+            });
+
+            sendTransactionNotification(
+              element.buyer_id,
+              element.id,
+              "TRANSACTION_REJECTED"
+            );
+          }
+        }
+
         await Notification.create({
           type: "TRANSACTION_ACCEPTED",
           user_id: transaction.buyer_id,
