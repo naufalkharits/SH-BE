@@ -178,7 +178,14 @@ module.exports = {
         });
       }
 
-      if (product.status != "READY") {
+      if (product.status == "IN ORDER") {
+        return res.status(404).json({
+          type: "IN_ORDER",
+          message: "Product is in order",
+        });
+      }
+
+      if (product.status == "SOLD") {
         return res.status(404).json({
           type: "SOLD_OUT",
           message: "Product is sold out",
@@ -374,6 +381,17 @@ module.exports = {
           transaction.buyer_id,
           transaction.id,
           "TRANSACTION_ACCEPTED"
+        );
+
+        await Product.update(
+          {
+            status: "IN ORDER",
+          },
+          {
+            where: {
+              id: transaction.product_id,
+            },
+          }
         );
       }
 

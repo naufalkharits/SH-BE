@@ -283,7 +283,8 @@ module.exports = {
     if (
       status &&
       status.toLowerCase() !== "ready" &&
-      status.toLowerCase() !== "sold"
+      status.toLowerCase() !== "sold" &&
+      status.toLowerCase() !== "in order"
     ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
