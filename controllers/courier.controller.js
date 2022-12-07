@@ -21,4 +21,17 @@ module.exports = {
       res.send(error)
     }
   },
+  getCosts: async (req, res) => {
+    try {
+      const response = await axios.post("/cost", {
+        origin: req.params.origin,
+        destination: req.params.destination,
+        weight: req.params.weight,
+        courier: req.params.courier,
+      })
+      res.json(response.data)
+    } catch (error) {
+      res.send(error)
+    }
+  },
 }
