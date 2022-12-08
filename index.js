@@ -28,7 +28,9 @@ app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON))
 app.use(router)
 
 const server = app.listen(process.env.PORT || 8000, async () => {
-  console.log(`Listening on ${process.env.PORT || 8000}`)
+  console.log(
+    `Listening on port ${server.address().port || 8000}\nhttp://localhost:${server.address().port}`
+  )
 })
 
 socket.init(server)
