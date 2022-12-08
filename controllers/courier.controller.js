@@ -24,10 +24,10 @@ module.exports = {
   getCosts: async (req, res) => {
     try {
       const response = await axios.post("/cost", {
-        origin: req.params.origin,
-        destination: req.params.destination,
-        weight: req.params.weight,
-        courier: req.params.courier,
+        origin: req.body.origin,
+        destination: req.body.destination,
+        weight: req.body.weight,
+        courier: req.body.courier,
       })
       res.json(response.data)
     } catch (error) {
