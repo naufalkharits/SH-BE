@@ -5,7 +5,7 @@ const axios = require("axios")
 
 class InvoiceController {
   constructor() {
-    ;(this.url = process.env.PAYMENT_GATEWAY_API_URL + "/v2/invoices"),
+    ;(this.url = `${process.env.PAYMENT_GATEWAY_API_URL}/v2/invoices`),
       (this.headers = {
         "Content-Type": "application/json",
       }),

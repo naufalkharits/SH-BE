@@ -1,13 +1,13 @@
 const axios = require("axios")
 
-axios.defaults.baseURL = `${process.env.COURIER_API_URL}`
-axios.defaults.headers.common["key"] = `${process.env.COURIER_API_KEY}`
-axios.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded"
-
 module.exports = {
   getProvinces: async (req, res) => {
     try {
-      const response = await axios.get("/province")
+      const response = await axios.get(`${process.env.COURIER_API_URL}/province`, {
+        headers: {
+          key: `${process.env.COURIER_API_KEY}`,
+        },
+      })
       res.json(response.data)
     } catch (error) {
       res.send(error)
@@ -15,7 +15,11 @@ module.exports = {
   },
   getCities: async (req, res) => {
     try {
-      const response = await axios.get(`/city?province=${req.body.provinceId}`)
+      const response = await axios.get(`/city?province=${req.body.provinceId}`, {
+        headers: {
+          key: `${process.env.COURIER_API_KEY}`,
+        },
+      })
       res.json(response.data)
     } catch (error) {
       res.send(error)
@@ -23,12 +27,21 @@ module.exports = {
   },
   getCosts: async (req, res) => {
     try {
-      const response = await axios.post("/cost", {
-        origin: req.body.origin,
-        destination: req.body.destination,
-        weight: req.body.weight,
-        courier: req.body.courier,
-      })
+      const response = await axios.post(
+        "/cost",
+        {
+          origin: req.body.origin,
+          destination: req.body.destination,
+          weight: req.body.weight,
+          courier: req.body.courier,
+        },
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            key: `${process.env.COURIER_API_KEY}`,
+          },
+        }
+      )
       res.json(response.data)
     } catch (error) {
       res.send(error)
