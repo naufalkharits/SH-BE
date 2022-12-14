@@ -407,6 +407,17 @@ module.exports = {
           transaction.id,
           "TRANSACTION_REJECTED"
         );
+
+        await Product.update(
+          {
+            status: "READY",
+          },
+          {
+            where: {
+              id: transaction.product_id,
+            },
+          }
+        );
       }
 
       if (status && status.toLowerCase() === "completed") {
