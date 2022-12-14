@@ -30,7 +30,7 @@
     "sequelize-cli": "6.4.1",
     "socket.io": "^4.5.1",
     "swagger-ui-express": "^4.4.0",
-    "uuid": "^8.3.2",
+    "uuid": "^9.0.0",
     "xendit-node": "^1.21.10"
   },
   "devDependencies": {
