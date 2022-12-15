@@ -14,20 +14,17 @@ module.exports = {
 
     await queryInterface.bulkInsert("Categories", [
       {
-        name: "Automotive",
+        name: "Womens fashion",
       },
       {
-        name: "Property",
+        name: "Mens fashion",
       },
       {
-        name: "Electronic",
+        name: "Health and beauty",
       },
       {
-        name: "Office",
-      },
-      {
-        name: "Sport",
-      },
+        name: "Babies and kids",
+      }
     ]);
   },
 
