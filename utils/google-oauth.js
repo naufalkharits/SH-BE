@@ -6,7 +6,9 @@ module.exports = {
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     redirectUri:
       process.env.NODE_ENV === "production"
-        ? "https://secondhanded.vercel.app"
-        : "http://localhost:3000",
+        || process.env.NODE_ENV === "staging"
+        || process.env.NODE_ENV === "development"
+          ? "https://secondhanded.vercel.app"
+          : "http://localhost:3000",
   }),
 };
