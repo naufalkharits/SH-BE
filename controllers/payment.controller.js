@@ -12,7 +12,7 @@ const invoiceSpecificOptions = {}
 const i = new Invoice(invoiceSpecificOptions)
 
 module.exports = {
-  getInvoice: async (req, res) => {
+  createInvoice: async (req, res) => {
     try {
       const transaction = await Transaction.findOne({
         where: { id: req.body.external_id },
