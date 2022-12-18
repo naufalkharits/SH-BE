@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       expiry_date: { type: DataTypes.STRING, allowNull: true },
       invoice_id: { type: DataTypes.STRING, allowNull: true },
       invoice_url: { type: DataTypes.STRING, allowNull: true },
+      tracking_number: { type: DataTypes.STRING, allowNull: true },
     },
     {
       sequelize,

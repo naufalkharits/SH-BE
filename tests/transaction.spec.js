@@ -74,6 +74,7 @@ beforeAll(async () => {
     expiry_date: "2022-12-15T13:24:40.371Z",
     invoice_id: "587cc7b4863f2b462beb31f6",
     invoice_url: "https://checkout-staging.xendit.co/web",
+    tracking_number: "FR2042340680",
   });
 
   const loginResponse2 = await request(app).post("/auth/login").send({

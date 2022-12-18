@@ -23,6 +23,7 @@ const mapTransaction = (transaction) => {
     expiry_date: transaction.expiry_date,
     invoice_id: transaction.invoice_id,
     invoice_url: transaction.invoice_url,
+    tracking_number: transaction.tracking_number,
     createdAt: transaction.createdAt,
     updatedAt: transaction.updatedAt,
   };
@@ -203,6 +204,7 @@ module.exports = {
         expiry_date: "",
         invoice_id: "",
         invoice_url: "",
+        tracking_number: "",
       });
 
       const transaction = await Transaction.findOne({
