@@ -270,10 +270,8 @@ module.exports = {
 
     if (
       req.body.status &&
-      req.body.status.toLowerCase() !== "pending" &&
       req.body.status.toLowerCase() !== "accepted" &&
-      req.body.status.toLowerCase() !== "rejected" &&
-      req.body.status.toLowerCase() !== "completed"
+      req.body.status.toLowerCase() !== "rejected"
     ) {
       return res.status(400).json({
         type: "VALIDATION_FAILED",
