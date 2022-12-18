@@ -1,6 +1,5 @@
 require("dotenv").config()
 const Xendit = require("xendit-node")
-const axios = require("axios")
 
 const { Transaction, Product } = require("../models")
 
@@ -69,68 +68,5 @@ module.exports = {
     } catch (error) {
       return res.status(500).json({ type: "SYSTEM_ERROR", message: "Something wrong with server" })
     }
-  },
-  webhookInvoice: async (req, res) => {
-    try {
-      const transaction = await Transaction.findOne({
-        where: { id: req.body.external_id },
-      })
-
-      if (req.body.status === "PAID") {
-        await Transaction.update(
-          {
-            status: "PAID",
-          },
-          {
-            where: {
-              id: req.body.external_id,
-            },
-          }
-        )
-
-        await Product.update(
-          {
-            status: "SOLD",
-          },
-          {
-            where: {
-              id: transaction.product_id,
-            },
-          }
-        )
-      }
-
-      if (req.body.status === "EXPIRED") {
-        // const response = await i.expireInvoice({
-        //   invoiceID: req.body.id,
-        // });
-
-        await Transaction.update(
-          {
-            status: "EXPIRED",
-          },
-          {
-            where: {
-              id: req.body.external_id,
-            },
-          }
-        )
-
-        await Product.update(
-          {
-            status: "READY",
-          },
-          {
-            where: {
-              id: transaction.product_id,
-            },
-          }
-        )
-      }
-
-      return res.status(200)
-    } catch (error) {
-      return res.status(500)
-    }
-  },
+  }
 }
