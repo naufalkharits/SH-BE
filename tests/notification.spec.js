@@ -42,7 +42,7 @@ beforeAll(async () => {
     read: false,
   });
   const testTransactionCompleteNotification = await Notification.create({
-    type: "TRANSACTION_COMPLETE",
+    type: "TRANSACTION_COMPLETED",
     user_id: testUser.id,
     transaction_id: testTransaction.id,
     read: false,

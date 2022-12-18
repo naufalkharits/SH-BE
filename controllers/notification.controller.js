@@ -23,7 +23,7 @@ const mapNotification = (notification) => {
       };
 
     case "NEW_OFFER":
-    case "TRANSACTION_COMPLETE":
+    case "TRANSACTION_COMPLETED":
     case "TRANSACTION_REJECTED":
     case "TRANSACTION_ACCEPTED":
       return {

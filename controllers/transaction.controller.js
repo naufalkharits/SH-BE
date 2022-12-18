@@ -428,7 +428,7 @@ module.exports = {
 
       if (status && status.toLowerCase() === "completed") {
         await Notification.create({
-          type: "TRANSACTION_COMPLETE",
+          type: "TRANSACTION_COMPLETED",
           user_id: transaction.buyer_id,
           transaction_id: transaction.id,
         });
