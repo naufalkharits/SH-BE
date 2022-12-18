@@ -106,7 +106,7 @@ module.exports = {
 
         await Transaction.update(
           {
-            status: "REJECTED",
+            status: "EXPIRED",
           },
           {
             where: {
