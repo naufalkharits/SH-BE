@@ -195,8 +195,8 @@ module.exports = {
         !biodata.province ||
         !biodata.city ||
         !biodata.address ||
-        !biodata.phone_number ||
-        !biodata.picture
+        !biodata.phone_number 
+        // || !biodata.picture
       ) {
         return res.status(400).json({
           type: "VALIDATION_FAILED",
