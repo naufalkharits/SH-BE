@@ -29,7 +29,7 @@ app.use(router)
 
 const server = app.listen(process.env.DB_PORT || 8000, async () => {
   console.log(
-    `Listening on port ${server.address().port || 8000}\nhttp://localhost:${server.address().port}`
+    `Listening on port ${server.address().port || 8000}`
   )
 })
 
