@@ -15,6 +15,8 @@ module.exports = {
   },
   getCities: async (req, res) => {
     try {
+      console.log(req.body)
+      console.log(req.body.provinceId)
       const response = await axios.get(
         `${process.env.COURIER_API_URL}/city?province=${req.body.provinceId}`,
         {
