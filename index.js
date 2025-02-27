@@ -4,11 +4,11 @@ const app = express()
 const path = require("path")
 const swaggerJSON = require("./swagger.json")
 const swaggerUI = require("swagger-ui-express")
-const firebase = require("./utils/firebase")
-const socket = require("./utils/socket")
+// const firebase = require("./utils/firebase")
+// const socket = require("./utils/socket")
 require("./utils/passport-jwt")
 
-firebase.setup()
+// firebase.setup()
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*")
@@ -33,6 +33,6 @@ const server = app.listen(process.env.PORT || 8000, async () => {
   )
 })
 
-socket.init(server)
+// socket.init(server)
 
 module.exports = { app, server }
