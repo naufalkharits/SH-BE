@@ -40,8 +40,9 @@ module.exports = {
 
       snap.createTransaction(parameter).then((transaction)=>{
         // transaction token
-        let transactionToken = transaction.token;
+        const transactionToken = transaction.token;
         console.log('transactionToken:',transactionToken);
+        return transactionToken
       })    
     } catch (error) {
       return res.status(500).json({ type: "SYSTEM_ERROR", message: "Something wrong with server" })
