@@ -3,11 +3,12 @@ const axios = require("axios")
 module.exports = {
   getProvinces: async (req, res) => {
     try {
-      const response = await axios.get(`${process.env.COURIER_API_URL}/province`, {
-        headers: {
-          key: `${process.env.COURIER_API_KEY}`,
-        },
-      })
+      // const response = await axios.get(`${process.env.COURIER_API_URL}/province`, {
+      //   headers: {
+      //     key: `${process.env.COURIER_API_KEY}`,
+      //   },
+      // })
+      const response = await axios.get(`${process.env.INDONESIA_API_URL}/provinces.json`)
       res.status(200).json(response.data)
     } catch (error) {
       res.status(500).json({ type: "SYSTEM_ERROR", message: "Something wrong with server" })
@@ -15,14 +16,15 @@ module.exports = {
   },
   getCities: async (req, res) => {
     try {
-      const response = await axios.get(
-        `${process.env.COURIER_API_URL}/city?province=${req.body.provinceId}`,
-        {
-          headers: {
-            key: `${process.env.COURIER_API_KEY}`,
-          },
-        }
-      )
+      // const response = await axios.get(
+      //   `${process.env.COURIER_API_URL}/city?province=${req.body.provinceId}`,
+      //   {
+      //     headers: {
+      //       key: `${process.env.COURIER_API_KEY}`,
+      //     },
+      //   }
+      // )
+      const response = await axios.get(`${process.env.INDONESIA_API_URL}regencies/${req.body.provinceId}.json`)
       res.status(200).json(response.data)
     } catch (error) {
       res.send(error)
