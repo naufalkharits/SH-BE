@@ -36,7 +36,7 @@ const uploadProductImages = async (images, productId) => {
 
       // const publicUrl = admin.storage().bucket().file(imagePath).publicUrl();
 
-      const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, file);
+      const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, blob);
       console.log(data)
 
       const { publicURL, error: urlError } = supabase.storage.from('secondhand').getPublicUrl(imagePath);
@@ -118,7 +118,7 @@ const uploadProfileImage = async (image, userId) => {
 
     // const publicUrl = admin.storage().bucket().file(imagePath).publicUrl();
 
-    const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, file);
+    const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, blob);
     console.log(data)
 
     const { publicURL, error: urlError } = supabase.storage.from('secondhand').getPublicUrl(imagePath);
