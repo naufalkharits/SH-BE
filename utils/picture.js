@@ -38,9 +38,11 @@ const uploadProductImages = async (images, productId) => {
 
       const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, blob);
       console.log(data)
+      console.log(error)
 
       const { publicURL, error: urlError } = supabase.storage.from('secondhand').getPublicUrl(imagePath);
       console.log(publicURL)
+      console.log(urlError)
 
 
 
@@ -120,9 +122,11 @@ const uploadProfileImage = async (image, userId) => {
 
     const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, blob);
     console.log(data)
+    console.log(error)
 
     const { publicURL, error: urlError } = supabase.storage.from('secondhand').getPublicUrl(imagePath);
     console.log(publicURL)
+    console.log(urlError)
 
     // Add picture to DB
     await UserBiodata.update(
