@@ -3,7 +3,7 @@ const midtransClient = require('midtrans-client');
 
 // const Xendit = require("xendit-node")
 
-// const { Transaction, Product } = require("../models")
+const { Transaction, Product } = require("../models")
 
 // const x = new Xendit({
 //   secretKey: `${process.env.PAYMENT_SECRET_API_KEY}`,
@@ -38,10 +38,24 @@ module.exports = {
         }
       }
 
-      snap.createTransaction(parameter).then((transaction)=>{
+      snap.createTransaction(parameter).then(async (transaction)=>{
         // transaction token
         const transactionToken = transaction.token
-        console.log('transactionToken:',transactionToken)
+        console.log(transactionToken)
+        
+        // input token to Transaction table
+        await Transaction.update(
+          {
+            status: "WAIT FOR PAYMENT",
+            snap_token: transactionToken.transactionToken,
+          },
+          {
+            where: {
+              id: response.order_id,
+            },
+          }
+        )
+
         return res.status(200).json({ transactionToken })
       })    
     } catch (error) {
@@ -107,68 +121,68 @@ module.exports = {
 //       return res.status(500).json({ type: "SYSTEM_ERROR", message: "Something wrong with server" })
 //     }
 //   },
-//   webhookInvoice: async (req, res) => {
-//     try {
-//       const transaction = await Transaction.findOne({
-//         where: { id: req.body.external_id },
-//       })
+  webhookSucceed: async (req, res) => {
+    try {
+      console.log(req.body)
+      // const transaction = await Transaction.findOne({
+      //   where: { id: req.body.external_id },
+      // })
 
-//       if (req.body.status === "PAID") {
-//         await Transaction.update(
-//           {
-//             status: "PAID",
-//           },
-//           {
-//             where: {
-//               id: req.body.external_id,
-//             },
-//           }
-//         )
+      // if (req.body.status === "PAID") {
+      //   await Transaction.update(
+      //     {
+      //       status: "PAID",
+      //     },
+      //     {
+      //       where: {
+      //         id: req.body.external_id,
+      //       },
+      //     }
+      //   )
 
-//         await Product.update(
-//           {
-//             status: "SOLD",
-//           },
-//           {
-//             where: {
-//               id: transaction.product_id,
-//             },
-//           }
-//         )
-//       }
+      //   await Product.update(
+      //     {
+      //       status: "SOLD",
+      //     },
+      //     {
+      //       where: {
+      //         id: transaction.product_id,
+      //       },
+      //     }
+      //   )
+      // }
 
-//       if (req.body.status === "EXPIRED") {
-//         // const response = await i.expireInvoice({
-//         //   invoiceID: req.body.id,
-//         // });
+      // if (req.body.status === "EXPIRED") {
+      //   // const response = await i.expireInvoice({
+      //   //   invoiceID: req.body.id,
+      //   // });
 
-//         await Transaction.update(
-//           {
-//             status: "REJECTED",
-//           },
-//           {
-//             where: {
-//               id: req.body.external_id,
-//             },
-//           }
-//         )
+      //   await Transaction.update(
+      //     {
+      //       status: "REJECTED",
+      //     },
+      //     {
+      //       where: {
+      //         id: req.body.external_id,
+      //       },
+      //     }
+      //   )
 
-//         await Product.update(
-//           {
-//             status: "READY",
-//           },
-//           {
-//             where: {
-//               id: transaction.product_id,
-//             },
-//           }
-//         )
-//       }
+      //   await Product.update(
+      //     {
+      //       status: "READY",
+      //     },
+      //     {
+      //       where: {
+      //         id: transaction.product_id,
+      //       },
+      //     }
+      //   )
+      // }
 
-//       return res.status(200)
-//     } catch (error) {
-//       return res.status(500)
-//     }
-//   },
+      return res.status(200)
+    } catch (error) {
+      return res.status(500)
+    }
   }
 }
