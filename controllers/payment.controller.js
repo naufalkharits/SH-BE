@@ -51,7 +51,7 @@ module.exports = {
           },
           {
             where: {
-              id: response.order_id,
+              id: req.body.order_id,
             },
           }
         )
