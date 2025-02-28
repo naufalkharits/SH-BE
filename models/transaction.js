@@ -27,9 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       buyer_id: { type: DataTypes.INTEGER, allowNull: false },
       price: { type: DataTypes.INTEGER, allowNull: false },
       status: { type: DataTypes.STRING, allowNull: false },
-      expiry_date: { type: DataTypes.STRING, allowNull: true },
-      invoice_id: { type: DataTypes.STRING, allowNull: true },
-      invoice_url: { type: DataTypes.STRING, allowNull: true },
+      expiry_time: { type: DataTypes.STRING, allowNull: true },
+      snap_token: { type: DataTypes.STRING, allowNull: true },
+      // invoice_id: { type: DataTypes.STRING, allowNull: true },
+      // invoice_url: { type: DataTypes.STRING, allowNull: true },
     },
     {
       sequelize,

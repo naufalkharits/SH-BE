@@ -47,6 +47,7 @@ module.exports = {
     } catch (error) {
       return res.status(500).json({ type: "SYSTEM_ERROR", message: "Something wrong with server" })
     }
+  },
 
 //   getInvoice: async (req, res) => {
 //     try {
@@ -90,7 +91,7 @@ module.exports = {
 //       await Transaction.update(
 //         {
 //           status: "WAIT FOR PAYMENT",
-//           expiry_date: response.expiry_date,
+//           expiry_time: response.expiry_time,
 //           invoice_id: response.id,
 //           invoice_url: response.invoice_url,
 //         },

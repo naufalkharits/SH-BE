@@ -20,9 +20,10 @@ const mapTransaction = (transaction) => {
     buyer: transaction.User.UserBiodatum,
     price: transaction.price,
     status: transaction.status,
-    expiry_date: transaction.expiry_date,
-    invoice_id: transaction.invoice_id,
-    invoice_url: transaction.invoice_url,
+    expiry_time: transaction.expiry_time,
+    snap_token: transaction.expiry_time,
+    // invoice_id: transaction.invoice_id,
+    // invoice_url: transaction.invoice_url,
     createdAt: transaction.createdAt,
     updatedAt: transaction.updatedAt,
   };
@@ -200,9 +201,10 @@ module.exports = {
         buyer_id: req.user.id,
         price: req.body.price,
         status: "PENDING",
-        expiry_date: "",
-        invoice_id: "",
-        invoice_url: "",
+        expiry_time: "",
+        snap_token: "",
+        // invoice_id: "",
+        // invoice_url: "",
       });
 
       const transaction = await Transaction.findOne({

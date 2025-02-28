@@ -36,18 +36,22 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      expiry_date: {
+      expiry_time: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      invoice_id: {
+      snap_token: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      invoice_url: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
+      // invoice_id: {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // },
+      // invoice_url: {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
