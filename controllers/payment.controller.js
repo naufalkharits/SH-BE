@@ -42,13 +42,12 @@ module.exports = {
         // transaction token
         const transactionToken = transaction.token
         console.log(transactionToken)
-        console.log(transactionToken.transactionToken)
         
         // input token to Transaction table
         await Transaction.update(
           {
             status: "WAIT FOR PAYMENT",
-            snap_token: `${transactionToken.transactionToken}`,
+            snap_token: transactionToken,
           },
           {
             where: {
