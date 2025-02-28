@@ -21,7 +21,7 @@ const mapTransaction = (transaction) => {
     price: transaction.price,
     status: transaction.status,
     expiry_time: transaction.expiry_time,
-    snap_token: transaction.expiry_time,
+    snap_token: transaction.snap_token,
     // invoice_id: transaction.invoice_id,
     // invoice_url: transaction.invoice_url,
     createdAt: transaction.createdAt,
