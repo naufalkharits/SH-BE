@@ -150,6 +150,30 @@ module.exports = {
           }
         )
       }
+      
+      if (req.body.transaction_status === "settlement") {
+        await Transaction.update(
+          {
+            status: "PAID",
+          },
+          {
+            where: {
+              id: req.body.order_id,
+            },
+          }
+        )
+
+        await Product.update(
+          {
+            status: "SOLD",
+          },
+          {
+            where: {
+              id: transaction.product_id,
+            },
+          }
+        )
+      }
 
       //   await Product.update(
       //     {
