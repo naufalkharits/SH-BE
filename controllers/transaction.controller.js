@@ -458,26 +458,26 @@ module.exports = {
             },
           }
         );
+      }
 
-        if (status && status.toLowerCase() === "delivery") {
-          await Notification.create({
-            type: "TRANSACTION_ON_DELIVERY",
-            user_id: transaction.buyer_id,
-            transaction_id: transaction.id,
-          });
+      if (status && status.toLowerCase() === "delivery") {
+        await Notification.create({
+          type: "TRANSACTION_ON_DELIVERY",
+          user_id: transaction.buyer_id,
+          transaction_id: transaction.id,
+        });
 
-          await Transaction.update(
-            {
-              status: status?.toUpperCase(),
-              resi: resi,
+        await Transaction.update(
+          {
+            status: status?.toUpperCase(),
+            resi: resi,
+          },
+          {
+            where: {
+              id: req.params.id,
             },
-            {
-              where: {
-                id: req.params.id,
-              },
-            }
-          );
-        }
+          }
+        );
       }
 
       res.status(200).json({ updatedTransaction: mapTransaction(transaction) });
