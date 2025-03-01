@@ -3,7 +3,7 @@ const midtransClient = require('midtrans-client');
 
 // const Xendit = require("xendit-node")
 
-const { Transaction, Product } = require("../models")
+const { Transaction, Product, Notification} = require("../models")
 
 // const x = new Xendit({
 //   secretKey: `${process.env.PAYMENT_SECRET_API_KEY}`,
@@ -139,6 +139,11 @@ module.exports = {
             },
           }
         )
+        await Notification.create({
+          type: "EXPIRED",
+          user_id: transaction.buyer_id,
+          transaction_id: transaction.id,
+        });
 
         await Product.update(
           {
@@ -224,7 +229,10 @@ module.exports = {
 
   txTimer: async (req, res) => {
     try {
-      console.log(req.body)
+      const transaction = await Transaction.findOne({
+        where: { id: req.body.order_id },
+      })
+      
       await Transaction.update(
         {
           status: "EXPIRED",
@@ -235,6 +243,11 @@ module.exports = {
           },
         }
       )
+      await Notification.create({
+        type: "EXPIRED",
+        user_id: transaction.buyer_id,
+        transaction_id: transaction.id,
+      });
 
       await Product.update(
         {
