@@ -1,12 +1,12 @@
+require("dotenv").config()
 const Picture = require("../models").Picture;
 const UserBiodata = require("../models").UserBiodata;
 const { v4 } = require("uuid");
 const { decode } = require("base64-arraybuffer")
 // const admin = require("firebase-admin");
 const { createClient } = require('@supabase/supabase-js');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-console.log(supabase)
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 const validatePicture = (picture) => {
   let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"];
@@ -23,20 +23,21 @@ const validatePicture = (picture) => {
 const uploadProductImages = async (images, productId) => {
   if (!images || images.length < 1) return;
   console.log(images)
-    
+  
   try {
     // Upload updated pictures
     for (const image of images) {
+      console.log(image)
       const newPictureName = v4();
       
       const imageExt = image.mimetype.replace("image/", "");
-      console.log(imageExt)
       const imageName = `${newPictureName}.${imageExt}`;
-      console.log(imageName)
       const imagePath = `secondhand/${imageName}`;
-      console.log(imagePath)
       const fileBase64 = decode(image.buffer.toString("base64"));
       console.log(fileBase64)
+      // console.log('Image Buffer:', image.buffer);
+      // const fileBlob = new Blob([image.buffer], { type: image.mimetype });
+      // console.log(fileBlob)
 
       // Upload picture
       // await admin.storage().bucket().file(imagePath).save(image.buffer);
@@ -50,15 +51,16 @@ const uploadProductImages = async (images, productId) => {
       // console.log(error)
 
 
-      const { data, urlError } = supabase.storage
-        .from('secondhand')
-        .upload(imagePath, fileBase64, {
-          contentType: "image/png",
-        })
-      if (error) {
-        console.error('Error uploading image:', error.message);
-        throw error;
-      }
+      const { data, error } = await supabase.storage.from('secondhand').upload(image.originalname, fileBase64, {contentType: image.mimetype,})
+        if (error) {
+          throw error;
+        }
+
+        const { data: gambar } = supabase.storage
+      .from("images")
+      .getPublicUrl(data.path);
+
+    console.log({ image: image.publicUrl });
       
       // console.log(data)
 
