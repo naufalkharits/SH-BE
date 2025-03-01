@@ -155,6 +155,11 @@ module.exports = {
         if (transaction.status === "PAID" && req.body.type === "TRANSACTION_PAID") {
           console.log("TRANSACTION_PAID TIMER")
 
+          await axios.post(`${process.env.MIDTRANS_API_URL}/${req.body.order_id}/refund/online/direct`, {
+            headers: { authorization: `Basic ${process.env.MIDTRANS}` },
+            data: { refund_key: process.env.MIDTRANS_MERCHANT_ID }
+          })
+
           await Transaction.update(
             {
               status: "REFUNDED",
@@ -171,10 +176,6 @@ module.exports = {
             user_id: transaction.buyer_id,
             transaction_id: transaction.id,
           });
-
-          await axios.post(`${process.env.MIDTRANS_API_URL}/${req.body.order_id}/refund/online/direct`, {
-            data: {refund_key:process.env.MIDTRANS_MERCHANT_ID}
-          })
         }
 
         await Product.update(
