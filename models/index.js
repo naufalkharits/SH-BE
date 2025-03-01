@@ -8,8 +8,6 @@ const basename = path.basename(__filename)
 console.log("ENV : ", process.env.NODE_ENV || "local")
 const env = process.env.NODE_ENV || "local"
 const config = require(__dirname + "/../config/config.js")[env]
-console.log(config)
-console.log(config?.use_env_variable)
 const db = {}
 
 let sequelize

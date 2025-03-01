@@ -121,6 +121,7 @@ module.exports = {
 //       return res.status(500).json({ type: "SYSTEM_ERROR", message: "Something wrong with server" })
 //     }
 //   },
+
   webhookMidtrans: async (req, res) => {
     try {
       const transaction = await Transaction.findOne({
@@ -214,6 +215,37 @@ module.exports = {
       //     }
       //   )
       // }
+
+      res.status(200).send("OK")
+    } catch (error) {
+      return res.status(500)
+    }
+  },
+
+  txTimer: async (req, res) => {
+    try {
+      console.log(req.body)
+      await Transaction.update(
+        {
+          status: "EXPIRED",
+        },
+        {
+          where: {
+            id: req.body.order_id,
+          },
+        }
+      )
+
+      await Product.update(
+        {
+          status: "READY",
+        },
+        {
+          where: {
+            id: req.body.product_id,
+          },
+        }
+      )
 
       res.status(200).send("OK")
     } catch (error) {

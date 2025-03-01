@@ -1,3 +1,4 @@
+const axios = require("axios")
 const {
   Transaction,
   Product,
@@ -325,7 +326,6 @@ module.exports = {
         }
       );
 
-      // auto reject
       const transaction = await Transaction.findOne({
         where: {
           id: req.params.id,
@@ -356,6 +356,7 @@ module.exports = {
             status: "PENDING",
           }
         });
+        // auto reject
         if (transactions) {
           await Transaction.update(
             {
@@ -408,6 +409,11 @@ module.exports = {
             },
           }
         );
+
+        await axios.post(`${process.env.HOOKDECK_URL}`, {
+          order_id: transaction.id,
+          product_id: transaction.product_id
+        })
       }
 
       if (status && status.toLowerCase() === "rejected") {
