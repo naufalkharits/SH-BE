@@ -215,7 +215,7 @@ module.exports = {
       //   )
       // }
 
-      return res.status(200)
+      res.status(200).send("OK")
     } catch (error) {
       return res.status(500)
     }
