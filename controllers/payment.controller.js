@@ -1,4 +1,5 @@
 require("dotenv").config()
+const axios = require("axios")
 const midtransClient = require('midtrans-client');
 
 // const Xendit = require("xendit-node")
@@ -128,10 +129,9 @@ module.exports = {
         where: { id: req.body.order_id },
       })
 
-      if (transaction.status === "ACCEPTED" || transaction.status === "PAID") {
         console.log("ACCEPTED || PAID")
 
-        if (req.body.type === "TRANSACTION_ACCEPTED") {
+        if (transaction.status === "ACCEPTED" && req.body.type === "TRANSACTION_ACCEPTED") {
           console.log("TRANSACTION_ACCEPTED TIMER")
 
           await Transaction.update(
@@ -152,7 +152,7 @@ module.exports = {
           });
         }
 
-        if (req.body.type === "TRANSACTION_PAID") {
+        if (transaction.status === "PAID" && req.body.type === "TRANSACTION_PAID") {
           console.log("TRANSACTION_PAID TIMER")
 
           await Transaction.update(
@@ -185,16 +185,15 @@ module.exports = {
             },
           }
         )
-      }
 
-      if (req.body.type === "WAIT_FOR_PAYMENT") {
+      if (transaction.status === "WAIT FOR PAYMENT" && req.body.type === "WAIT_FOR_PAYMENT") {
         await Transaction.update(
           {
             status: "EXPIRED",
           },
           {
             where: {
-              id: transaction.order_id,
+              id: req.body.order_id,
             },
           }
         );
