@@ -317,7 +317,6 @@ module.exports = {
         {
           price: price,
           status: status?.toUpperCase(),
-          resi: resi,
         },
         {
           where: {
