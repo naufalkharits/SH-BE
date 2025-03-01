@@ -44,6 +44,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      resi: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       // invoice_id: {
       //   type: Sequelize.STRING,
       //   allowNull: true,

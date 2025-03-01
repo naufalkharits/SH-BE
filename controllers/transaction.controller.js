@@ -22,6 +22,7 @@ const mapTransaction = (transaction) => {
     status: transaction.status,
     expiry_time: transaction.expiry_time,
     snap_token: transaction.snap_token,
+    resi: transaction.resi,
     // invoice_id: transaction.invoice_id,
     // invoice_url: transaction.invoice_url,
     createdAt: transaction.createdAt,
@@ -203,6 +204,7 @@ module.exports = {
         status: "PENDING",
         expiry_time: "",
         snap_token: "",
+        resi: "",
         // invoice_id: "",
         // invoice_url: "",
       });

@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       status: { type: DataTypes.STRING, allowNull: false },
       expiry_time: { type: DataTypes.STRING, allowNull: true },
       snap_token: { type: DataTypes.STRING, allowNull: true },
+      resi: { type: DataTypes.STRING, allowNull: true },
       // invoice_id: { type: DataTypes.STRING, allowNull: true },
       // invoice_url: { type: DataTypes.STRING, allowNull: true },
     },
