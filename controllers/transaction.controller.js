@@ -271,8 +271,10 @@ module.exports = {
     if (
       req.body.status &&
       req.body.status.toLowerCase() !== "pending" &&
+      req.body.status.toLowerCase() !== "expired" &&
       req.body.status.toLowerCase() !== "accepted" &&
       req.body.status.toLowerCase() !== "rejected" &&
+      req.body.status.toLowerCase() !== "paid" &&
       req.body.status.toLowerCase() !== "completed"
     ) {
       return res.status(400).json({

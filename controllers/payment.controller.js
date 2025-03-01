@@ -121,24 +121,35 @@ module.exports = {
 //       return res.status(500).json({ type: "SYSTEM_ERROR", message: "Something wrong with server" })
 //     }
 //   },
-  webhookSucceed: async (req, res) => {
+  webhookMidtrans: async (req, res) => {
     try {
-      console.log(req.body)
-      // const transaction = await Transaction.findOne({
-      //   where: { id: req.body.external_id },
-      // })
+      const transaction = await Transaction.findOne({
+        where: { id: req.body.order_id },
+      })
 
-      // if (req.body.status === "PAID") {
-      //   await Transaction.update(
-      //     {
-      //       status: "PAID",
-      //     },
-      //     {
-      //       where: {
-      //         id: req.body.external_id,
-      //       },
-      //     }
-      //   )
+      if (req.body.transaction_status === "expire") {
+        await Transaction.update(
+          {
+            status: "EXPIRED",
+          },
+          {
+            where: {
+              id: req.body.order_id,
+            },
+          }
+        )
+
+        await Product.update(
+          {
+            status: "READY",
+          },
+          {
+            where: {
+              id: transaction.product_id,
+            },
+          }
+        )
+      }
 
       //   await Product.update(
       //     {
