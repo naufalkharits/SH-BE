@@ -140,7 +140,7 @@ module.exports = {
           }
         )
         await Notification.create({
-          type: "EXPIRED",
+          type: "TRANSACTION_EXPIRED",
           user_id: transaction.buyer_id,
           transaction_id: transaction.id,
         });
@@ -244,7 +244,7 @@ module.exports = {
         }
       )
       await Notification.create({
-        type: "EXPIRED",
+        type: "TRANSACTION_EXPIRED",
         user_id: transaction.buyer_id,
         transaction_id: transaction.id,
       });
