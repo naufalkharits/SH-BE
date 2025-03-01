@@ -285,7 +285,7 @@ module.exports = {
       });
     }
 
-    const { price, status } = req.body;
+    const { price, status, resi } = req.body;
 
     try {
       const userTransaction = await Transaction.findOne({
@@ -316,6 +316,7 @@ module.exports = {
         {
           price: price,
           status: status?.toUpperCase(),
+          resi: resi,
         },
         {
           where: {
