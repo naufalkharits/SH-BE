@@ -172,7 +172,9 @@ module.exports = {
             transaction_id: transaction.id,
           });
 
-          await axios.post(`${process.env.MIDTRANS_API_URL}/${req.body.order_id}/refund/online/direct`)
+          await axios.post(`${process.env.MIDTRANS_API_URL}/${req.body.order_id}/refund/online/direct`, {
+            data: {refund_key:process.env.MIDTRANS_MERCHANT_ID}
+          })
         }
 
         await Product.update(
