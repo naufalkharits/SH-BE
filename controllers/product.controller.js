@@ -228,6 +228,7 @@ module.exports = {
         seller_id: req.user.id,
       });
 
+      // console.log(req.files)
       // Upload product pictures
       await uploadProductImages(req.files, newProduct.id);
 

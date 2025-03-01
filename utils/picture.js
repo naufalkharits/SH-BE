@@ -1,9 +1,12 @@
 const Picture = require("../models").Picture;
 const UserBiodata = require("../models").UserBiodata;
 const { v4 } = require("uuid");
+const { decode } = require("base64-arraybuffer")
 // const admin = require("firebase-admin");
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+
+console.log(supabase)
 
 const validatePicture = (picture) => {
   let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"];
@@ -19,15 +22,21 @@ const validatePicture = (picture) => {
 
 const uploadProductImages = async (images, productId) => {
   if (!images || images.length < 1) return;
-
+  console.log(images)
+    
   try {
     // Upload updated pictures
     for (const image of images) {
       const newPictureName = v4();
-
+      
       const imageExt = image.mimetype.replace("image/", "");
+      console.log(imageExt)
       const imageName = `${newPictureName}.${imageExt}`;
-      const imagePath = `images/${imageName}`;
+      console.log(imageName)
+      const imagePath = `secondhand/${imageName}`;
+      console.log(imagePath)
+      const fileBase64 = decode(image.buffer.toString("base64"));
+      console.log(fileBase64)
 
       // Upload picture
       // await admin.storage().bucket().file(imagePath).save(image.buffer);
@@ -36,22 +45,36 @@ const uploadProductImages = async (images, productId) => {
 
       // const publicUrl = admin.storage().bucket().file(imagePath).publicUrl();
 
-      const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, blob);
-      console.log(data)
-      console.log(error)
+      // const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, blob);
+      // console.log(data)
+      // console.log(error)
 
-      const { publicURL, error: urlError } = supabase.storage.from('secondhand').getPublicUrl(imagePath);
-      console.log(publicURL)
-      console.log(urlError)
 
+      const { data, urlError } = supabase.storage
+        .from('secondhand')
+        .upload(imagePath, fileBase64, {
+          contentType: "image/png",
+        })
+      if (error) {
+        console.error('Error uploading image:', error.message);
+        throw error;
+      }
+      
+      // console.log(data)
+
+      // const { publicURL } = supabase.storage
+      //   .from('images')
+      //   .getPublicUrl(filePath)
+
+      // console.log(publicURL)
 
 
       // Add picture to DB
-      await Picture.create({
-        product_id: productId,
-        name: imageName,
-        url: publicURL,
-      });
+      // await Picture.create({
+      //   product_id: productId,
+      //   name: imageName,
+      //   url: publicURL,
+      // });
     }
   } catch (error) {
     throw error;
