@@ -277,6 +277,7 @@ module.exports = {
       req.body.status.toLowerCase() !== "accepted" &&
       req.body.status.toLowerCase() !== "rejected" &&
       req.body.status.toLowerCase() !== "paid" &&
+      req.body.status.toLowerCase() !== "delivery" &&
       req.body.status.toLowerCase() !== "completed"
     ) {
       return res.status(400).json({
@@ -324,6 +325,8 @@ module.exports = {
           },
         }
       );
+
+      // auto reject
       const transaction = await Transaction.findOne({
         where: {
           id: req.params.id,
@@ -456,6 +459,26 @@ module.exports = {
             },
           }
         );
+
+        if (status && status.toLowerCase() === "delivery") {
+          await Notification.create({
+            type: "TRANSACTION_ON_DELIVERY",
+            user_id: transaction.buyer_id,
+            transaction_id: transaction.id,
+          });
+
+          await Transaction.update(
+            {
+              status: status?.toUpperCase(),
+              resi: resi,
+            },
+            {
+              where: {
+                id: req.params.id,
+              },
+            }
+          );
+        }
       }
 
       res.status(200).json({ updatedTransaction: mapTransaction(transaction) });
