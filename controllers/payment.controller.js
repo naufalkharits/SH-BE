@@ -169,6 +169,11 @@ module.exports = {
           }
         )
 
+        await axios.post(`${process.env.HOOKDECK_URL}`, {
+          order_id: transaction.id,
+          product_id: transaction.product_id
+        })
+
         await Product.update(
           {
             status: "SOLD",
