@@ -38,10 +38,13 @@ module.exports = {
         }
       }
 
-      snap.createTransaction(parameter).then(async (transaction)=>{
+      snap.createTransaction(parameter).then(async (tx)=>{
         // transaction token
-        const transactionToken = transaction.token
-        console.log(transactionToken)
+        const transactionToken = tx.token
+
+        const transaction = await Transaction.findOne({
+          where: { id: req.body.order_id },
+        })
         
         // input token to Transaction table
         await Transaction.update(
@@ -56,6 +59,12 @@ module.exports = {
           }
         )
 
+        await axios.post(`${process.env.HOOKDECK_WAIT_FOR_PAYMENT}`, {
+          order_id: transaction.id,
+          product_id: transaction.product_id,
+          type: "WAIT_FOR_PAYMENT"
+        })
+
         return res.status(200).json({ transactionToken })
       })    
     } catch (error) {
@@ -63,75 +72,18 @@ module.exports = {
     }
   },
 
-//   getInvoice: async (req, res) => {
-//     try {
-//       const transaction = await Transaction.findOne({
-//         where: { id: req.body.external_id },
-//       })
-
-//       if (transaction.status !== "ACCEPTED") {
-//         return res.status(404).json({
-//           type: "NOT_FOUND",
-//           message: "Transaction not found",
-//         })
-//       }
-
-//       const data = {
-//         externalID: req.body.external_id,
-//         amount: req.body.amount,
-//         fees: [
-//           {
-//             type: "ADMIN",
-//             value: 5000,
-//           },
-//         ],
-//         customer: {
-//           email: req.body.email,
-//           mobile_number: `+${req.body.mobile_number}`,
-//         },
-//         customer_notification_preference: {
-//           invoice_created: ["email"],
-//           invoice_reminder: ["email"],
-//           invoice_paid: ["email"],
-//           invoice_expired: ["email"],
-//         },
-//         invoiceDuration: 120,
-//         successRedirectURL: req.body.redirect_url,
-//         failureRedirectURL: req.body.redirect_url,
-//       }
-
-//       const response = await i.createInvoice(data)
-
-//       await Transaction.update(
-//         {
-//           status: "WAIT FOR PAYMENT",
-//           expiry_time: response.expiry_time,
-//           invoice_id: response.id,
-//           invoice_url: response.invoice_url,
-//         },
-//         {
-//           where: {
-//             id: response.external_id,
-//           },
-//         }
-//       )
-
-//       return res.status(200).json({ invoice: response })
-//     } catch (error) {
-//       return res.status(500).json({ type: "SYSTEM_ERROR", message: "Something wrong with server" })
-//     }
-//   },
-
   webhookMidtrans: async (req, res) => {
     try {
       const transaction = await Transaction.findOne({
         where: { id: req.body.order_id },
       })
+      
+      if (req.body.transaction_status === "settlement") {
+        console.log("check 0")
 
-      if (req.body.transaction_status === "expire") {
         await Transaction.update(
           {
-            status: "EXPIRED",
+            status: "PAID",
           },
           {
             where: {
@@ -139,11 +91,89 @@ module.exports = {
             },
           }
         )
-        await Notification.create({
-          type: "TRANSACTION_EXPIRED",
-          user_id: transaction.buyer_id,
-          transaction_id: transaction.id,
-        });
+
+        console.log(process.env.HOOKDECK_TRANSACTION_PAID)
+        
+        await axios.post(`${process.env.HOOKDECK_TRANSACTION_PAID}`, {
+          order_id: transaction.id,
+          product_id: transaction.product_id,
+          type: "TRANSACTION_PAID"
+        })
+        
+        console.log("check 1")
+        
+        await Product.update(
+          {
+            status: "SOLD",
+          },
+          {
+            where: {
+              id: transaction.product_id,
+            },
+          }
+        )
+        
+        console.log("check 2")
+      }
+
+      res.status(200).send("OK")
+    } catch (error) {
+      return res.status(500)
+    }
+  },
+  
+  txTimer: async (req, res) => {
+    try {
+      const transaction = await Transaction.findOne({
+        where: { id: req.body.order_id },
+      })
+
+      if (transaction.status === "ACCEPTED" || transaction.status === "PAID") {
+        console.log("ACCEPTED || PAID")
+
+        if (req.body.type === "TRANSACTION_ACCEPTED") {
+          console.log("TRANSACTION_ACCEPTED TIMER")
+
+          await Transaction.update(
+            {
+              status: "EXPIRED",
+            },
+            {
+              where: {
+                id: req.body.order_id,
+              },
+            }
+          )
+
+          await Notification.create({
+            type: "TRANSACTION_EXPIRED",
+            user_id: transaction.buyer_id,
+            transaction_id: transaction.id,
+          });
+        }
+
+        if (req.body.type === "TRANSACTION_PAID") {
+          console.log("TRANSACTION_PAID TIMER")
+
+          await Transaction.update(
+            {
+              status: "REFUNDED",
+            },
+            {
+              where: {
+                id: req.body.order_id,
+              },
+            }
+          )
+
+          await Notification.create({
+            type: "TRANSACTION_REFUNDED",
+            user_id: transaction.buyer_id,
+            transaction_id: transaction.id,
+          });
+
+          await axios.post(`${process.env.MIDTRANS_API_URL}/${req.body.order_id}/refund/online/direct`)
+        }
 
         await Product.update(
           {
@@ -156,97 +186,26 @@ module.exports = {
           }
         )
       }
-      
-      if (req.body.transaction_status === "settlement") {
-        await Transaction.update(
-          {
-            status: "PAID",
-          },
-          {
-            where: {
-              id: req.body.order_id,
-            },
-          }
-        )
 
-        await axios.post(`${process.env.HOOKDECK_URL}`, {
-          order_id: transaction.id,
-          product_id: transaction.product_id,
-          type: "TRANSACTION_PAID"
-        })
-
-        await Product.update(
-          {
-            status: "SOLD",
-          },
-          {
-            where: {
-              id: transaction.product_id,
-            },
-          }
-        )
-      }
-
-      //   await Product.update(
-      //     {
-      //       status: "SOLD",
-      //     },
-      //     {
-      //       where: {
-      //         id: transaction.product_id,
-      //       },
-      //     }
-      //   )
-      // }
-
-      // if (req.body.status === "EXPIRED") {
-      //   // const response = await i.expireInvoice({
-      //   //   invoiceID: req.body.id,
-      //   // });
-
-      //   await Transaction.update(
-      //     {
-      //       status: "REJECTED",
-      //     },
-      //     {
-      //       where: {
-      //         id: req.body.external_id,
-      //       },
-      //     }
-      //   )
-
-      //   await Product.update(
-      //     {
-      //       status: "READY",
-      //     },
-      //     {
-      //       where: {
-      //         id: transaction.product_id,
-      //       },
-      //     }
-      //   )
-      // }
-
-      res.status(200).send("OK")
-    } catch (error) {
-      return res.status(500)
-    }
-  },
-
-  txTimer: async (req, res) => {
-    try {
-      const transaction = await Transaction.findOne({
-        where: { id: req.body.order_id },
-      })
-      
-      if (req.body.type === "NEW_OFFER") {
+      if (req.body.type === "WAIT_FOR_PAYMENT") {
         await Transaction.update(
           {
             status: "EXPIRED",
           },
           {
             where: {
-              id: req.body.order_id,
+              id: transaction.order_id,
+            },
+          }
+        );
+
+        await Product.update(
+          {
+            status: "READY",
+          },
+          {
+            where: {
+              id: transaction.product_id,
             },
           }
         )
@@ -257,38 +216,6 @@ module.exports = {
           transaction_id: transaction.id,
         });
       }
-
-      if (req.body.type === "TRANSACTION_PAID") {
-        await Transaction.update(
-          {
-            status: "REFUNDED",
-          },
-          {
-            where: {
-              id: req.body.order_id,
-            },
-          }
-        )
-
-        await Notification.create({
-          type: "TRANSACTION_REFUNDED",
-          user_id: transaction.buyer_id,
-          transaction_id: transaction.id,
-        });
-
-        await axios.post(`${process.env.MIDTRANS_API_URL}/${req.body.order_id}/refund/online/direct`)
-      }
-
-      await Product.update(
-        {
-          status: "READY",
-        },
-        {
-          where: {
-            id: req.body.product_id,
-          },
-        }
-      )
 
       res.status(200).send("OK")
     } catch (error) {

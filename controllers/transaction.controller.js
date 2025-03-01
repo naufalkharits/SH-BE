@@ -411,10 +411,11 @@ module.exports = {
           }
         );
         
-        await axios.post(`${process.env.HOOKDECK_URL}`, {
+        console.log("TRANSACTION_ACCEPTED")
+        await axios.post(`${process.env.HOOKDECK_NEW_OFFER}`, {
           order_id: transaction.id,
           product_id: transaction.product_id,
-          type: "NEW_OFFER"
+          type: "TRANSACTION_ACCEPTED"
         })
       }
 
