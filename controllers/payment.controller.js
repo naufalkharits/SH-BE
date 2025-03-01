@@ -171,7 +171,8 @@ module.exports = {
 
         await axios.post(`${process.env.HOOKDECK_URL}`, {
           order_id: transaction.id,
-          product_id: transaction.product_id
+          product_id: transaction.product_id,
+          type: "TRANSACTION_PAID"
         })
 
         await Product.update(
@@ -238,21 +239,45 @@ module.exports = {
         where: { id: req.body.order_id },
       })
       
-      await Transaction.update(
-        {
-          status: "EXPIRED",
-        },
-        {
-          where: {
-            id: req.body.order_id,
+      if (req.body.type === "NEW_OFFER") {
+        await Transaction.update(
+          {
+            status: "EXPIRED",
           },
-        }
-      )
-      await Notification.create({
-        type: "TRANSACTION_EXPIRED",
-        user_id: transaction.buyer_id,
-        transaction_id: transaction.id,
-      });
+          {
+            where: {
+              id: req.body.order_id,
+            },
+          }
+        )
+
+        await Notification.create({
+          type: "TRANSACTION_EXPIRED",
+          user_id: transaction.buyer_id,
+          transaction_id: transaction.id,
+        });
+      }
+
+      if (req.body.type === "TRANSACTION_PAID") {
+        await Transaction.update(
+          {
+            status: "REFUNDED",
+          },
+          {
+            where: {
+              id: req.body.order_id,
+            },
+          }
+        )
+
+        await Notification.create({
+          type: "TRANSACTION_REFUNDED",
+          user_id: transaction.buyer_id,
+          transaction_id: transaction.id,
+        });
+
+        await axios.post(`${process.env.MIDTRANS_API_URL}/${req.body.order_id}/refund/online/direct`)
+      }
 
       await Product.update(
         {

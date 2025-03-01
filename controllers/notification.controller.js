@@ -27,6 +27,7 @@ const mapNotification = (notification) => {
     case "TRANSACTION_REJECTED":
     case "TRANSACTION_ACCEPTED":
     case "TRANSACTION_EXPIRED":
+    case "TRANSACTION_REFUNDED":
       return {
         id: notification.id,
         type: notification.type,
