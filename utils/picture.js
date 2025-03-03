@@ -2,14 +2,14 @@ require("dotenv").config()
 const Picture = require("../models").Picture
 const UserBiodata = require("../models").UserBiodata
 const { v4 } = require("uuid")
-const { decode } = require("base64-arraybuffer")
+// const { decode } = require("base64-arraybuffer")
 // const admin = require("firebase-admin");
-const { createClient } = require("@supabase/supabase-js")
+// const { createClient } = require("@supabase/supabase-js")
 const sdk = require("node-appwrite")
-const { InputFile } = require("node-appwrite/file")
-const { PassThrough } = require("stream")
+// const { InputFile } = require("node-appwrite/file")
+// const { PassThrough } = require("stream")
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+// const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
 
 const appwriteClient = new sdk.Client()
   .setEndpoint("https://cloud.appwrite.io/v1")
@@ -48,11 +48,7 @@ const uploadProductImages = async (images, productId) => {
       // console.log(stream)
 
       // If running in Node.js, use InputFile
-      const appwriteUpload = await appwriteStorage.createFile(
-        "secondhand",
-        ID.unique(),
-        image.buffer
-      )
+      const appwriteUpload = await appwriteStorage.createFile("secondhand", "clg", image.buffer)
       console.log("Upload response:", appwriteUpload)
 
       // const fileBase64 = decode(image.buffer.toString("base64"));
