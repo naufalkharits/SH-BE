@@ -43,12 +43,17 @@ const uploadProductImages = async (images, productId) => {
       const imageName = `${newPictureName}.${imageExt}`
       const imagePath = `images/${imageName}`
 
-      const stream = new PassThrough()
-      stream.end(image.buffer)
+      // const stream = new PassThrough()
+      // stream.end(image.buffer)
+      // console.log(stream)
 
       // If running in Node.js, use InputFile
-      const appwriteUpload = await appwriteStorage.createFile("secondhand", ID.unique(), stream)
-      console.log(appwriteUpload)
+      const appwriteUpload = await appwriteStorage.createFile(
+        "secondhand",
+        ID.unique(),
+        image.buffer
+      )
+      console.log("Upload response:", appwriteUpload)
 
       // const fileBase64 = decode(image.buffer.toString("base64"));
       // console.log(fileBase64)
