@@ -7,6 +7,7 @@ const { decode } = require("base64-arraybuffer")
 const { createClient } = require("@supabase/supabase-js")
 const sdk = require("node-appwrite")
 const { InputFile } = require("node-appwrite/file")
+import { PassThrough } from "stream"
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
 
@@ -41,14 +42,12 @@ const uploadProductImages = async (images, productId) => {
       const imageExt = image.mimetype.replace("image/", "")
       const imageName = `${newPictureName}.${imageExt}`
       const imagePath = `images/${imageName}`
-      console.log(imageExt)
+
+      const stream = new PassThrough()
+      stream.end(image.buffer)
 
       // If running in Node.js, use InputFile
-      const appwriteUpload = await appwriteStorage.createFile(
-        "secondhand",
-        ID.unique(),
-        image.buffer
-      )
+      const appwriteUpload = await appwriteStorage.createFile("secondhand", ID.unique(), stream)
       console.log(appwriteUpload)
 
       // const fileBase64 = decode(image.buffer.toString("base64"));
