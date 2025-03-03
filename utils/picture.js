@@ -1,40 +1,55 @@
 require("dotenv").config()
-const Picture = require("../models").Picture;
-const UserBiodata = require("../models").UserBiodata;
-const { v4 } = require("uuid");
+const Picture = require("../models").Picture
+const UserBiodata = require("../models").UserBiodata
+const { v4 } = require("uuid")
 const { decode } = require("base64-arraybuffer")
 // const admin = require("firebase-admin");
-const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require("@supabase/supabase-js")
+const sdk = require("node-appwrite")
+const { InputFile } = require("node-appwrite/file")
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+
+const appwriteClient = new sdk.Client()
+  .setEndpoint("https://cloud.appwrite.io/v1")
+  .setProject("secondhand")
+  .setKey(process.env.APPWRITE_API_KEY)
+const appwriteStorage = new sdk.Storage(appwriteClient)
 
 const validatePicture = (picture) => {
-  let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"];
+  let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"]
 
   if (acceptedMimetypes.indexOf(picture.mimetype) < 0) {
-    throw new Error("Valid picture format is required");
+    throw new Error("Valid picture format is required")
   }
 
   if (picture.size > 5 * 1000 * 1000) {
-    throw new Error("Picture size cannot be larger than 5 MB");
+    throw new Error("Picture size cannot be larger than 5 MB")
   }
-};
+}
 
 const uploadProductImages = async (images, productId) => {
-  if (!images || images.length < 1) return;
+  if (!images || images.length < 1) return
   console.log(images)
-  
+
   try {
     // Upload updated pictures
     for (const image of images) {
       console.log(image)
-      const newPictureName = v4();
-      
-      const imageExt = image.mimetype.replace("image/", "");
-      const imageName = `${newPictureName}.${imageExt}`;
-      const imagePath = `secondhand/${imageName}`;
-      const fileBase64 = decode(image.buffer.toString("base64"));
-      console.log(fileBase64)
+      const newPictureName = v4()
+      const imageExt = image.mimetype.replace("image/", "")
+      console.log(imageExt)
+      const imageName = `${newPictureName}.${imageExt}`
+      console.log(imageExt)
+      const imagePath = `images/${imageName}`
+      console.log(imageExt)
+
+      // If running in Node.js, use InputFile
+      const nodeFile = InputFile.fromPath(imagePath, "file.jpg")
+      await appwriteStorage.createFile("secondhand", productId, nodeFile)
+
+      // const fileBase64 = decode(image.buffer.toString("base64"));
+      // console.log(fileBase64)
       // console.log('Image Buffer:', image.buffer);
       // const fileBlob = new Blob([image.buffer], { type: image.mimetype });
       // console.log(fileBlob)
@@ -50,18 +65,17 @@ const uploadProductImages = async (images, productId) => {
       // console.log(data)
       // console.log(error)
 
+      //   const { data, error } = await supabase.storage.from('secondhand').upload(image.originalname, fileBase64, {contentType: image.mimetype,})
+      //     if (error) {
+      //       throw error;
+      //     }
 
-      const { data, error } = await supabase.storage.from('secondhand').upload(image.originalname, fileBase64, {contentType: image.mimetype,})
-        if (error) {
-          throw error;
-        }
+      //     const { data: gambar } = supabase.storage
+      //   .from("images")
+      //   .getPublicUrl(data.path);
 
-        const { data: gambar } = supabase.storage
-      .from("images")
-      .getPublicUrl(data.path);
+      // console.log({ image: image.publicUrl });
 
-    console.log({ image: image.publicUrl });
-      
       // console.log(data)
 
       // const { publicURL } = supabase.storage
@@ -69,7 +83,6 @@ const uploadProductImages = async (images, productId) => {
       //   .getPublicUrl(filePath)
 
       // console.log(publicURL)
-
 
       // Add picture to DB
       // await Picture.create({
@@ -79,21 +92,21 @@ const uploadProductImages = async (images, productId) => {
       // });
     }
   } catch (error) {
-    throw error;
+    throw error
   }
-};
+}
 
 const updateProductImages = async (images, productId) => {
-  if (!images || images.length < 1) return;
+  if (!images || images.length < 1) return
 
   try {
-    await deleteProductImages(productId);
+    await deleteProductImages(productId)
 
-    await uploadProductImages(images, productId);
+    await uploadProductImages(images, productId)
   } catch (error) {
-    throw error;
+    throw error
   }
-};
+}
 
 const deleteProductImages = async (productId) => {
   try {
@@ -102,41 +115,40 @@ const deleteProductImages = async (productId) => {
       where: {
         product_id: productId,
       },
-    });
+    })
 
     // Remove existing pictures
     for (const picture of pictures) {
-      const imagePath = `images/${picture.name}`;
+      const imagePath = `images/${picture.name}`
 
       // await admin
       //   .storage()
       //   .bucket()
       //   .file(imagePath)
       //   .delete({ ignoreNotFound: true });
-        
-      await supabase.storage.from('bucket').remove(imagePath)
+
+      await supabase.storage.from("bucket").remove(imagePath)
     }
 
-
     // Remove picture from DB
-    await Picture.destroy({ where: { product_id: productId } });
+    await Picture.destroy({ where: { product_id: productId } })
   } catch (error) {
-    throw error;
+    throw error
   }
-};
+}
 
 const uploadProfileImage = async (image, userId) => {
-  if (!image) return;
+  if (!image) return
 
   try {
     // Remove existing profile picture
-    await deleteProfileImage(userId);
+    await deleteProfileImage(userId)
 
-    const newPictureName = v4();
+    const newPictureName = v4()
 
-    const imageExt = image.mimetype.replace("image/", "");
-    const imageName = `${newPictureName}.${imageExt}`;
-    const imagePath = `profiles/${imageName}`;
+    const imageExt = image.mimetype.replace("image/", "")
+    const imageName = `${newPictureName}.${imageExt}`
+    const imagePath = `profiles/${imageName}`
 
     // Upload picture
     // await admin.storage().bucket().file(imagePath).save(image.buffer);
@@ -145,11 +157,13 @@ const uploadProfileImage = async (image, userId) => {
 
     // const publicUrl = admin.storage().bucket().file(imagePath).publicUrl();
 
-    const { data, error } = await supabase.storage.from('secondhand').upload(imagePath, blob);
+    const { data, error } = await supabase.storage.from("secondhand").upload(imagePath, blob)
     console.log(data)
     console.log(error)
 
-    const { publicURL, error: urlError } = supabase.storage.from('secondhand').getPublicUrl(imagePath);
+    const { publicURL, error: urlError } = supabase.storage
+      .from("secondhand")
+      .getPublicUrl(imagePath)
     console.log(publicURL)
     console.log(urlError)
 
@@ -163,11 +177,11 @@ const uploadProfileImage = async (image, userId) => {
           user_id: userId,
         },
       }
-    );
+    )
   } catch (error) {
-    throw error;
+    throw error
   }
-};
+}
 
 const deleteProfileImage = async (userId) => {
   try {
@@ -175,18 +189,18 @@ const deleteProfileImage = async (userId) => {
       where: {
         user_id: userId,
       },
-    });
+    })
 
-    if (!userBio || !userBio.picture) return;
+    if (!userBio || !userBio.picture) return
 
     const pictureName = userBio.picture
       .replace(
         "https://storage.googleapis.com/final-project-binar-d4a7b.appspot.com/profiles%2F",
         ""
       )
-      .trim();
+      .trim()
 
-    const imagePath = `profiles/${pictureName}`;
+    const imagePath = `profiles/${pictureName}`
 
     // await admin
     //   .storage()
@@ -194,7 +208,7 @@ const deleteProfileImage = async (userId) => {
     //   .file(imagePath)
     //   .delete({ ignoreNotFound: true });
 
-    await supabase.storage.from('bucket').remove(imagePath)
+    await supabase.storage.from("bucket").remove(imagePath)
 
     await UserBiodata.update(
       {
@@ -205,11 +219,11 @@ const deleteProfileImage = async (userId) => {
           user_id: userId,
         },
       }
-    );
+    )
   } catch (error) {
-    throw error;
+    throw error
   }
-};
+}
 
 module.exports = {
   validatePicture,
@@ -217,4 +231,4 @@ module.exports = {
   updateProductImages,
   deleteProductImages,
   uploadProfileImage,
-};
+}
