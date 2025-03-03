@@ -16,7 +16,7 @@ const appwriteClient = new sdk.Client()
   .setProject("secondhand")
   .setKey(process.env.APPWRITE_API_KEY)
 const appwriteStorage = new sdk.Storage(appwriteClient)
-console.log(appwriteStorage)
+console.log(process.env.APPWRITE_API_KEY)
 
 const validatePicture = (picture) => {
   let acceptedMimetypes = ["image/png", "image/jpg", "image/jpeg"]
@@ -48,8 +48,14 @@ const uploadProductImages = async (images, productId) => {
       // console.log(stream)
 
       // If running in Node.js, use InputFile
-      const appwriteUpload = await appwriteStorage.createFile("secondhand", "clg", image.buffer)
-      console.log("Upload response:", appwriteUpload)
+      console.log(newPictureName)
+      const fileUpload = await appwriteStorage.createFile(
+        "secondhand",
+        sdk.ID.unique(),
+        image.buffer,
+        [sdk.Permission.read(sdk.Role.any())] // Make file publicly readable.
+      )
+      console.log("Upload response:", fileUpload)
 
       // const fileBase64 = decode(image.buffer.toString("base64"));
       // console.log(fileBase64)
