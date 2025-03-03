@@ -45,6 +45,7 @@ const uploadProductImages = async (images, productId) => {
 
       const stream = new PassThrough()
       stream.end(image.buffer)
+      console.log(stream)
 
       // If running in Node.js, use InputFile
       const appwriteUpload = await appwriteStorage.createFile("secondhand", ID.unique(), stream)
