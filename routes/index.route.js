@@ -9,6 +9,7 @@ const notificationRoutes = require("./notification.route")
 const chatRoutes = require("./chat.route")
 const courierRoutes = require("./courier.route")
 const paymentRoutes = require("./payment.route")
+const withdrawRoutes = require("./withdraw.route")
 
 router.use("/product", productRoutes)
 router.use("/auth", authRoutes)
@@ -20,5 +21,6 @@ router.use("/notification", notificationRoutes)
 router.use("/chat", chatRoutes)
 router.use("/courier", courierRoutes)
 router.use("/payment", paymentRoutes)
+router.use("/withdraw", withdrawRoutes)
 
 module.exports = router
